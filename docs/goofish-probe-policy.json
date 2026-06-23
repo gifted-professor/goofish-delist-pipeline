@@ -1,0 +1,683 @@
+{
+  "schema": "goofish-probe-policy/v1",
+  "date": "2026-06-22",
+  "purpose": "Machine-readable safe probing policy for Goofish/Xianyu page understanding.",
+  "inputs": {
+    "probeBatchMatrix": "goofish-probe-batch-matrix.json",
+    "probeBatchRunbook": "goofish-probe-batch-runbook.md",
+    "safeDomObservationSchema": "goofish-safe-dom-observation-schema.json",
+    "safeDomObservationGuide": "goofish-safe-dom-observation-guide.md",
+    "pageClassifierRules": "goofish-page-classifier-rules.json",
+    "routeContextCatalog": "goofish-route-context-catalog.json",
+    "routeContextCatalogHuman": "goofish-route-context-catalog.md",
+    "pageChangeSentinel": "goofish-page-change-sentinel.json",
+    "pageChangeSentinelHuman": "goofish-page-change-sentinel.md",
+    "visibleLabelLexicon": "goofish-visible-label-lexicon.json",
+    "visibleLabelLexiconHuman": "goofish-visible-label-lexicon.md",
+    "unknownPageTriage": "goofish-unknown-page-triage.md",
+    "pageDossiers": "goofish-page-dossiers.md",
+    "pageDossierIndex": "goofish-page-dossier-index.json",
+    "pageOntology": "goofish-page-ontology.json",
+    "pageOntologyGuide": "goofish-page-ontology-guide.md",
+    "pageVerificationChecklist": "goofish-page-verification-checklist.json",
+    "pageVerificationChecklistHuman": "goofish-page-verification-checklist.md",
+    "accountProfileProbeTemplate": "goofish-account-profile-probe-template.json",
+    "accountProfileProbeRunbook": "goofish-account-profile-probe-runbook.md",
+    "crossProfileCoverageLedger": "goofish-cross-profile-coverage-ledger.json",
+    "crossProfileCoverageRunbook": "goofish-cross-profile-coverage-runbook.md",
+    "pageManifest": "goofish-page-manifest.json",
+    "humanProtocol": "goofish-safe-probe-protocol.md",
+    "loginSmokeTest": "goofish-login-session-smoke-test.md",
+    "liveCoverageMatrix": "goofish-live-coverage-matrix.md",
+    "liveCoverageStatus": "goofish-live-coverage-status.json",
+    "coverageGapRegister": "goofish-coverage-gap-register.md",
+    "pageDeepeningQueue": "goofish-page-deepening-queue.json",
+    "pageDeepeningQueueHuman": "goofish-page-deepening-queue.md",
+    "pageTransitionGraph": "goofish-page-transition-graph.json",
+    "pageTransitionGraphHuman": "goofish-page-transition-graph.md",
+    "actionGateRules": "goofish-action-gate-rules.json",
+    "actionExecutionGuard": "goofish-action-execution-guard.md",
+    "stateModalRules": "goofish-state-modal-rules.json",
+    "stateModalHandling": "goofish-state-modal-handling.md"
+  },
+  "privacy": {
+    "storeAccountData": false,
+    "storeOrderData": false,
+    "storeAddressData": false,
+    "storeChatData": false,
+    "storeItemIdentity": false,
+    "storeLoginMaterial": false
+  },
+  "stages": [
+    "P0_PROFILE_CHECK",
+    "P1_ROUTE_IDENTIFY",
+    "P2_WAIT_STABLE",
+    "P3_EVIDENCE_CLASSIFY",
+    "P4_READ_FIELDS",
+    "P5_FILTER_ACTIONS",
+    "P6_HANDLE_STATE",
+    "P7_OUTPUT_SUMMARY",
+    "P8_EXIT"
+  ],
+  "globalStopActions": [
+    "submit",
+    "send",
+    "pay",
+    "refund",
+    "ship",
+    "export",
+    "download",
+    "upload",
+    "save",
+    "publish",
+    "delete",
+    "switchAccount",
+    "verifyIdentity",
+    "changePermission",
+    "install",
+    "callApiDirectly"
+  ],
+  "outputWhitelist": [
+    "routeShape",
+    "surface",
+    "family",
+    "layer",
+    "evidence",
+    "readiness",
+    "anchors",
+    "tabNames",
+    "fieldNames",
+    "tableHeaders",
+    "buttonNames",
+    "statusCategory",
+    "controlCategory",
+    "stopPoints"
+  ],
+  "outputBlacklist": [
+    "realAccountName",
+    "realOrderId",
+    "realAddress",
+    "realChatText",
+    "realItemTitle",
+    "realAmount",
+    "realBusinessMetric",
+    "imageUrl",
+    "qrContent",
+    "password",
+    "verificationCode",
+    "cookie",
+    "token",
+    "localStorage",
+    "sessionStorage"
+  ],
+  "evidencePolicy": {
+    "Live + Static": {
+      "probeAllowed": true,
+      "maxActionGate": "G1",
+      "rule": "Open and read visible structure only; apply family stop rules."
+    },
+    "Live Only": {
+      "probeAllowed": true,
+      "maxActionGate": "G0",
+      "rule": "Read public visible structure; do not infer missing API behavior."
+    },
+    "Static + Live entry": {
+      "probeAllowed": true,
+      "maxActionGate": "G1",
+      "rule": "Use live entry only; do not continue into download, install, or external actions."
+    },
+    "Static Only": {
+      "probeAllowed": false,
+      "maxActionGate": "G4",
+      "rule": "Do not proactively visit for coverage; describe structure from static evidence."
+    },
+    "Deep/Param": {
+      "probeAllowed": false,
+      "maxActionGate": "G4",
+      "rule": "Requires user-provided context; never guess real parameters."
+    },
+    "Shell/Container": {
+      "probeAllowed": true,
+      "maxActionGate": "G1",
+      "rule": "Identify shell state and source only; external page actions require separate review."
+    },
+    "Internal/Module": {
+      "probeAllowed": false,
+      "maxActionGate": "G4",
+      "rule": "Treat as module or resource path, not as a business page."
+    }
+  },
+  "familyPolicy": {
+    "public-discovery": {
+      "probeMode": "publicRead",
+      "waitForAny": [
+        "search box",
+        "sort controls",
+        "filter tags",
+        "item cards",
+        "waterfall feed",
+        "empty state"
+      ],
+      "allowedRead": [
+        "search controls",
+        "filter controls",
+        "card structure",
+        "pagination structure"
+      ],
+      "stopOn": [
+        "collect",
+        "contact",
+        "purchase",
+        "message entry",
+        "publish entry",
+        "order entry"
+      ],
+      "maxActionGate": "G0"
+    },
+    "item-detail": {
+      "probeMode": "publicReadWithTradeBoundary",
+      "waitForAny": [
+        "image area",
+        "price area",
+        "assurance labels",
+        "seller card",
+        "action buttons"
+      ],
+      "allowedRead": [
+        "field names",
+        "button names",
+        "assurance category",
+        "recommendation structure"
+      ],
+      "stopOn": [
+        "collect",
+        "chat",
+        "buy now",
+        "downshelf",
+        "delete"
+      ],
+      "maxActionGate": "G1"
+    },
+    "public-profile": {
+      "probeMode": "publicReadWithAccountBoundary",
+      "waitForAny": [
+        "public profile block",
+        "credit area",
+        "item list",
+        "follow/contact entries"
+      ],
+      "allowedRead": [
+        "public profile structure",
+        "tab names",
+        "item-list structure"
+      ],
+      "stopOn": [
+        "follow",
+        "contact",
+        "purchase"
+      ],
+      "maxActionGate": "G1"
+    },
+    "buyer-account": {
+      "probeMode": "loggedInRead",
+      "waitForAny": [
+        "left navigation",
+        "tabs",
+        "item cards",
+        "collection tab",
+        "account module",
+        "empty state"
+      ],
+      "allowedRead": [
+        "field names",
+        "tab names",
+        "status categories",
+        "button names"
+      ],
+      "stopOn": [
+        "edit profile",
+        "manage item",
+        "downshelf",
+        "delete",
+        "uncollect",
+        "want",
+        "toggle notice",
+        "switch account",
+        "logout"
+      ],
+      "maxActionGate": "G1"
+    },
+    "buyer-trade": {
+      "probeMode": "tradeReadOnly",
+      "waitForAny": [
+        "order tabs",
+        "order cards",
+        "status nodes",
+        "address fields",
+        "price-detail block",
+        "payment area"
+      ],
+      "allowedRead": [
+        "field names",
+        "status-node categories",
+        "button names",
+        "module names"
+      ],
+      "stopOn": [
+        "submit order",
+        "pay",
+        "change address",
+        "confirm receipt",
+        "refund",
+        "review",
+        "complaint",
+        "real order value logging"
+      ],
+      "maxActionGate": "G1"
+    },
+    "draft-input": {
+      "probeMode": "draftAssist",
+      "waitForAny": [
+        "form fields",
+        "text area",
+        "validation hint",
+        "upload area",
+        "submit button"
+      ],
+      "allowedRead": [
+        "form field names",
+        "validation types",
+        "button names",
+        "draft intent"
+      ],
+      "stopOn": [
+        "upload",
+        "save",
+        "save draft",
+        "publish",
+        "submit",
+        "edit existing item",
+        "overwrite existing item"
+      ],
+      "maxActionGate": "G2"
+    },
+    "message": {
+      "probeMode": "messageShellRead",
+      "waitForAny": [
+        "empty state",
+        "conversation shell",
+        "input area",
+        "toolbar"
+      ],
+      "allowedRead": [
+        "conversation shell",
+        "input structure",
+        "tool button names"
+      ],
+      "stopOn": [
+        "read specific private chat",
+        "read specific conversation",
+        "send",
+        "send card",
+        "upload file"
+      ],
+      "maxActionGate": "G2"
+    },
+    "identity": {
+      "probeMode": "identityGate",
+      "waitForAny": [
+        "login methods",
+        "scan prompt",
+        "verification entry",
+        "account module",
+        "redirect parameter"
+      ],
+      "allowedRead": [
+        "gate type",
+        "module names",
+        "status category"
+      ],
+      "stopOn": [
+        "scan",
+        "enter verification code",
+        "recover account",
+        "switch account",
+        "verify identity",
+        "bypass risk control",
+        "change login parameters"
+      ],
+      "maxActionGate": "G4"
+    },
+    "public-content": {
+      "probeMode": "publicContentRead",
+      "waitForAny": [
+        "content title",
+        "video container",
+        "browser list",
+        "changelog entries",
+        "empty state"
+      ],
+      "allowedRead": [
+        "content structure",
+        "container type",
+        "button names"
+      ],
+      "stopOn": [
+        "play proactively",
+        "download",
+        "install",
+        "capture video"
+      ],
+      "maxActionGate": "G0"
+    },
+    "seller-data": {
+      "probeMode": "sellerMetricReadOnly",
+      "waitForAny": [
+        "date control",
+        "metric cards",
+        "chart",
+        "table headers",
+        "export button",
+        "empty state"
+      ],
+      "allowedRead": [
+        "metric names",
+        "filter fields",
+        "table headers",
+        "chart type"
+      ],
+      "stopOn": [
+        "record real numbers",
+        "record real audience numbers",
+        "export",
+        "download",
+        "download item detail",
+        "export customer-service detail"
+      ],
+      "maxActionGate": "G1"
+    },
+    "seller-item": {
+      "probeMode": "sellerItemReadOrDraft",
+      "waitForAny": [
+        "status tabs",
+        "filters",
+        "table headers",
+        "publish fields",
+        "template fields"
+      ],
+      "allowedRead": [
+        "field names",
+        "tab names",
+        "table headers",
+        "draft structure"
+      ],
+      "stopOn": [
+        "upload",
+        "save",
+        "publish",
+        "edit",
+        "copy",
+        "adjust price",
+        "shelf changes",
+        "delete",
+        "create",
+        "set default"
+      ],
+      "maxActionGate": "G2"
+    },
+    "seller-trade": {
+      "probeMode": "sellerTradeReadOnly",
+      "waitForAny": [
+        "order tabs",
+        "refund status",
+        "evaluation table",
+        "complaint table",
+        "address table",
+        "operation column"
+      ],
+      "allowedRead": [
+        "status categories",
+        "field names",
+        "table headers",
+        "operation names"
+      ],
+      "stopOn": [
+        "ship",
+        "change logistics",
+        "remark",
+        "contact",
+        "view funds",
+        "agree refund",
+        "refuse refund",
+        "compensate",
+        "confirm receipt",
+        "review",
+        "report",
+        "submit proof",
+        "revoke",
+        "submit material",
+        "add address",
+        "edit address",
+        "delete address"
+      ],
+      "maxActionGate": "G1"
+    },
+    "seller-finance": {
+      "probeMode": "sellerFinanceReadOnly",
+      "waitForAny": [
+        "finance tabs",
+        "date control",
+        "table headers",
+        "export button",
+        "invoice button",
+        "entity fields"
+      ],
+      "allowedRead": [
+        "field names",
+        "tab names",
+        "button names",
+        "table headers"
+      ],
+      "stopOn": [
+        "export",
+        "download",
+        "historical download",
+        "download full detail",
+        "apply invoice",
+        "modify entity data"
+      ],
+      "maxActionGate": "G1"
+    },
+    "seller-account": {
+      "probeMode": "sellerPermissionReadOnly",
+      "waitForAny": [
+        "sub-account table",
+        "permission fields",
+        "routing rules",
+        "group settings",
+        "save button"
+      ],
+      "allowedRead": [
+        "field names",
+        "status categories",
+        "rule structure",
+        "button names"
+      ],
+      "stopOn": [
+        "create sub-account",
+        "disable account",
+        "change permission",
+        "save",
+        "enable/disable",
+        "create group"
+      ],
+      "maxActionGate": "G1"
+    },
+    "seller-security": {
+      "probeMode": "sellerSecurityReadOnly",
+      "waitForAny": [
+        "violation table",
+        "penalty status",
+        "appeal status",
+        "detail entry"
+      ],
+      "allowedRead": [
+        "field names",
+        "status categories",
+        "button names"
+      ],
+      "stopOn": [
+        "view sensitive detail",
+        "appeal",
+        "process"
+      ],
+      "maxActionGate": "G1"
+    },
+    "seller-ad": {
+      "probeMode": "sellerAdReadOnly",
+      "waitForAny": [
+        "date control",
+        "promotion metrics",
+        "plan entry",
+        "carousel controls"
+      ],
+      "allowedRead": [
+        "metric names",
+        "date controls",
+        "plan entry names"
+      ],
+      "stopOn": [
+        "create plan",
+        "launch paid promotion"
+      ],
+      "maxActionGate": "G1"
+    },
+    "seller-message": {
+      "probeMode": "sellerMessageShellRead",
+      "waitForAny": [
+        "conversation list",
+        "search",
+        "input area",
+        "toolbar",
+        "quick replies",
+        "empty state"
+      ],
+      "allowedRead": [
+        "message shell",
+        "tool button names",
+        "input structure"
+      ],
+      "stopOn": [
+        "read specific conversation",
+        "send",
+        "file upload",
+        "transfer",
+        "guess parameter"
+      ],
+      "maxActionGate": "G2"
+    },
+    "seller-gate": {
+      "probeMode": "sellerGateRead",
+      "waitForAny": [
+        "site list",
+        "account check",
+        "login prompt",
+        "no-permission message"
+      ],
+      "allowedRead": [
+        "gate type",
+        "button names",
+        "status category"
+      ],
+      "stopOn": [
+        "switch site",
+        "continue",
+        "re-login",
+        "switch account",
+        "guess real account name",
+        "scan",
+        "enter verification code"
+      ],
+      "maxActionGate": "G4"
+    },
+    "seller-shell": {
+      "probeMode": "sellerShellRead",
+      "waitForAny": [
+        "notification list",
+        "desktop prompt",
+        "download button",
+        "iframe source",
+        "container state"
+      ],
+      "allowedRead": [
+        "shell type",
+        "source shape",
+        "button names",
+        "status category"
+      ],
+      "stopOn": [
+        "mark read",
+        "clear unread",
+        "download",
+        "install",
+        "open",
+        "operate external page without separate review"
+      ],
+      "maxActionGate": "G1"
+    },
+    "internal-module": {
+      "probeMode": "doNotProbe",
+      "waitForAny": [],
+      "allowedRead": [
+        "module path only"
+      ],
+      "stopOn": [
+        "direct call",
+        "page navigation"
+      ],
+      "maxActionGate": "G4"
+    },
+    "internal-test": {
+      "probeMode": "doNotProbe",
+      "waitForAny": [],
+      "allowedRead": [
+        "test page label only"
+      ],
+      "stopOn": [
+        "visit proactively",
+        "trigger test action"
+      ],
+      "maxActionGate": "G4"
+    }
+  },
+  "statePolicy": {
+    "loading": "Wait for an allowed anchor or empty state; do not click through loading.",
+    "empty": "Record empty-state type only; do not create data for coverage.",
+    "login": "Stop for user login; do not capture login material.",
+    "noPermission": "Record gate state; do not bypass or switch identity.",
+    "qrOrAppBridge": "Record bridge type only; do not save QR content or continue externally.",
+    "confirmDialog": "Do not click confirm; summarize consequence and wait for user approval.",
+    "highRiskBusinessState": "Read labels only; no state-changing action."
+  },
+  "summaryTemplate": {
+    "page": "<route/hash>",
+    "family": "<family>",
+    "layer": "<M0-M6>",
+    "evidence": "<evidence>",
+    "state": "<normal/loading/empty/login/noPermission/dialog/highRisk>",
+    "anchors": [
+      "<visible structural anchors only>"
+    ],
+    "readable": [
+      "fieldNames",
+      "tabNames",
+      "tableHeaders",
+      "buttonNames",
+      "statusCategory"
+    ],
+    "stopPoints": [
+      "<stop points from manifest and family policy>"
+    ],
+    "privacy": "No real account, order, address, chat, item identity, amount, business metric, image URL, QR content, or login material recorded."
+  }
+}

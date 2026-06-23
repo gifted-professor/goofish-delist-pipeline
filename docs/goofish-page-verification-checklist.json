@@ -1,0 +1,5467 @@
+{
+  "schema": "goofish-page-verification-checklist/v1",
+  "date": "2026-06-22",
+  "purpose": "Per-page verification checklist for safely deepening Goofish/Xianyu page understanding across logged-in profiles.",
+  "sources": {
+    "pageOntology": "goofish-page-ontology.json",
+    "stateModalRules": "goofish-state-modal-rules.json",
+    "actionGateRules": "goofish-action-gate-rules.json",
+    "safeProbeProtocol": "goofish-safe-probe-protocol.md"
+  },
+  "privacy": {
+    "storesRealAccount": false,
+    "storesRealOrder": false,
+    "storesRealAddress": false,
+    "storesRealChat": false,
+    "storesRealItemTitle": false,
+    "storesRealAmount": false,
+    "storesBusinessMetricValue": false,
+    "storesImageUrl": false,
+    "storesQrContent": false,
+    "storesLoginMaterial": false,
+    "storesCookieOrToken": false,
+    "storesBrowserStorage": false
+  },
+  "totals": {
+    "pages": 66,
+    "byCoverage": {
+      "observed-live": 40,
+      "requires-user-context": 8,
+      "shell-boundary": 2,
+      "static-only": 16
+    },
+    "byQueue": {
+      "D1_HIGH_RISK_LIVE": 18,
+      "D2_FORM_AND_SHELL_LIVE": 14,
+      "D3_LOW_RISK_LIVE": 8,
+      "D4_REQUIRES_USER_CONTEXT": 8,
+      "D5_STATIC_ONLY": 16,
+      "D6_SHELL_BOUNDARY": 2
+    },
+    "byTransitionClass": {
+      "READ_WITH_REDACTION": 32,
+      "REQUIRES_USER_CONTEXT": 8,
+      "SAFE_READ": 8,
+      "SHELL_ONLY": 2,
+      "STATIC_ONLY": 16
+    },
+    "byDefaultActionGate": {
+      "G0": 6,
+      "G1": 32,
+      "G2": 12,
+      "G4": 16
+    },
+    "redactionRequired": 60
+  },
+  "globalPassCriteria": [
+    "The page is matched to a known id or explicitly registered as unknown.",
+    "Only structural anchors, labels, categories, and stop points are recorded.",
+    "The current state is classified into S0-S10 before interacting with controls.",
+    "The default G0-G4 action gate is applied before any control-level decision.",
+    "All private values and login material are excluded from output.",
+    "Any stop state, stop point, or G3/G4 control ends the probe before action."
+  ],
+  "globalFailureCriteria": [
+    "A real account, order, address, chat, item title, amount, metric, image URL, QR content, cookie, token, or browser storage value would be captured.",
+    "The probe needs a guessed item, order, user, chat, invoice, payment, or account parameter.",
+    "The page requires payment, shipment, refund, complaint proof, identity verification, permission change, upload, download, export, install, or send action.",
+    "The current page is a static-only or internal module and someone tries to force-open it for coverage."
+  ],
+  "stateDefinitionsUsed": [
+    "S0_NORMAL_CONTENT",
+    "S1_LOADING",
+    "S2_EMPTY_STATE",
+    "S3_NETWORK_OR_API_FAILURE",
+    "S4_LOGIN_EXPIRED",
+    "S5_PERMISSION_OR_IDENTITY_GATE",
+    "S6_QR_OR_APP_BRIDGE",
+    "S7_CONFIRM_DIALOG",
+    "S8_FORM_VALIDATION",
+    "S9_FILE_OR_EXPORT",
+    "S10_HIGH_RISK_BUSINESS_STATE"
+  ],
+  "gateDefinitionsUsed": [
+    "G0",
+    "G1",
+    "G2",
+    "G3",
+    "G4"
+  ],
+  "pages": [
+    {
+      "order": 1,
+      "id": "www.home",
+      "surface": "www",
+      "routePattern": "/",
+      "family": "public-discovery",
+      "layer": "M0",
+      "evidence": "Live + Static",
+      "readiness": "R0",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D3_LOW_RISK_LIVE",
+      "transitionClass": "SAFE_READ",
+      "defaultActionGate": "G0",
+      "routePlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "search box",
+        "channel entries",
+        "recommended item cards",
+        "sidebar tools"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "navigationEntries",
+        "filterControls",
+        "cardStructure",
+        "contentBlocks",
+        "routeShapes",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S3_NETWORK_OR_API_FAILURE"
+      ],
+      "stopStates": [
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "pageStopPoints": [
+        "message entry",
+        "publish entry",
+        "order entry"
+      ],
+      "gateStopPoints": [
+        "state-changing controls",
+        "private values outside public structure"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "nextVerificationAction": "Verify navigation, filters, card structure, content blocks, and route shapes; avoid item identity values.",
+      "redactionRequired": false,
+      "prohibitedOutput": [
+        "realAccountName",
+        "realOrderId",
+        "realAddress",
+        "realChatText",
+        "realItemTitle",
+        "realAmount",
+        "realBusinessMetric",
+        "imageUrl",
+        "qrContent",
+        "password",
+        "verificationCode",
+        "cookie",
+        "token",
+        "localStorage",
+        "sessionStorage"
+      ]
+    },
+    {
+      "order": 2,
+      "id": "www.search",
+      "surface": "www",
+      "routePattern": "/search?q=...",
+      "family": "public-discovery",
+      "layer": "M0",
+      "evidence": "Live + Static",
+      "readiness": "R0",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D3_LOW_RISK_LIVE",
+      "transitionClass": "SAFE_READ",
+      "defaultActionGate": "G0",
+      "routePlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "query box",
+        "sort controls",
+        "price inputs",
+        "filter tags",
+        "item cards",
+        "pagination"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "navigationEntries",
+        "filterControls",
+        "cardStructure",
+        "contentBlocks",
+        "routeShapes",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S3_NETWORK_OR_API_FAILURE"
+      ],
+      "stopStates": [
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "pageStopPoints": [
+        "unstable location panel",
+        "collect",
+        "contact",
+        "purchase"
+      ],
+      "gateStopPoints": [
+        "state-changing controls",
+        "private values outside public structure"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "nextVerificationAction": "Verify navigation, filters, card structure, content blocks, and route shapes; avoid item identity values.",
+      "redactionRequired": false,
+      "prohibitedOutput": [
+        "realAccountName",
+        "realOrderId",
+        "realAddress",
+        "realChatText",
+        "realItemTitle",
+        "realAmount",
+        "realBusinessMetric",
+        "imageUrl",
+        "qrContent",
+        "password",
+        "verificationCode",
+        "cookie",
+        "token",
+        "localStorage",
+        "sessionStorage"
+      ]
+    },
+    {
+      "order": 3,
+      "id": "www.machFeeds",
+      "surface": "www",
+      "routePattern": "/mach-feeds?machId=...&publishTimes=...",
+      "family": "public-discovery",
+      "layer": "M0",
+      "evidence": "Live + Static",
+      "readiness": "R0",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D3_LOW_RISK_LIVE",
+      "transitionClass": "SAFE_READ",
+      "defaultActionGate": "G0",
+      "routePlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "channel title",
+        "waterfall feed",
+        "item-card links"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "navigationEntries",
+        "filterControls",
+        "cardStructure",
+        "contentBlocks",
+        "routeShapes",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S3_NETWORK_OR_API_FAILURE"
+      ],
+      "stopStates": [
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "pageStopPoints": [
+        "collect",
+        "contact",
+        "purchase"
+      ],
+      "gateStopPoints": [
+        "state-changing controls",
+        "private values outside public structure"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "nextVerificationAction": "Verify navigation, filters, card structure, content blocks, and route shapes; avoid item identity values.",
+      "redactionRequired": false,
+      "prohibitedOutput": [
+        "realAccountName",
+        "realOrderId",
+        "realAddress",
+        "realChatText",
+        "realItemTitle",
+        "realAmount",
+        "realBusinessMetric",
+        "imageUrl",
+        "qrContent",
+        "password",
+        "verificationCode",
+        "cookie",
+        "token",
+        "localStorage",
+        "sessionStorage"
+      ]
+    },
+    {
+      "order": 4,
+      "id": "www.item",
+      "surface": "www",
+      "routePattern": "/item?id=...&categoryId=...",
+      "family": "item-detail",
+      "layer": "M0/M3",
+      "evidence": "Live + Static",
+      "readiness": "R0/R3",
+      "liveCoverage": "requires-user-context",
+      "deepeningQueue": "D4_REQUIRES_USER_CONTEXT",
+      "transitionClass": "REQUIRES_USER_CONTEXT",
+      "defaultActionGate": "G1",
+      "routePlan": "Do not open by guessing parameters. Verify only when the user supplies a URL or business context.",
+      "waitFor": [
+        "image area",
+        "price area",
+        "assurance labels",
+        "seller card",
+        "action buttons",
+        "recommendations"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "requiredParameterType",
+        "riskBoundary",
+        "userConfirmationNeeded",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStates": [
+        "S6_QR_OR_APP_BRIDGE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "pageStopPoints": [
+        "collect",
+        "chat",
+        "buy now",
+        "downshelf",
+        "delete"
+      ],
+      "gateStopPoints": [
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "required parameter type identified",
+        "user-provided context confirmed",
+        "private parameters redacted",
+        "business action boundary recorded"
+      ],
+      "nextVerificationAction": "Wait for user-supplied URL or context; verify route shape and boundary only.",
+      "redactionRequired": true,
+      "prohibitedOutput": [
+        "realAccountName",
+        "realOrderId",
+        "realAddress",
+        "realChatText",
+        "realItemTitle",
+        "realAmount",
+        "realBusinessMetric",
+        "imageUrl",
+        "qrContent",
+        "password",
+        "verificationCode",
+        "cookie",
+        "token",
+        "localStorage",
+        "sessionStorage"
+      ]
+    },
+    {
+      "order": 5,
+      "id": "www.personalOther",
+      "surface": "www",
+      "routePattern": "/personal?userId=...",
+      "family": "public-profile",
+      "layer": "M0/M1",
+      "evidence": "Live + Static",
+      "readiness": "R0/R3",
+      "liveCoverage": "requires-user-context",
+      "deepeningQueue": "D4_REQUIRES_USER_CONTEXT",
+      "transitionClass": "REQUIRES_USER_CONTEXT",
+      "defaultActionGate": "G1",
+      "routePlan": "Do not open by guessing parameters. Verify only when the user supplies a URL or business context.",
+      "waitFor": [
+        "public profile block",
+        "credit area",
+        "item list",
+        "follow/contact entries"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "requiredParameterType",
+        "riskBoundary",
+        "userConfirmationNeeded",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStates": [
+        "S6_QR_OR_APP_BRIDGE",
+        "S7_CONFIRM_DIALOG"
+      ],
+      "pageStopPoints": [
+        "follow",
+        "contact",
+        "purchase"
+      ],
+      "gateStopPoints": [
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "required parameter type identified",
+        "user-provided context confirmed",
+        "private parameters redacted",
+        "business action boundary recorded"
+      ],
+      "nextVerificationAction": "Wait for user-supplied URL or context; verify route shape and boundary only.",
+      "redactionRequired": true,
+      "prohibitedOutput": [
+        "realAccountName",
+        "realOrderId",
+        "realAddress",
+        "realChatText",
+        "realItemTitle",
+        "realAmount",
+        "realBusinessMetric",
+        "imageUrl",
+        "qrContent",
+        "password",
+        "verificationCode",
+        "cookie",
+        "token",
+        "localStorage",
+        "sessionStorage"
+      ]
+    },
+    {
+      "order": 6,
+      "id": "www.personalSelf",
+      "surface": "www",
+      "routePattern": "/personal",
+      "family": "buyer-account",
+      "layer": "M1/M2",
+      "evidence": "Live + Static",
+      "readiness": "R1/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D3_LOW_RISK_LIVE",
+      "transitionClass": "SAFE_READ",
+      "defaultActionGate": "G1",
+      "routePlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "left navigation",
+        "home tab",
+        "item/credit/manage tabs",
+        "filters"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "navigationEntries",
+        "filterControls",
+        "cardStructure",
+        "contentBlocks",
+        "routeShapes",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStates": [
+        "S4_LOGIN_EXPIRED",
+        "S6_QR_OR_APP_BRIDGE",
+        "S7_CONFIRM_DIALOG"
+      ],
+      "pageStopPoints": [
+        "edit profile",
+        "manage item",
+        "downshelf",
+        "delete"
+      ],
+      "gateStopPoints": [
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "nextVerificationAction": "Verify navigation, filters, card structure, content blocks, and route shapes; avoid item identity values.",
+      "redactionRequired": true,
+      "prohibitedOutput": [
+        "realAccountName",
+        "realOrderId",
+        "realAddress",
+        "realChatText",
+        "realItemTitle",
+        "realAmount",
+        "realBusinessMetric",
+        "imageUrl",
+        "qrContent",
+        "password",
+        "verificationCode",
+        "cookie",
+        "token",
+        "localStorage",
+        "sessionStorage"
+      ]
+    },
+    {
+      "order": 7,
+      "id": "www.collection",
+      "surface": "www",
+      "routePattern": "/collection",
+      "family": "buyer-account",
+      "layer": "M1/M3",
+      "evidence": "Live + Static",
+      "readiness": "R1/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D3_LOW_RISK_LIVE",
+      "transitionClass": "SAFE_READ",
+      "defaultActionGate": "G1",
+      "routePlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "collection tab",
+        "item cards",
+        "uncollect button",
+        "want button"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "navigationEntries",
+        "filterControls",
+        "cardStructure",
+        "contentBlocks",
+        "routeShapes",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStates": [
+        "S4_LOGIN_EXPIRED",
+        "S6_QR_OR_APP_BRIDGE",
+        "S7_CONFIRM_DIALOG"
+      ],
+      "pageStopPoints": [
+        "uncollect",
+        "want",
+        "contact"
+      ],
+      "gateStopPoints": [
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "nextVerificationAction": "Verify navigation, filters, card structure, content blocks, and route shapes; avoid item identity values.",
+      "redactionRequired": true,
+      "prohibitedOutput": [
+        "realAccountName",
+        "realOrderId",
+        "realAddress",
+        "realChatText",
+        "realItemTitle",
+        "realAmount",
+        "realBusinessMetric",
+        "imageUrl",
+        "qrContent",
+        "password",
+        "verificationCode",
+        "cookie",
+        "token",
+        "localStorage",
+        "sessionStorage"
+      ]
+    },
+    {
+      "order": 8,
+      "id": "www.bought",
+      "surface": "www",
+      "routePattern": "/bought",
+      "family": "buyer-trade",
+      "layer": "M1/M3",
+      "evidence": "Live + Static",
+      "readiness": "R1/R4",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "routePlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "order tabs",
+        "order cards",
+        "more menu",
+        "logistics record",
+        "snapshot entry"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "tabNames",
+        "filterFieldNames",
+        "tableHeaders",
+        "buttonCategories",
+        "statusCategories",
+        "modalCategories",
+        "fieldNames",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStates": [
+        "S4_LOGIN_EXPIRED",
+        "S6_QR_OR_APP_BRIDGE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "pageStopPoints": [
+        "confirm receipt",
+        "refund",
+        "review",
+        "delete",
+        "complaint"
+      ],
+      "gateStopPoints": [
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "nextVerificationAction": "Verify tabs, filters, table headers, status categories, and modal categories; never read row values or trigger operations.",
+      "redactionRequired": true,
+      "prohibitedOutput": [
+        "realAccountName",
+        "realOrderId",
+        "realAddress",
+        "realChatText",
+        "realItemTitle",
+        "realAmount",
+        "realBusinessMetric",
+        "imageUrl",
+        "qrContent",
+        "password",
+        "verificationCode",
+        "cookie",
+        "token",
+        "localStorage",
+        "sessionStorage"
+      ]
+    },
+    {
+      "order": 9,
+      "id": "www.orderDetail",
+      "surface": "www",
+      "routePattern": "/order-detail?orderId=...",
+      "family": "buyer-trade",
+      "layer": "M3",
+      "evidence": "Live + Static",
+      "readiness": "R1/R4",
+      "liveCoverage": "requires-user-context",
+      "deepeningQueue": "D4_REQUIRES_USER_CONTEXT",
+      "transitionClass": "REQUIRES_USER_CONTEXT",
+      "defaultActionGate": "G1",
+      "routePlan": "Do not open by guessing parameters. Verify only when the user supplies a URL or business context.",
+      "waitFor": [
+        "status nodes",
+        "order field labels",
+        "logistics module",
+        "after-sale entry"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "requiredParameterType",
+        "riskBoundary",
+        "userConfirmationNeeded",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStates": [
+        "S4_LOGIN_EXPIRED",
+        "S6_QR_OR_APP_BRIDGE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "pageStopPoints": [
+        "any order-state change",
+        "real order value logging"
+      ],
+      "gateStopPoints": [
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "required parameter type identified",
+        "user-provided context confirmed",
+        "private parameters redacted",
+        "business action boundary recorded"
+      ],
+      "nextVerificationAction": "Wait for user-supplied URL or context; verify route shape and boundary only.",
+      "redactionRequired": true,
+      "prohibitedOutput": [
+        "realAccountName",
+        "realOrderId",
+        "realAddress",
+        "realChatText",
+        "realItemTitle",
+        "realAmount",
+        "realBusinessMetric",
+        "imageUrl",
+        "qrContent",
+        "password",
+        "verificationCode",
+        "cookie",
+        "token",
+        "localStorage",
+        "sessionStorage"
+      ]
+    },
+    {
+      "order": 10,
+      "id": "www.createOrder",
+      "surface": "www",
+      "routePattern": "/create-order?itemId=...",
+      "family": "buyer-trade",
+      "layer": "M3/M5",
+      "evidence": "Live + Static",
+      "readiness": "R4",
+      "liveCoverage": "requires-user-context",
+      "deepeningQueue": "D4_REQUIRES_USER_CONTEXT",
+      "transitionClass": "REQUIRES_USER_CONTEXT",
+      "defaultActionGate": "G1",
+      "routePlan": "Do not open by guessing parameters. Verify only when the user supplies a URL or business context.",
+      "waitFor": [
+        "sku",
+        "quantity",
+        "address fields",
+        "price-detail block",
+        "payment area",
+        "scan-to-pay fallback"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "requiredParameterType",
+        "riskBoundary",
+        "userConfirmationNeeded",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStates": [
+        "S4_LOGIN_EXPIRED",
+        "S6_QR_OR_APP_BRIDGE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "pageStopPoints": [
+        "submit order",
+        "pay",
+        "change address",
+        "bind account",
+        "verify identity"
+      ],
+      "gateStopPoints": [
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "required parameter type identified",
+        "user-provided context confirmed",
+        "private parameters redacted",
+        "business action boundary recorded"
+      ],
+      "nextVerificationAction": "Wait for user-supplied URL or context; verify route shape and boundary only.",
+      "redactionRequired": true,
+      "prohibitedOutput": [
+        "realAccountName",
+        "realOrderId",
+        "realAddress",
+        "realChatText",
+        "realItemTitle",
+        "realAmount",
+        "realBusinessMetric",
+        "imageUrl",
+        "qrContent",
+        "password",
+        "verificationCode",
+        "cookie",
+        "token",
+        "localStorage",
+        "sessionStorage"
+      ]
+    },
+    {
+      "order": 11,
+      "id": "www.paySuccess",
+      "surface": "www",
+      "routePattern": "/pay-success?orderId=...&itemId=...",
+      "family": "buyer-trade",
+      "layer": "M3",
+      "evidence": "Static Only",
+      "readiness": "R4",
+      "liveCoverage": "static-only",
+      "deepeningQueue": "D5_STATIC_ONLY",
+      "transitionClass": "STATIC_ONLY",
+      "defaultActionGate": "G1",
+      "routePlan": "Do not open for coverage. Verify from static route, module, signal, or API evidence only.",
+      "waitFor": [
+        "payment result structure",
+        "order-detail entry",
+        "recommendations"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "staticRoute",
+        "moduleName",
+        "staticApiFamily",
+        "riskBoundary",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStates": [
+        "S4_LOGIN_EXPIRED",
+        "S6_QR_OR_APP_BRIDGE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "pageStopPoints": [
+        "trigger payment for testing"
+      ],
+      "gateStopPoints": [
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "static module or route signal identified",
+        "API or Page signal mapped to family",
+        "risk boundary recorded",
+        "no live probing attempted"
+      ],
+      "nextVerificationAction": "Keep as static evidence; verify module name, static API family, and risk boundary only.",
+      "redactionRequired": true,
+      "prohibitedOutput": [
+        "realAccountName",
+        "realOrderId",
+        "realAddress",
+        "realChatText",
+        "realItemTitle",
+        "realAmount",
+        "realBusinessMetric",
+        "imageUrl",
+        "qrContent",
+        "password",
+        "verificationCode",
+        "cookie",
+        "token",
+        "localStorage",
+        "sessionStorage"
+      ]
+    },
+    {
+      "order": 12,
+      "id": "www.publish",
+      "surface": "www",
+      "routePattern": "/publish",
+      "family": "draft-input",
+      "layer": "M2/M3",
+      "evidence": "Live + Static",
+      "readiness": "R2/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D2_FORM_AND_SHELL_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G2",
+      "routePlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "image/video uploader",
+        "description",
+        "category",
+        "properties",
+        "sku",
+        "price",
+        "location",
+        "shipping settings"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "fieldNames",
+        "inputTypes",
+        "validationHintCategories",
+        "uploadZones",
+        "emptyStateCategories",
+        "shellAnchors",
+        "tabNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S8_FORM_VALIDATION"
+      ],
+      "stopStates": [
+        "S4_LOGIN_EXPIRED",
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "pageStopPoints": [
+        "upload",
+        "save draft",
+        "publish",
+        "edit existing item"
+      ],
+      "gateStopPoints": [
+        "upload",
+        "save",
+        "submit",
+        "send",
+        "publish",
+        "overwrite existing content"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "nextVerificationAction": "Verify fields, validation categories, upload zones, empty states, and shell anchors; stop before save, upload, submit, send, or publish.",
+      "redactionRequired": true,
+      "prohibitedOutput": [
+        "realAccountName",
+        "realOrderId",
+        "realAddress",
+        "realChatText",
+        "realItemTitle",
+        "realAmount",
+        "realBusinessMetric",
+        "imageUrl",
+        "qrContent",
+        "password",
+        "verificationCode",
+        "cookie",
+        "token",
+        "localStorage",
+        "sessionStorage"
+      ]
+    },
+    {
+      "order": 13,
+      "id": "www.publishScene",
+      "surface": "www",
+      "routePattern": "/publish?scene=xyPcMainPublish",
+      "family": "draft-input",
+      "layer": "M2/M3",
+      "evidence": "Static Only",
+      "readiness": "R2/R3",
+      "liveCoverage": "static-only",
+      "deepeningQueue": "D5_STATIC_ONLY",
+      "transitionClass": "STATIC_ONLY",
+      "defaultActionGate": "G2",
+      "routePlan": "Do not open for coverage. Verify from static route, module, signal, or API evidence only.",
+      "waitFor": [
+        "publish scene parameter",
+        "publish form fields"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "staticRoute",
+        "moduleName",
+        "staticApiFamily",
+        "riskBoundary",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S8_FORM_VALIDATION"
+      ],
+      "stopStates": [
+        "S4_LOGIN_EXPIRED",
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "pageStopPoints": [
+        "save",
+        "publish"
+      ],
+      "gateStopPoints": [
+        "upload",
+        "save",
+        "submit",
+        "send",
+        "publish",
+        "overwrite existing content"
+      ],
+      "passEvidence": [
+        "static module or route signal identified",
+        "API or Page signal mapped to family",
+        "risk boundary recorded",
+        "no live probing attempted"
+      ],
+      "nextVerificationAction": "Keep as static evidence; verify module name, static API family, and risk boundary only.",
+      "redactionRequired": true,
+      "prohibitedOutput": [
+        "realAccountName",
+        "realOrderId",
+        "realAddress",
+        "realChatText",
+        "realItemTitle",
+        "realAmount",
+        "realBusinessMetric",
+        "imageUrl",
+        "qrContent",
+        "password",
+        "verificationCode",
+        "cookie",
+        "token",
+        "localStorage",
+        "sessionStorage"
+      ]
+    },
+    {
+      "order": 14,
+      "id": "www.publishEdit",
+      "surface": "www",
+      "routePattern": "/publish?scene=xyPcMainPublish&itemId=...",
+      "family": "draft-input",
+      "layer": "M2/M3",
+      "evidence": "Static Only",
+      "readiness": "R3/R4",
+      "liveCoverage": "static-only",
+      "deepeningQueue": "D5_STATIC_ONLY",
+      "transitionClass": "STATIC_ONLY",
+      "defaultActionGate": "G2",
+      "routePlan": "Do not open for coverage. Verify from static route, module, signal, or API evidence only.",
+      "waitFor": [
+        "item context parameter",
+        "publish/edit form fields"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "staticRoute",
+        "moduleName",
+        "staticApiFamily",
+        "riskBoundary",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S8_FORM_VALIDATION"
+      ],
+      "stopStates": [
+        "S4_LOGIN_EXPIRED",
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "pageStopPoints": [
+        "overwrite existing item",
+        "save",
+        "publish"
+      ],
+      "gateStopPoints": [
+        "upload",
+        "save",
+        "submit",
+        "send",
+        "publish",
+        "overwrite existing content"
+      ],
+      "passEvidence": [
+        "static module or route signal identified",
+        "API or Page signal mapped to family",
+        "risk boundary recorded",
+        "no live probing attempted"
+      ],
+      "nextVerificationAction": "Keep as static evidence; verify module name, static API family, and risk boundary only.",
+      "redactionRequired": true,
+      "prohibitedOutput": [
+        "realAccountName",
+        "realOrderId",
+        "realAddress",
+        "realChatText",
+        "realItemTitle",
+        "realAmount",
+        "realBusinessMetric",
+        "imageUrl",
+        "qrContent",
+        "password",
+        "verificationCode",
+        "cookie",
+        "token",
+        "localStorage",
+        "sessionStorage"
+      ]
+    },
+    {
+      "order": 15,
+      "id": "www.im",
+      "surface": "www",
+      "routePattern": "/im",
+      "family": "message",
+      "layer": "M1/M2/M3",
+      "evidence": "Live + Static",
+      "readiness": "R1/R2/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D2_FORM_AND_SHELL_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G2",
+      "routePlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "empty state",
+        "session list",
+        "input area",
+        "toolbar",
+        "item/order card tools",
+        "file tool"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "fieldNames",
+        "inputTypes",
+        "validationHintCategories",
+        "uploadZones",
+        "emptyStateCategories",
+        "shellAnchors",
+        "tabNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStates": [
+        "S4_LOGIN_EXPIRED",
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "pageStopPoints": [
+        "read specific private chat",
+        "send",
+        "send card",
+        "upload file"
+      ],
+      "gateStopPoints": [
+        "upload",
+        "save",
+        "submit",
+        "send",
+        "publish",
+        "overwrite existing content"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "nextVerificationAction": "Verify fields, validation categories, upload zones, empty states, and shell anchors; stop before save, upload, submit, send, or publish.",
+      "redactionRequired": true,
+      "prohibitedOutput": [
+        "realAccountName",
+        "realOrderId",
+        "realAddress",
+        "realChatText",
+        "realItemTitle",
+        "realAmount",
+        "realBusinessMetric",
+        "imageUrl",
+        "qrContent",
+        "password",
+        "verificationCode",
+        "cookie",
+        "token",
+        "localStorage",
+        "sessionStorage"
+      ]
+    },
+    {
+      "order": 16,
+      "id": "www.imItem",
+      "surface": "www",
+      "routePattern": "/im?itemId=...&peerUserId=...",
+      "family": "message",
+      "layer": "M1/M3",
+      "evidence": "Deep/Param",
+      "readiness": "R3/R4",
+      "liveCoverage": "requires-user-context",
+      "deepeningQueue": "D4_REQUIRES_USER_CONTEXT",
+      "transitionClass": "REQUIRES_USER_CONTEXT",
+      "defaultActionGate": "G2",
+      "routePlan": "Do not open by guessing parameters. Verify only when the user supplies a URL or business context.",
+      "waitFor": [
+        "item-linked chat parameters",
+        "input area"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "requiredParameterType",
+        "riskBoundary",
+        "userConfirmationNeeded",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStates": [
+        "S4_LOGIN_EXPIRED",
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "pageStopPoints": [
+        "read specific conversation",
+        "send"
+      ],
+      "gateStopPoints": [
+        "upload",
+        "save",
+        "submit",
+        "send",
+        "publish",
+        "overwrite existing content"
+      ],
+      "passEvidence": [
+        "required parameter type identified",
+        "user-provided context confirmed",
+        "private parameters redacted",
+        "business action boundary recorded"
+      ],
+      "nextVerificationAction": "Wait for user-supplied URL or context; verify route shape and boundary only.",
+      "redactionRequired": true,
+      "prohibitedOutput": [
+        "realAccountName",
+        "realOrderId",
+        "realAddress",
+        "realChatText",
+        "realItemTitle",
+        "realAmount",
+        "realBusinessMetric",
+        "imageUrl",
+        "qrContent",
+        "password",
+        "verificationCode",
+        "cookie",
+        "token",
+        "localStorage",
+        "sessionStorage"
+      ]
+    },
+    {
+      "order": 17,
+      "id": "www.account",
+      "surface": "www",
+      "routePattern": "/account",
+      "family": "identity",
+      "layer": "M1/M5",
+      "evidence": "Live + Static",
+      "readiness": "R1/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G4",
+      "routePlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "basic info module",
+        "stay signed in",
+        "notice switch",
+        "verification entry",
+        "security center"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "tabNames",
+        "filterFieldNames",
+        "tableHeaders",
+        "buttonCategories",
+        "statusCategories",
+        "modalCategories",
+        "fieldNames",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [],
+      "stopStates": [
+        "S4_LOGIN_EXPIRED",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "pageStopPoints": [
+        "toggle notice",
+        "verify identity",
+        "switch account",
+        "logout"
+      ],
+      "gateStopPoints": [
+        "any proactive action beyond naming the boundary"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "nextVerificationAction": "Verify tabs, filters, table headers, status categories, and modal categories; never read row values or trigger operations.",
+      "redactionRequired": true,
+      "prohibitedOutput": [
+        "realAccountName",
+        "realOrderId",
+        "realAddress",
+        "realChatText",
+        "realItemTitle",
+        "realAmount",
+        "realBusinessMetric",
+        "imageUrl",
+        "qrContent",
+        "password",
+        "verificationCode",
+        "cookie",
+        "token",
+        "localStorage",
+        "sessionStorage"
+      ]
+    },
+    {
+      "order": 18,
+      "id": "www.accountApi",
+      "surface": "www",
+      "routePattern": "/account/api",
+      "family": "internal-module",
+      "layer": "M6",
+      "evidence": "Internal/Module",
+      "readiness": "R5",
+      "liveCoverage": "static-only",
+      "deepeningQueue": "D5_STATIC_ONLY",
+      "transitionClass": "STATIC_ONLY",
+      "defaultActionGate": "G4",
+      "routePlan": "Do not open for coverage. Verify from static route, module, signal, or API evidence only.",
+      "waitFor": [
+        "module path"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "staticRoute",
+        "moduleName",
+        "staticApiFamily",
+        "riskBoundary",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S3_NETWORK_OR_API_FAILURE"
+      ],
+      "stopStates": [],
+      "pageStopPoints": [
+        "direct call",
+        "page navigation"
+      ],
+      "gateStopPoints": [
+        "any proactive action beyond naming the boundary"
+      ],
+      "passEvidence": [
+        "static module or route signal identified",
+        "API or Page signal mapped to family",
+        "risk boundary recorded",
+        "no live probing attempted"
+      ],
+      "nextVerificationAction": "Keep as static evidence; verify module name, static API family, and risk boundary only.",
+      "redactionRequired": true,
+      "prohibitedOutput": [
+        "realAccountName",
+        "realOrderId",
+        "realAddress",
+        "realChatText",
+        "realItemTitle",
+        "realAmount",
+        "realBusinessMetric",
+        "imageUrl",
+        "qrContent",
+        "password",
+        "verificationCode",
+        "cookie",
+        "token",
+        "localStorage",
+        "sessionStorage"
+      ]
+    },
+    {
+      "order": 19,
+      "id": "www.feedback",
+      "surface": "www",
+      "routePattern": "/feedback?from=...",
+      "family": "draft-input",
+      "layer": "M2/M3",
+      "evidence": "Live + Static",
+      "readiness": "R2/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D2_FORM_AND_SHELL_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G2",
+      "routePlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "feedback type",
+        "source page option",
+        "text area",
+        "screenshot upload",
+        "submit"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "fieldNames",
+        "inputTypes",
+        "validationHintCategories",
+        "uploadZones",
+        "emptyStateCategories",
+        "shellAnchors",
+        "tabNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S8_FORM_VALIDATION"
+      ],
+      "stopStates": [
+        "S4_LOGIN_EXPIRED",
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "pageStopPoints": [
+        "upload screenshot",
+        "submit"
+      ],
+      "gateStopPoints": [
+        "upload",
+        "save",
+        "submit",
+        "send",
+        "publish",
+        "overwrite existing content"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "nextVerificationAction": "Verify fields, validation categories, upload zones, empty states, and shell anchors; stop before save, upload, submit, send, or publish.",
+      "redactionRequired": true,
+      "prohibitedOutput": [
+        "realAccountName",
+        "realOrderId",
+        "realAddress",
+        "realChatText",
+        "realItemTitle",
+        "realAmount",
+        "realBusinessMetric",
+        "imageUrl",
+        "qrContent",
+        "password",
+        "verificationCode",
+        "cookie",
+        "token",
+        "localStorage",
+        "sessionStorage"
+      ]
+    },
+    {
+      "order": 20,
+      "id": "www.changelog",
+      "surface": "www",
+      "routePattern": "/changelog",
+      "family": "public-content",
+      "layer": "M0",
+      "evidence": "Live Only",
+      "readiness": "R0",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D3_LOW_RISK_LIVE",
+      "transitionClass": "SAFE_READ",
+      "defaultActionGate": "G0",
+      "routePlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "update-log title",
+        "feature entries"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "navigationEntries",
+        "filterControls",
+        "cardStructure",
+        "contentBlocks",
+        "routeShapes",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStates": [
+        "S6_QR_OR_APP_BRIDGE",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "pageStopPoints": [],
+      "gateStopPoints": [
+        "state-changing controls",
+        "private values outside public structure"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "nextVerificationAction": "Verify navigation, filters, card structure, content blocks, and route shapes; avoid item identity values.",
+      "redactionRequired": false,
+      "prohibitedOutput": [
+        "realAccountName",
+        "realOrderId",
+        "realAddress",
+        "realChatText",
+        "realItemTitle",
+        "realAmount",
+        "realBusinessMetric",
+        "imageUrl",
+        "qrContent",
+        "password",
+        "verificationCode",
+        "cookie",
+        "token",
+        "localStorage",
+        "sessionStorage"
+      ]
+    },
+    {
+      "order": 21,
+      "id": "www.login",
+      "surface": "www",
+      "routePattern": "/login",
+      "family": "identity",
+      "layer": "M5",
+      "evidence": "Live + Static",
+      "readiness": "R5",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D2_FORM_AND_SHELL_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G4",
+      "routePlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "login method",
+        "scan container",
+        "verification entry",
+        "redirect parameter"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "fieldNames",
+        "inputTypes",
+        "validationHintCategories",
+        "uploadZones",
+        "emptyStateCategories",
+        "shellAnchors",
+        "tabNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [],
+      "stopStates": [
+        "S4_LOGIN_EXPIRED",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "pageStopPoints": [
+        "scan",
+        "enter verification code",
+        "bypass risk control"
+      ],
+      "gateStopPoints": [
+        "any proactive action beyond naming the boundary"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "nextVerificationAction": "Verify fields, validation categories, upload zones, empty states, and shell anchors; stop before save, upload, submit, send, or publish.",
+      "redactionRequired": true,
+      "prohibitedOutput": [
+        "realAccountName",
+        "realOrderId",
+        "realAddress",
+        "realChatText",
+        "realItemTitle",
+        "realAmount",
+        "realBusinessMetric",
+        "imageUrl",
+        "qrContent",
+        "password",
+        "verificationCode",
+        "cookie",
+        "token",
+        "localStorage",
+        "sessionStorage"
+      ]
+    },
+    {
+      "order": 22,
+      "id": "www.loginRedirect",
+      "surface": "www",
+      "routePattern": "/login?spm=...&redirectURL=...",
+      "family": "identity",
+      "layer": "M5",
+      "evidence": "Static Only",
+      "readiness": "R5",
+      "liveCoverage": "static-only",
+      "deepeningQueue": "D5_STATIC_ONLY",
+      "transitionClass": "STATIC_ONLY",
+      "defaultActionGate": "G4",
+      "routePlan": "Do not open for coverage. Verify from static route, module, signal, or API evidence only.",
+      "waitFor": [
+        "redirect parameter"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "staticRoute",
+        "moduleName",
+        "staticApiFamily",
+        "riskBoundary",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [],
+      "stopStates": [
+        "S4_LOGIN_EXPIRED",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "pageStopPoints": [
+        "change login parameters",
+        "bypass risk control"
+      ],
+      "gateStopPoints": [
+        "any proactive action beyond naming the boundary"
+      ],
+      "passEvidence": [
+        "static module or route signal identified",
+        "API or Page signal mapped to family",
+        "risk boundary recorded",
+        "no live probing attempted"
+      ],
+      "nextVerificationAction": "Keep as static evidence; verify module name, static API family, and risk boundary only.",
+      "redactionRequired": true,
+      "prohibitedOutput": [
+        "realAccountName",
+        "realOrderId",
+        "realAddress",
+        "realChatText",
+        "realItemTitle",
+        "realAmount",
+        "realBusinessMetric",
+        "imageUrl",
+        "qrContent",
+        "password",
+        "verificationCode",
+        "cookie",
+        "token",
+        "localStorage",
+        "sessionStorage"
+      ]
+    },
+    {
+      "order": 23,
+      "id": "www.findAccount",
+      "surface": "www",
+      "routePattern": "/find-account",
+      "family": "identity",
+      "layer": "M5",
+      "evidence": "Static Only",
+      "readiness": "R5",
+      "liveCoverage": "static-only",
+      "deepeningQueue": "D5_STATIC_ONLY",
+      "transitionClass": "STATIC_ONLY",
+      "defaultActionGate": "G4",
+      "routePlan": "Do not open for coverage. Verify from static route, module, signal, or API evidence only.",
+      "waitFor": [
+        "account recovery placeholder",
+        "redirect behavior"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "staticRoute",
+        "moduleName",
+        "staticApiFamily",
+        "riskBoundary",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [],
+      "stopStates": [
+        "S4_LOGIN_EXPIRED",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "pageStopPoints": [
+        "recover account"
+      ],
+      "gateStopPoints": [
+        "any proactive action beyond naming the boundary"
+      ],
+      "passEvidence": [
+        "static module or route signal identified",
+        "API or Page signal mapped to family",
+        "risk boundary recorded",
+        "no live probing attempted"
+      ],
+      "nextVerificationAction": "Keep as static evidence; verify module name, static API family, and risk boundary only.",
+      "redactionRequired": true,
+      "prohibitedOutput": [
+        "realAccountName",
+        "realOrderId",
+        "realAddress",
+        "realChatText",
+        "realItemTitle",
+        "realAmount",
+        "realBusinessMetric",
+        "imageUrl",
+        "qrContent",
+        "password",
+        "verificationCode",
+        "cookie",
+        "token",
+        "localStorage",
+        "sessionStorage"
+      ]
+    },
+    {
+      "order": 24,
+      "id": "www.selectAccount",
+      "surface": "www",
+      "routePattern": "/select-account",
+      "family": "identity",
+      "layer": "M5",
+      "evidence": "Static Only",
+      "readiness": "R5",
+      "liveCoverage": "static-only",
+      "deepeningQueue": "D5_STATIC_ONLY",
+      "transitionClass": "STATIC_ONLY",
+      "defaultActionGate": "G4",
+      "routePlan": "Do not open for coverage. Verify from static route, module, signal, or API evidence only.",
+      "waitFor": [
+        "account selection placeholder",
+        "redirect behavior"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "staticRoute",
+        "moduleName",
+        "staticApiFamily",
+        "riskBoundary",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [],
+      "stopStates": [
+        "S4_LOGIN_EXPIRED",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "pageStopPoints": [
+        "switch account"
+      ],
+      "gateStopPoints": [
+        "any proactive action beyond naming the boundary"
+      ],
+      "passEvidence": [
+        "static module or route signal identified",
+        "API or Page signal mapped to family",
+        "risk boundary recorded",
+        "no live probing attempted"
+      ],
+      "nextVerificationAction": "Keep as static evidence; verify module name, static API family, and risk boundary only.",
+      "redactionRequired": true,
+      "prohibitedOutput": [
+        "realAccountName",
+        "realOrderId",
+        "realAddress",
+        "realChatText",
+        "realItemTitle",
+        "realAmount",
+        "realBusinessMetric",
+        "imageUrl",
+        "qrContent",
+        "password",
+        "verificationCode",
+        "cookie",
+        "token",
+        "localStorage",
+        "sessionStorage"
+      ]
+    },
+    {
+      "order": 25,
+      "id": "www.loginValidation",
+      "surface": "www",
+      "routePattern": "/login-validation",
+      "family": "identity",
+      "layer": "M5",
+      "evidence": "Static Only",
+      "readiness": "R5",
+      "liveCoverage": "static-only",
+      "deepeningQueue": "D5_STATIC_ONLY",
+      "transitionClass": "STATIC_ONLY",
+      "defaultActionGate": "G4",
+      "routePlan": "Do not open for coverage. Verify from static route, module, signal, or API evidence only.",
+      "waitFor": [
+        "login validation placeholder"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "staticRoute",
+        "moduleName",
+        "staticApiFamily",
+        "riskBoundary",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [],
+      "stopStates": [
+        "S4_LOGIN_EXPIRED",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "pageStopPoints": [
+        "enter verification code"
+      ],
+      "gateStopPoints": [
+        "any proactive action beyond naming the boundary"
+      ],
+      "passEvidence": [
+        "static module or route signal identified",
+        "API or Page signal mapped to family",
+        "risk boundary recorded",
+        "no live probing attempted"
+      ],
+      "nextVerificationAction": "Keep as static evidence; verify module name, static API family, and risk boundary only.",
+      "redactionRequired": true,
+      "prohibitedOutput": [
+        "realAccountName",
+        "realOrderId",
+        "realAddress",
+        "realChatText",
+        "realItemTitle",
+        "realAmount",
+        "realBusinessMetric",
+        "imageUrl",
+        "qrContent",
+        "password",
+        "verificationCode",
+        "cookie",
+        "token",
+        "localStorage",
+        "sessionStorage"
+      ]
+    },
+    {
+      "order": 26,
+      "id": "www.commonVideo",
+      "surface": "www",
+      "routePattern": "/common-video",
+      "family": "public-content",
+      "layer": "M0/M6",
+      "evidence": "Static Only",
+      "readiness": "R0/R4",
+      "liveCoverage": "static-only",
+      "deepeningQueue": "D5_STATIC_ONLY",
+      "transitionClass": "STATIC_ONLY",
+      "defaultActionGate": "G0",
+      "routePlan": "Do not open for coverage. Verify from static route, module, signal, or API evidence only.",
+      "waitFor": [
+        "video container",
+        "title/material config",
+        "playback controls"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "staticRoute",
+        "moduleName",
+        "staticApiFamily",
+        "riskBoundary",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStates": [
+        "S6_QR_OR_APP_BRIDGE",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "pageStopPoints": [
+        "play proactively",
+        "download",
+        "capture video"
+      ],
+      "gateStopPoints": [
+        "state-changing controls",
+        "private values outside public structure"
+      ],
+      "passEvidence": [
+        "static module or route signal identified",
+        "API or Page signal mapped to family",
+        "risk boundary recorded",
+        "no live probing attempted"
+      ],
+      "nextVerificationAction": "Keep as static evidence; verify module name, static API family, and risk boundary only.",
+      "redactionRequired": false,
+      "prohibitedOutput": [
+        "realAccountName",
+        "realOrderId",
+        "realAddress",
+        "realChatText",
+        "realItemTitle",
+        "realAmount",
+        "realBusinessMetric",
+        "imageUrl",
+        "qrContent",
+        "password",
+        "verificationCode",
+        "cookie",
+        "token",
+        "localStorage",
+        "sessionStorage"
+      ]
+    },
+    {
+      "order": 27,
+      "id": "www.commonVideoLayout",
+      "surface": "www",
+      "routePattern": "/common-video/layout",
+      "family": "internal-module",
+      "layer": "M6",
+      "evidence": "Internal/Module",
+      "readiness": "R5",
+      "liveCoverage": "static-only",
+      "deepeningQueue": "D5_STATIC_ONLY",
+      "transitionClass": "STATIC_ONLY",
+      "defaultActionGate": "G4",
+      "routePlan": "Do not open for coverage. Verify from static route, module, signal, or API evidence only.",
+      "waitFor": [
+        "layout package path"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "staticRoute",
+        "moduleName",
+        "staticApiFamily",
+        "riskBoundary",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S3_NETWORK_OR_API_FAILURE"
+      ],
+      "stopStates": [],
+      "pageStopPoints": [
+        "page navigation"
+      ],
+      "gateStopPoints": [
+        "any proactive action beyond naming the boundary"
+      ],
+      "passEvidence": [
+        "static module or route signal identified",
+        "API or Page signal mapped to family",
+        "risk boundary recorded",
+        "no live probing attempted"
+      ],
+      "nextVerificationAction": "Keep as static evidence; verify module name, static API family, and risk boundary only.",
+      "redactionRequired": true,
+      "prohibitedOutput": [
+        "realAccountName",
+        "realOrderId",
+        "realAddress",
+        "realChatText",
+        "realItemTitle",
+        "realAmount",
+        "realBusinessMetric",
+        "imageUrl",
+        "qrContent",
+        "password",
+        "verificationCode",
+        "cookie",
+        "token",
+        "localStorage",
+        "sessionStorage"
+      ]
+    },
+    {
+      "order": 28,
+      "id": "www.upgradeBrowser",
+      "surface": "www",
+      "routePattern": "/upgrade-browser",
+      "family": "public-content",
+      "layer": "M0/M6",
+      "evidence": "Static Only",
+      "readiness": "R0/R3",
+      "liveCoverage": "static-only",
+      "deepeningQueue": "D5_STATIC_ONLY",
+      "transitionClass": "STATIC_ONLY",
+      "defaultActionGate": "G0",
+      "routePlan": "Do not open for coverage. Verify from static route, module, signal, or API evidence only.",
+      "waitFor": [
+        "browser recommendation list",
+        "download entry"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "staticRoute",
+        "moduleName",
+        "staticApiFamily",
+        "riskBoundary",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStates": [
+        "S6_QR_OR_APP_BRIDGE",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "pageStopPoints": [
+        "download",
+        "install"
+      ],
+      "gateStopPoints": [
+        "state-changing controls",
+        "private values outside public structure"
+      ],
+      "passEvidence": [
+        "static module or route signal identified",
+        "API or Page signal mapped to family",
+        "risk boundary recorded",
+        "no live probing attempted"
+      ],
+      "nextVerificationAction": "Keep as static evidence; verify module name, static API family, and risk boundary only.",
+      "redactionRequired": false,
+      "prohibitedOutput": [
+        "realAccountName",
+        "realOrderId",
+        "realAddress",
+        "realChatText",
+        "realItemTitle",
+        "realAmount",
+        "realBusinessMetric",
+        "imageUrl",
+        "qrContent",
+        "password",
+        "verificationCode",
+        "cookie",
+        "token",
+        "localStorage",
+        "sessionStorage"
+      ]
+    },
+    {
+      "order": 29,
+      "id": "www.playground",
+      "surface": "www",
+      "routePattern": "/playground",
+      "family": "internal-test",
+      "layer": "M6",
+      "evidence": "Static Only",
+      "readiness": "R4/R5",
+      "liveCoverage": "static-only",
+      "deepeningQueue": "D5_STATIC_ONLY",
+      "transitionClass": "STATIC_ONLY",
+      "defaultActionGate": "G4",
+      "routePlan": "Do not open for coverage. Verify from static route, module, signal, or API evidence only.",
+      "waitFor": [
+        "internal test entry",
+        "login/upload/qr/payment test controls"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "staticRoute",
+        "moduleName",
+        "staticApiFamily",
+        "riskBoundary",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [],
+      "stopStates": [
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "pageStopPoints": [
+        "visit proactively",
+        "trigger test action"
+      ],
+      "gateStopPoints": [
+        "any proactive action beyond naming the boundary"
+      ],
+      "passEvidence": [
+        "static module or route signal identified",
+        "API or Page signal mapped to family",
+        "risk boundary recorded",
+        "no live probing attempted"
+      ],
+      "nextVerificationAction": "Keep as static evidence; verify module name, static API family, and risk boundary only.",
+      "redactionRequired": true,
+      "prohibitedOutput": [
+        "realAccountName",
+        "realOrderId",
+        "realAddress",
+        "realChatText",
+        "realItemTitle",
+        "realAmount",
+        "realBusinessMetric",
+        "imageUrl",
+        "qrContent",
+        "password",
+        "verificationCode",
+        "cookie",
+        "token",
+        "localStorage",
+        "sessionStorage"
+      ]
+    },
+    {
+      "order": 30,
+      "id": "www.yhbCreateOrder",
+      "surface": "www",
+      "routePattern": "create-order-yhb package",
+      "family": "buyer-trade",
+      "layer": "M3",
+      "evidence": "Static Only",
+      "readiness": "R4",
+      "liveCoverage": "static-only",
+      "deepeningQueue": "D5_STATIC_ONLY",
+      "transitionClass": "STATIC_ONLY",
+      "defaultActionGate": "G1",
+      "routePlan": "Do not open for coverage. Verify from static route, module, signal, or API evidence only.",
+      "waitFor": [
+        "YHB order render fields",
+        "YHB order create interface"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "staticRoute",
+        "moduleName",
+        "staticApiFamily",
+        "riskBoundary",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStates": [
+        "S4_LOGIN_EXPIRED",
+        "S6_QR_OR_APP_BRIDGE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "pageStopPoints": [
+        "create YHB order"
+      ],
+      "gateStopPoints": [
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "static module or route signal identified",
+        "API or Page signal mapped to family",
+        "risk boundary recorded",
+        "no live probing attempted"
+      ],
+      "nextVerificationAction": "Keep as static evidence; verify module name, static API family, and risk boundary only.",
+      "redactionRequired": true,
+      "prohibitedOutput": [
+        "realAccountName",
+        "realOrderId",
+        "realAddress",
+        "realChatText",
+        "realItemTitle",
+        "realAmount",
+        "realBusinessMetric",
+        "imageUrl",
+        "qrContent",
+        "password",
+        "verificationCode",
+        "cookie",
+        "token",
+        "localStorage",
+        "sessionStorage"
+      ]
+    },
+    {
+      "order": 31,
+      "id": "www.yhbOrderDetail",
+      "surface": "www",
+      "routePattern": "order-detail-yhb package",
+      "family": "buyer-trade",
+      "layer": "M3",
+      "evidence": "Static Only",
+      "readiness": "R4",
+      "liveCoverage": "static-only",
+      "deepeningQueue": "D5_STATIC_ONLY",
+      "transitionClass": "STATIC_ONLY",
+      "defaultActionGate": "G1",
+      "routePlan": "Do not open for coverage. Verify from static route, module, signal, or API evidence only.",
+      "waitFor": [
+        "report fields",
+        "dispute fields",
+        "review-related fields"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "staticRoute",
+        "moduleName",
+        "staticApiFamily",
+        "riskBoundary",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStates": [
+        "S4_LOGIN_EXPIRED",
+        "S6_QR_OR_APP_BRIDGE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "pageStopPoints": [
+        "after-sale action",
+        "review action"
+      ],
+      "gateStopPoints": [
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "static module or route signal identified",
+        "API or Page signal mapped to family",
+        "risk boundary recorded",
+        "no live probing attempted"
+      ],
+      "nextVerificationAction": "Keep as static evidence; verify module name, static API family, and risk boundary only.",
+      "redactionRequired": true,
+      "prohibitedOutput": [
+        "realAccountName",
+        "realOrderId",
+        "realAddress",
+        "realChatText",
+        "realItemTitle",
+        "realAmount",
+        "realBusinessMetric",
+        "imageUrl",
+        "qrContent",
+        "password",
+        "verificationCode",
+        "cookie",
+        "token",
+        "localStorage",
+        "sessionStorage"
+      ]
+    },
+    {
+      "order": 32,
+      "id": "seller.dataOverview",
+      "surface": "seller",
+      "routePattern": "#/seller-data/data",
+      "family": "seller-data",
+      "layer": "M4",
+      "evidence": "Live + Static",
+      "readiness": "R1/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D3_LOW_RISK_LIVE",
+      "transitionClass": "SAFE_READ",
+      "defaultActionGate": "G1",
+      "routePlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "date controls",
+        "metric cards",
+        "trend charts",
+        "info popovers"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "navigationEntries",
+        "filterControls",
+        "cardStructure",
+        "contentBlocks",
+        "routeShapes",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S3_NETWORK_OR_API_FAILURE"
+      ],
+      "stopStates": [
+        "S6_QR_OR_APP_BRIDGE",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "pageStopPoints": [
+        "record real numbers",
+        "export",
+        "download"
+      ],
+      "gateStopPoints": [
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "nextVerificationAction": "Verify navigation, filters, card structure, content blocks, and route shapes; avoid item identity values.",
+      "redactionRequired": true,
+      "prohibitedOutput": [
+        "realAccountName",
+        "realOrderId",
+        "realAddress",
+        "realChatText",
+        "realItemTitle",
+        "realAmount",
+        "realBusinessMetric",
+        "imageUrl",
+        "qrContent",
+        "password",
+        "verificationCode",
+        "cookie",
+        "token",
+        "localStorage",
+        "sessionStorage"
+      ]
+    },
+    {
+      "order": 33,
+      "id": "seller.commodityData",
+      "surface": "seller",
+      "routePattern": "#/seller-data/commodity",
+      "family": "seller-data",
+      "layer": "M4",
+      "evidence": "Live + Static",
+      "readiness": "R1/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D2_FORM_AND_SHELL_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "routePlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "search",
+        "date",
+        "commodity table",
+        "metric columns",
+        "pagination",
+        "download"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "fieldNames",
+        "inputTypes",
+        "validationHintCategories",
+        "uploadZones",
+        "emptyStateCategories",
+        "shellAnchors",
+        "tabNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S3_NETWORK_OR_API_FAILURE"
+      ],
+      "stopStates": [
+        "S6_QR_OR_APP_BRIDGE",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "pageStopPoints": [
+        "download item detail"
+      ],
+      "gateStopPoints": [
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "nextVerificationAction": "Verify fields, validation categories, upload zones, empty states, and shell anchors; stop before save, upload, submit, send, or publish.",
+      "redactionRequired": true,
+      "prohibitedOutput": [
+        "realAccountName",
+        "realOrderId",
+        "realAddress",
+        "realChatText",
+        "realItemTitle",
+        "realAmount",
+        "realBusinessMetric",
+        "imageUrl",
+        "qrContent",
+        "password",
+        "verificationCode",
+        "cookie",
+        "token",
+        "localStorage",
+        "sessionStorage"
+      ]
+    },
+    {
+      "order": 34,
+      "id": "seller.fanData",
+      "surface": "seller",
+      "routePattern": "#/seller-data/fanData",
+      "family": "seller-data",
+      "layer": "M4",
+      "evidence": "Live + Static",
+      "readiness": "R1/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D3_LOW_RISK_LIVE",
+      "transitionClass": "SAFE_READ",
+      "defaultActionGate": "G1",
+      "routePlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "date",
+        "fan metrics",
+        "profile distributions",
+        "region/user-group modules"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "navigationEntries",
+        "filterControls",
+        "cardStructure",
+        "contentBlocks",
+        "routeShapes",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S3_NETWORK_OR_API_FAILURE"
+      ],
+      "stopStates": [
+        "S6_QR_OR_APP_BRIDGE",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "pageStopPoints": [
+        "record real audience numbers",
+        "export"
+      ],
+      "gateStopPoints": [
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "nextVerificationAction": "Verify navigation, filters, card structure, content blocks, and route shapes; avoid item identity values.",
+      "redactionRequired": true,
+      "prohibitedOutput": [
+        "realAccountName",
+        "realOrderId",
+        "realAddress",
+        "realChatText",
+        "realItemTitle",
+        "realAmount",
+        "realBusinessMetric",
+        "imageUrl",
+        "qrContent",
+        "password",
+        "verificationCode",
+        "cookie",
+        "token",
+        "localStorage",
+        "sessionStorage"
+      ]
+    },
+    {
+      "order": 35,
+      "id": "seller.customerServiceData",
+      "surface": "seller",
+      "routePattern": "#/seller-data/customerService",
+      "family": "seller-data",
+      "layer": "M4",
+      "evidence": "Live + Static",
+      "readiness": "R1/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D2_FORM_AND_SHELL_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "routePlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "consultation metrics",
+        "satisfaction fields",
+        "customer-service table",
+        "export"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "fieldNames",
+        "inputTypes",
+        "validationHintCategories",
+        "uploadZones",
+        "emptyStateCategories",
+        "shellAnchors",
+        "tabNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S3_NETWORK_OR_API_FAILURE"
+      ],
+      "stopStates": [
+        "S6_QR_OR_APP_BRIDGE",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "pageStopPoints": [
+        "export customer-service detail"
+      ],
+      "gateStopPoints": [
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "nextVerificationAction": "Verify fields, validation categories, upload zones, empty states, and shell anchors; stop before save, upload, submit, send, or publish.",
+      "redactionRequired": true,
+      "prohibitedOutput": [
+        "realAccountName",
+        "realOrderId",
+        "realAddress",
+        "realChatText",
+        "realItemTitle",
+        "realAmount",
+        "realBusinessMetric",
+        "imageUrl",
+        "qrContent",
+        "password",
+        "verificationCode",
+        "cookie",
+        "token",
+        "localStorage",
+        "sessionStorage"
+      ]
+    },
+    {
+      "order": 36,
+      "id": "seller.itemPublish",
+      "surface": "seller",
+      "routePattern": "#/seller-item/publish",
+      "family": "seller-item",
+      "layer": "M2/M4",
+      "evidence": "Live + Static",
+      "readiness": "R2/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D2_FORM_AND_SHELL_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G2",
+      "routePlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "image/video uploader",
+        "title/description",
+        "category",
+        "sku",
+        "price",
+        "stock",
+        "shipping settings"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "fieldNames",
+        "inputTypes",
+        "validationHintCategories",
+        "uploadZones",
+        "emptyStateCategories",
+        "shellAnchors",
+        "tabNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S8_FORM_VALIDATION"
+      ],
+      "stopStates": [
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "pageStopPoints": [
+        "upload",
+        "save",
+        "publish"
+      ],
+      "gateStopPoints": [
+        "upload",
+        "save",
+        "submit",
+        "send",
+        "publish",
+        "overwrite existing content"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "nextVerificationAction": "Verify fields, validation categories, upload zones, empty states, and shell anchors; stop before save, upload, submit, send, or publish.",
+      "redactionRequired": true,
+      "prohibitedOutput": [
+        "realAccountName",
+        "realOrderId",
+        "realAddress",
+        "realChatText",
+        "realItemTitle",
+        "realAmount",
+        "realBusinessMetric",
+        "imageUrl",
+        "qrContent",
+        "password",
+        "verificationCode",
+        "cookie",
+        "token",
+        "localStorage",
+        "sessionStorage"
+      ]
+    },
+    {
+      "order": 37,
+      "id": "seller.goodsManage",
+      "surface": "seller",
+      "routePattern": "#/seller-item/goods-manage",
+      "family": "seller-item",
+      "layer": "M4",
+      "evidence": "Live + Static",
+      "readiness": "R1/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D2_FORM_AND_SHELL_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G2",
+      "routePlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "status tabs",
+        "search/filter",
+        "item table",
+        "bulk actions",
+        "operation column"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "fieldNames",
+        "inputTypes",
+        "validationHintCategories",
+        "uploadZones",
+        "emptyStateCategories",
+        "shellAnchors",
+        "tabNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S8_FORM_VALIDATION"
+      ],
+      "stopStates": [
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "pageStopPoints": [
+        "edit",
+        "copy",
+        "adjust price",
+        "shelf changes",
+        "delete"
+      ],
+      "gateStopPoints": [
+        "upload",
+        "save",
+        "submit",
+        "send",
+        "publish",
+        "overwrite existing content"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "nextVerificationAction": "Verify fields, validation categories, upload zones, empty states, and shell anchors; stop before save, upload, submit, send, or publish.",
+      "redactionRequired": true,
+      "prohibitedOutput": [
+        "realAccountName",
+        "realOrderId",
+        "realAddress",
+        "realChatText",
+        "realItemTitle",
+        "realAmount",
+        "realBusinessMetric",
+        "imageUrl",
+        "qrContent",
+        "password",
+        "verificationCode",
+        "cookie",
+        "token",
+        "localStorage",
+        "sessionStorage"
+      ]
+    },
+    {
+      "order": 38,
+      "id": "seller.postTemplate",
+      "surface": "seller",
+      "routePattern": "#/seller-item/post-temple",
+      "family": "seller-item",
+      "layer": "M4",
+      "evidence": "Live + Static",
+      "readiness": "R1/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D2_FORM_AND_SHELL_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G2",
+      "routePlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "template list",
+        "create entry",
+        "operation column",
+        "delete/default confirmation"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "fieldNames",
+        "inputTypes",
+        "validationHintCategories",
+        "uploadZones",
+        "emptyStateCategories",
+        "shellAnchors",
+        "tabNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S8_FORM_VALIDATION"
+      ],
+      "stopStates": [
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "pageStopPoints": [
+        "create",
+        "edit",
+        "delete",
+        "set default"
+      ],
+      "gateStopPoints": [
+        "upload",
+        "save",
+        "submit",
+        "send",
+        "publish",
+        "overwrite existing content"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "nextVerificationAction": "Verify fields, validation categories, upload zones, empty states, and shell anchors; stop before save, upload, submit, send, or publish.",
+      "redactionRequired": true,
+      "prohibitedOutput": [
+        "realAccountName",
+        "realOrderId",
+        "realAddress",
+        "realChatText",
+        "realItemTitle",
+        "realAmount",
+        "realBusinessMetric",
+        "imageUrl",
+        "qrContent",
+        "password",
+        "verificationCode",
+        "cookie",
+        "token",
+        "localStorage",
+        "sessionStorage"
+      ]
+    },
+    {
+      "order": 39,
+      "id": "seller.postTemplateCreate",
+      "surface": "seller",
+      "routePattern": "#/seller-item/post-temple/create",
+      "family": "seller-item",
+      "layer": "M4",
+      "evidence": "Live + Static",
+      "readiness": "R2/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D2_FORM_AND_SHELL_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G2",
+      "routePlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "template name",
+        "shipping location",
+        "billing mode",
+        "region modal",
+        "save"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "fieldNames",
+        "inputTypes",
+        "validationHintCategories",
+        "uploadZones",
+        "emptyStateCategories",
+        "shellAnchors",
+        "tabNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S8_FORM_VALIDATION"
+      ],
+      "stopStates": [
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "pageStopPoints": [
+        "save real template"
+      ],
+      "gateStopPoints": [
+        "upload",
+        "save",
+        "submit",
+        "send",
+        "publish",
+        "overwrite existing content"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "nextVerificationAction": "Verify fields, validation categories, upload zones, empty states, and shell anchors; stop before save, upload, submit, send, or publish.",
+      "redactionRequired": true,
+      "prohibitedOutput": [
+        "realAccountName",
+        "realOrderId",
+        "realAddress",
+        "realChatText",
+        "realItemTitle",
+        "realAmount",
+        "realBusinessMetric",
+        "imageUrl",
+        "qrContent",
+        "password",
+        "verificationCode",
+        "cookie",
+        "token",
+        "localStorage",
+        "sessionStorage"
+      ]
+    },
+    {
+      "order": 40,
+      "id": "seller.orderManage",
+      "surface": "seller",
+      "routePattern": "#/seller-trade/order-manage",
+      "family": "seller-trade",
+      "layer": "M3/M4",
+      "evidence": "Live + Static",
+      "readiness": "R1/R4",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "routePlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "order-status tabs",
+        "search conditions",
+        "date",
+        "order table",
+        "operation column"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "tabNames",
+        "filterFieldNames",
+        "tableHeaders",
+        "buttonCategories",
+        "statusCategories",
+        "modalCategories",
+        "fieldNames",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStates": [
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "pageStopPoints": [
+        "ship",
+        "change logistics",
+        "remark",
+        "contact",
+        "view funds"
+      ],
+      "gateStopPoints": [
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "nextVerificationAction": "Verify tabs, filters, table headers, status categories, and modal categories; never read row values or trigger operations.",
+      "redactionRequired": true,
+      "prohibitedOutput": [
+        "realAccountName",
+        "realOrderId",
+        "realAddress",
+        "realChatText",
+        "realItemTitle",
+        "realAmount",
+        "realBusinessMetric",
+        "imageUrl",
+        "qrContent",
+        "password",
+        "verificationCode",
+        "cookie",
+        "token",
+        "localStorage",
+        "sessionStorage"
+      ]
+    },
+    {
+      "order": 41,
+      "id": "seller.orderDetail",
+      "surface": "seller",
+      "routePattern": "#/seller-trade/order-manage/order-detail?orderId=...",
+      "family": "seller-trade",
+      "layer": "M3/M4",
+      "evidence": "Deep/Param",
+      "readiness": "R1/R4",
+      "liveCoverage": "requires-user-context",
+      "deepeningQueue": "D4_REQUIRES_USER_CONTEXT",
+      "transitionClass": "REQUIRES_USER_CONTEXT",
+      "defaultActionGate": "G1",
+      "routePlan": "Do not open by guessing parameters. Verify only when the user supplies a URL or business context.",
+      "waitFor": [
+        "status nodes",
+        "logistics",
+        "address-modification area",
+        "trade messages",
+        "operation buttons"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "requiredParameterType",
+        "riskBoundary",
+        "userConfirmationNeeded",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStates": [
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "pageStopPoints": [
+        "guess order id",
+        "order action"
+      ],
+      "gateStopPoints": [
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "required parameter type identified",
+        "user-provided context confirmed",
+        "private parameters redacted",
+        "business action boundary recorded"
+      ],
+      "nextVerificationAction": "Wait for user-supplied URL or context; verify route shape and boundary only.",
+      "redactionRequired": true,
+      "prohibitedOutput": [
+        "realAccountName",
+        "realOrderId",
+        "realAddress",
+        "realChatText",
+        "realItemTitle",
+        "realAmount",
+        "realBusinessMetric",
+        "imageUrl",
+        "qrContent",
+        "password",
+        "verificationCode",
+        "cookie",
+        "token",
+        "localStorage",
+        "sessionStorage"
+      ]
+    },
+    {
+      "order": 42,
+      "id": "seller.refundManage",
+      "surface": "seller",
+      "routePattern": "#/seller-trade/refund-manage",
+      "family": "seller-trade",
+      "layer": "M3/M4",
+      "evidence": "Live + Static",
+      "readiness": "R1/R4",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "routePlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "refund type",
+        "status filter",
+        "reason",
+        "logistics",
+        "operation column"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "tabNames",
+        "filterFieldNames",
+        "tableHeaders",
+        "buttonCategories",
+        "statusCategories",
+        "modalCategories",
+        "fieldNames",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStates": [
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "pageStopPoints": [
+        "agree refund",
+        "refuse refund",
+        "compensate",
+        "confirm receipt"
+      ],
+      "gateStopPoints": [
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "nextVerificationAction": "Verify tabs, filters, table headers, status categories, and modal categories; never read row values or trigger operations.",
+      "redactionRequired": true,
+      "prohibitedOutput": [
+        "realAccountName",
+        "realOrderId",
+        "realAddress",
+        "realChatText",
+        "realItemTitle",
+        "realAmount",
+        "realBusinessMetric",
+        "imageUrl",
+        "qrContent",
+        "password",
+        "verificationCode",
+        "cookie",
+        "token",
+        "localStorage",
+        "sessionStorage"
+      ]
+    },
+    {
+      "order": 43,
+      "id": "seller.evaluationManage",
+      "surface": "seller",
+      "routePattern": "#/seller-trade/evaluation-manage",
+      "family": "seller-trade",
+      "layer": "M3/M4",
+      "evidence": "Live + Static",
+      "readiness": "R1/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "routePlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "evaluation filters",
+        "evaluation table",
+        "batch review",
+        "report/contact"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "tabNames",
+        "filterFieldNames",
+        "tableHeaders",
+        "buttonCategories",
+        "statusCategories",
+        "modalCategories",
+        "fieldNames",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStates": [
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "pageStopPoints": [
+        "review",
+        "report",
+        "contact"
+      ],
+      "gateStopPoints": [
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "nextVerificationAction": "Verify tabs, filters, table headers, status categories, and modal categories; never read row values or trigger operations.",
+      "redactionRequired": true,
+      "prohibitedOutput": [
+        "realAccountName",
+        "realOrderId",
+        "realAddress",
+        "realChatText",
+        "realItemTitle",
+        "realAmount",
+        "realBusinessMetric",
+        "imageUrl",
+        "qrContent",
+        "password",
+        "verificationCode",
+        "cookie",
+        "token",
+        "localStorage",
+        "sessionStorage"
+      ]
+    },
+    {
+      "order": 44,
+      "id": "seller.complaintManage",
+      "surface": "seller",
+      "routePattern": "#/seller-trade/complaint-manage",
+      "family": "seller-trade",
+      "layer": "M3/M4",
+      "evidence": "Live + Static",
+      "readiness": "R1/R4",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "routePlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "complaint status",
+        "complaint table",
+        "detail/proof entry"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "tabNames",
+        "filterFieldNames",
+        "tableHeaders",
+        "buttonCategories",
+        "statusCategories",
+        "modalCategories",
+        "fieldNames",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStates": [
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "pageStopPoints": [
+        "submit proof",
+        "revoke",
+        "refuse",
+        "submit material"
+      ],
+      "gateStopPoints": [
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "nextVerificationAction": "Verify tabs, filters, table headers, status categories, and modal categories; never read row values or trigger operations.",
+      "redactionRequired": true,
+      "prohibitedOutput": [
+        "realAccountName",
+        "realOrderId",
+        "realAddress",
+        "realChatText",
+        "realItemTitle",
+        "realAmount",
+        "realBusinessMetric",
+        "imageUrl",
+        "qrContent",
+        "password",
+        "verificationCode",
+        "cookie",
+        "token",
+        "localStorage",
+        "sessionStorage"
+      ]
+    },
+    {
+      "order": 45,
+      "id": "seller.refundAddress",
+      "surface": "seller",
+      "routePattern": "#/seller-trade/refund-address",
+      "family": "seller-trade",
+      "layer": "M4",
+      "evidence": "Live + Static",
+      "readiness": "R1/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "routePlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "address table",
+        "default status",
+        "operation column",
+        "add/edit/delete"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "tabNames",
+        "filterFieldNames",
+        "tableHeaders",
+        "buttonCategories",
+        "statusCategories",
+        "modalCategories",
+        "fieldNames",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStates": [
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "pageStopPoints": [
+        "add address",
+        "edit address",
+        "delete address"
+      ],
+      "gateStopPoints": [
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "nextVerificationAction": "Verify tabs, filters, table headers, status categories, and modal categories; never read row values or trigger operations.",
+      "redactionRequired": true,
+      "prohibitedOutput": [
+        "realAccountName",
+        "realOrderId",
+        "realAddress",
+        "realChatText",
+        "realItemTitle",
+        "realAmount",
+        "realBusinessMetric",
+        "imageUrl",
+        "qrContent",
+        "password",
+        "verificationCode",
+        "cookie",
+        "token",
+        "localStorage",
+        "sessionStorage"
+      ]
+    },
+    {
+      "order": 46,
+      "id": "seller.incomeBill",
+      "surface": "seller",
+      "routePattern": "#/seller-finance/income-bill",
+      "family": "seller-finance",
+      "layer": "M4",
+      "evidence": "Live + Static",
+      "readiness": "R1/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "routePlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "month/day/detail tabs",
+        "date",
+        "business type",
+        "bill table",
+        "export/download"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "tabNames",
+        "filterFieldNames",
+        "tableHeaders",
+        "buttonCategories",
+        "statusCategories",
+        "modalCategories",
+        "fieldNames",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStates": [
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "pageStopPoints": [
+        "export",
+        "historical download",
+        "download full detail"
+      ],
+      "gateStopPoints": [
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "nextVerificationAction": "Verify tabs, filters, table headers, status categories, and modal categories; never read row values or trigger operations.",
+      "redactionRequired": true,
+      "prohibitedOutput": [
+        "realAccountName",
+        "realOrderId",
+        "realAddress",
+        "realChatText",
+        "realItemTitle",
+        "realAmount",
+        "realBusinessMetric",
+        "imageUrl",
+        "qrContent",
+        "password",
+        "verificationCode",
+        "cookie",
+        "token",
+        "localStorage",
+        "sessionStorage"
+      ]
+    },
+    {
+      "order": 47,
+      "id": "seller.expenseBill",
+      "surface": "seller",
+      "routePattern": "#/seller-finance/expense-bill",
+      "family": "seller-finance",
+      "layer": "M4",
+      "evidence": "Live + Static",
+      "readiness": "R1/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "routePlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "month/day/detail tabs",
+        "expense type",
+        "bill table",
+        "export/download"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "tabNames",
+        "filterFieldNames",
+        "tableHeaders",
+        "buttonCategories",
+        "statusCategories",
+        "modalCategories",
+        "fieldNames",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStates": [
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "pageStopPoints": [
+        "export",
+        "download"
+      ],
+      "gateStopPoints": [
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "nextVerificationAction": "Verify tabs, filters, table headers, status categories, and modal categories; never read row values or trigger operations.",
+      "redactionRequired": true,
+      "prohibitedOutput": [
+        "realAccountName",
+        "realOrderId",
+        "realAddress",
+        "realChatText",
+        "realItemTitle",
+        "realAmount",
+        "realBusinessMetric",
+        "imageUrl",
+        "qrContent",
+        "password",
+        "verificationCode",
+        "cookie",
+        "token",
+        "localStorage",
+        "sessionStorage"
+      ]
+    },
+    {
+      "order": 48,
+      "id": "seller.invoiceApply",
+      "surface": "seller",
+      "routePattern": "#/seller-finance/invoice-apply",
+      "family": "seller-finance",
+      "layer": "M4",
+      "evidence": "Live + Static",
+      "readiness": "R1/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "routePlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "pending/applied/legacy tabs",
+        "business type",
+        "apply",
+        "export"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "tabNames",
+        "filterFieldNames",
+        "tableHeaders",
+        "buttonCategories",
+        "statusCategories",
+        "modalCategories",
+        "fieldNames",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStates": [
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "pageStopPoints": [
+        "apply invoice",
+        "export"
+      ],
+      "gateStopPoints": [
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "nextVerificationAction": "Verify tabs, filters, table headers, status categories, and modal categories; never read row values or trigger operations.",
+      "redactionRequired": true,
+      "prohibitedOutput": [
+        "realAccountName",
+        "realOrderId",
+        "realAddress",
+        "realChatText",
+        "realItemTitle",
+        "realAmount",
+        "realBusinessMetric",
+        "imageUrl",
+        "qrContent",
+        "password",
+        "verificationCode",
+        "cookie",
+        "token",
+        "localStorage",
+        "sessionStorage"
+      ]
+    },
+    {
+      "order": 49,
+      "id": "seller.basicInfo",
+      "surface": "seller",
+      "routePattern": "#/seller-finance/basic-info",
+      "family": "seller-finance",
+      "layer": "M4/M5",
+      "evidence": "Live + Static",
+      "readiness": "R1/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "routePlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "invoice entity form",
+        "edit/save"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "tabNames",
+        "filterFieldNames",
+        "tableHeaders",
+        "buttonCategories",
+        "statusCategories",
+        "modalCategories",
+        "fieldNames",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStates": [
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "pageStopPoints": [
+        "modify entity data"
+      ],
+      "gateStopPoints": [
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "nextVerificationAction": "Verify tabs, filters, table headers, status categories, and modal categories; never read row values or trigger operations.",
+      "redactionRequired": true,
+      "prohibitedOutput": [
+        "realAccountName",
+        "realOrderId",
+        "realAddress",
+        "realChatText",
+        "realItemTitle",
+        "realAmount",
+        "realBusinessMetric",
+        "imageUrl",
+        "qrContent",
+        "password",
+        "verificationCode",
+        "cookie",
+        "token",
+        "localStorage",
+        "sessionStorage"
+      ]
+    },
+    {
+      "order": 50,
+      "id": "seller.subAccount",
+      "surface": "seller",
+      "routePattern": "#/seller-account/sub-account",
+      "family": "seller-account",
+      "layer": "M4/M5",
+      "evidence": "Live + Static",
+      "readiness": "R1/R4",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "routePlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "sub-account table",
+        "role",
+        "status",
+        "routing config",
+        "new/disable/permission"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "tabNames",
+        "filterFieldNames",
+        "tableHeaders",
+        "buttonCategories",
+        "statusCategories",
+        "modalCategories",
+        "fieldNames",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStates": [
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "pageStopPoints": [
+        "create sub-account",
+        "disable account",
+        "change permission"
+      ],
+      "gateStopPoints": [
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "nextVerificationAction": "Verify tabs, filters, table headers, status categories, and modal categories; never read row values or trigger operations.",
+      "redactionRequired": true,
+      "prohibitedOutput": [
+        "realAccountName",
+        "realOrderId",
+        "realAddress",
+        "realChatText",
+        "realItemTitle",
+        "realAmount",
+        "realBusinessMetric",
+        "imageUrl",
+        "qrContent",
+        "password",
+        "verificationCode",
+        "cookie",
+        "token",
+        "localStorage",
+        "sessionStorage"
+      ]
+    },
+    {
+      "order": 51,
+      "id": "seller.csDispatch",
+      "surface": "seller",
+      "routePattern": "#/im-cs-dispatch/customer-routing-service",
+      "family": "seller-account",
+      "layer": "M4/M5",
+      "evidence": "Live + Static",
+      "readiness": "R1/R4",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "routePlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "groups",
+        "reception scope",
+        "participating service agents",
+        "switch",
+        "save"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "tabNames",
+        "filterFieldNames",
+        "tableHeaders",
+        "buttonCategories",
+        "statusCategories",
+        "modalCategories",
+        "fieldNames",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStates": [
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "pageStopPoints": [
+        "save",
+        "enable/disable",
+        "create group"
+      ],
+      "gateStopPoints": [
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "nextVerificationAction": "Verify tabs, filters, table headers, status categories, and modal categories; never read row values or trigger operations.",
+      "redactionRequired": true,
+      "prohibitedOutput": [
+        "realAccountName",
+        "realOrderId",
+        "realAddress",
+        "realChatText",
+        "realItemTitle",
+        "realAmount",
+        "realBusinessMetric",
+        "imageUrl",
+        "qrContent",
+        "password",
+        "verificationCode",
+        "cookie",
+        "token",
+        "localStorage",
+        "sessionStorage"
+      ]
+    },
+    {
+      "order": 52,
+      "id": "seller.securityCenter",
+      "surface": "seller",
+      "routePattern": "#/seller-sc/home",
+      "family": "seller-security",
+      "layer": "M4",
+      "evidence": "Live + Static",
+      "readiness": "R1/R4",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "routePlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "violation table",
+        "penalty status",
+        "appeal status",
+        "detail/appeal"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "tabNames",
+        "filterFieldNames",
+        "tableHeaders",
+        "buttonCategories",
+        "statusCategories",
+        "modalCategories",
+        "fieldNames",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStates": [
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "pageStopPoints": [
+        "view sensitive detail",
+        "appeal",
+        "process"
+      ],
+      "gateStopPoints": [
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "nextVerificationAction": "Verify tabs, filters, table headers, status categories, and modal categories; never read row values or trigger operations.",
+      "redactionRequired": true,
+      "prohibitedOutput": [
+        "realAccountName",
+        "realOrderId",
+        "realAddress",
+        "realChatText",
+        "realItemTitle",
+        "realAmount",
+        "realBusinessMetric",
+        "imageUrl",
+        "qrContent",
+        "password",
+        "verificationCode",
+        "cookie",
+        "token",
+        "localStorage",
+        "sessionStorage"
+      ]
+    },
+    {
+      "order": 53,
+      "id": "seller.adHome",
+      "surface": "seller",
+      "routePattern": "#/seller-ad/home",
+      "family": "seller-ad",
+      "layer": "M4",
+      "evidence": "Live + Static",
+      "readiness": "R1/R4",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "routePlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "date",
+        "promotion metrics",
+        "plan entry",
+        "carousel controls"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "tabNames",
+        "filterFieldNames",
+        "tableHeaders",
+        "buttonCategories",
+        "statusCategories",
+        "modalCategories",
+        "fieldNames",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStates": [
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "pageStopPoints": [
+        "create plan",
+        "launch paid promotion"
+      ],
+      "gateStopPoints": [
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "nextVerificationAction": "Verify tabs, filters, table headers, status categories, and modal categories; never read row values or trigger operations.",
+      "redactionRequired": true,
+      "prohibitedOutput": [
+        "realAccountName",
+        "realOrderId",
+        "realAddress",
+        "realChatText",
+        "realItemTitle",
+        "realAmount",
+        "realBusinessMetric",
+        "imageUrl",
+        "qrContent",
+        "password",
+        "verificationCode",
+        "cookie",
+        "token",
+        "localStorage",
+        "sessionStorage"
+      ]
+    },
+    {
+      "order": 54,
+      "id": "seller.notificationCenter",
+      "surface": "seller",
+      "routePattern": "#/notification-center",
+      "family": "seller-shell",
+      "layer": "M4",
+      "evidence": "Live + Static",
+      "readiness": "R1/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "routePlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "notification list",
+        "unread status",
+        "detail entry",
+        "mark read/clear unread"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "tabNames",
+        "filterFieldNames",
+        "tableHeaders",
+        "buttonCategories",
+        "statusCategories",
+        "modalCategories",
+        "fieldNames",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S3_NETWORK_OR_API_FAILURE"
+      ],
+      "stopStates": [
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "pageStopPoints": [
+        "mark read",
+        "clear unread"
+      ],
+      "gateStopPoints": [
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "nextVerificationAction": "Verify tabs, filters, table headers, status categories, and modal categories; never read row values or trigger operations.",
+      "redactionRequired": true,
+      "prohibitedOutput": [
+        "realAccountName",
+        "realOrderId",
+        "realAddress",
+        "realChatText",
+        "realItemTitle",
+        "realAmount",
+        "realBusinessMetric",
+        "imageUrl",
+        "qrContent",
+        "password",
+        "verificationCode",
+        "cookie",
+        "token",
+        "localStorage",
+        "sessionStorage"
+      ]
+    },
+    {
+      "order": 55,
+      "id": "seller.notificationApi",
+      "surface": "seller",
+      "routePattern": "#/notification-center/api*",
+      "family": "internal-module",
+      "layer": "M6",
+      "evidence": "Static Only",
+      "readiness": "R5",
+      "liveCoverage": "static-only",
+      "deepeningQueue": "D5_STATIC_ONLY",
+      "transitionClass": "STATIC_ONLY",
+      "defaultActionGate": "G4",
+      "routePlan": "Do not open for coverage. Verify from static route, module, signal, or API evidence only.",
+      "waitFor": [
+        "internal API/interface module"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "staticRoute",
+        "moduleName",
+        "staticApiFamily",
+        "riskBoundary",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S3_NETWORK_OR_API_FAILURE"
+      ],
+      "stopStates": [],
+      "pageStopPoints": [
+        "direct call"
+      ],
+      "gateStopPoints": [
+        "any proactive action beyond naming the boundary"
+      ],
+      "passEvidence": [
+        "static module or route signal identified",
+        "API or Page signal mapped to family",
+        "risk boundary recorded",
+        "no live probing attempted"
+      ],
+      "nextVerificationAction": "Keep as static evidence; verify module name, static API family, and risk boundary only.",
+      "redactionRequired": true,
+      "prohibitedOutput": [
+        "realAccountName",
+        "realOrderId",
+        "realAddress",
+        "realChatText",
+        "realItemTitle",
+        "realAmount",
+        "realBusinessMetric",
+        "imageUrl",
+        "qrContent",
+        "password",
+        "verificationCode",
+        "cookie",
+        "token",
+        "localStorage",
+        "sessionStorage"
+      ]
+    },
+    {
+      "order": 56,
+      "id": "seller.im",
+      "surface": "seller",
+      "routePattern": "#/im",
+      "family": "seller-message",
+      "layer": "M3/M4",
+      "evidence": "Live + Static",
+      "readiness": "R1/R2/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G2",
+      "routePlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "session list",
+        "search",
+        "input area",
+        "toolbar",
+        "quick replies",
+        "file",
+        "transfer"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "tabNames",
+        "filterFieldNames",
+        "tableHeaders",
+        "buttonCategories",
+        "statusCategories",
+        "modalCategories",
+        "fieldNames",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStates": [
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "pageStopPoints": [
+        "read specific conversation",
+        "send",
+        "file upload",
+        "transfer"
+      ],
+      "gateStopPoints": [
+        "upload",
+        "save",
+        "submit",
+        "send",
+        "publish",
+        "overwrite existing content"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "nextVerificationAction": "Verify tabs, filters, table headers, status categories, and modal categories; never read row values or trigger operations.",
+      "redactionRequired": true,
+      "prohibitedOutput": [
+        "realAccountName",
+        "realOrderId",
+        "realAddress",
+        "realChatText",
+        "realItemTitle",
+        "realAmount",
+        "realBusinessMetric",
+        "imageUrl",
+        "qrContent",
+        "password",
+        "verificationCode",
+        "cookie",
+        "token",
+        "localStorage",
+        "sessionStorage"
+      ]
+    },
+    {
+      "order": 57,
+      "id": "seller.imItem",
+      "surface": "seller",
+      "routePattern": "#/im?itemId=...",
+      "family": "seller-message",
+      "layer": "M3/M4",
+      "evidence": "Deep/Param",
+      "readiness": "R3/R4",
+      "liveCoverage": "requires-user-context",
+      "deepeningQueue": "D4_REQUIRES_USER_CONTEXT",
+      "transitionClass": "REQUIRES_USER_CONTEXT",
+      "defaultActionGate": "G2",
+      "routePlan": "Do not open by guessing parameters. Verify only when the user supplies a URL or business context.",
+      "waitFor": [
+        "item-linked message parameter"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "requiredParameterType",
+        "riskBoundary",
+        "userConfirmationNeeded",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStates": [
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "pageStopPoints": [
+        "guess parameter",
+        "send"
+      ],
+      "gateStopPoints": [
+        "upload",
+        "save",
+        "submit",
+        "send",
+        "publish",
+        "overwrite existing content"
+      ],
+      "passEvidence": [
+        "required parameter type identified",
+        "user-provided context confirmed",
+        "private parameters redacted",
+        "business action boundary recorded"
+      ],
+      "nextVerificationAction": "Wait for user-supplied URL or context; verify route shape and boundary only.",
+      "redactionRequired": true,
+      "prohibitedOutput": [
+        "realAccountName",
+        "realOrderId",
+        "realAddress",
+        "realChatText",
+        "realItemTitle",
+        "realAmount",
+        "realBusinessMetric",
+        "imageUrl",
+        "qrContent",
+        "password",
+        "verificationCode",
+        "cookie",
+        "token",
+        "localStorage",
+        "sessionStorage"
+      ]
+    },
+    {
+      "order": 58,
+      "id": "seller.imDesktop",
+      "surface": "seller",
+      "routePattern": "#/im-desktop",
+      "family": "seller-shell",
+      "layer": "M6",
+      "evidence": "Live + Static",
+      "readiness": "R5/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "routePlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "download/open client prompt"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "tabNames",
+        "filterFieldNames",
+        "tableHeaders",
+        "buttonCategories",
+        "statusCategories",
+        "modalCategories",
+        "fieldNames",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S3_NETWORK_OR_API_FAILURE"
+      ],
+      "stopStates": [
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "pageStopPoints": [
+        "download",
+        "install",
+        "open"
+      ],
+      "gateStopPoints": [
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "nextVerificationAction": "Verify tabs, filters, table headers, status categories, and modal categories; never read row values or trigger operations.",
+      "redactionRequired": true,
+      "prohibitedOutput": [
+        "realAccountName",
+        "realOrderId",
+        "realAddress",
+        "realChatText",
+        "realItemTitle",
+        "realAmount",
+        "realBusinessMetric",
+        "imageUrl",
+        "qrContent",
+        "password",
+        "verificationCode",
+        "cookie",
+        "token",
+        "localStorage",
+        "sessionStorage"
+      ]
+    },
+    {
+      "order": 59,
+      "id": "seller.download",
+      "surface": "seller",
+      "routePattern": "#/download",
+      "family": "seller-shell",
+      "layer": "M6",
+      "evidence": "Static + Live entry",
+      "readiness": "R5/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D2_FORM_AND_SHELL_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "routePlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "download button",
+        "client type"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "fieldNames",
+        "inputTypes",
+        "validationHintCategories",
+        "uploadZones",
+        "emptyStateCategories",
+        "shellAnchors",
+        "tabNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S3_NETWORK_OR_API_FAILURE"
+      ],
+      "stopStates": [
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "pageStopPoints": [
+        "download",
+        "install"
+      ],
+      "gateStopPoints": [
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "nextVerificationAction": "Verify fields, validation categories, upload zones, empty states, and shell anchors; stop before save, upload, submit, send, or publish.",
+      "redactionRequired": true,
+      "prohibitedOutput": [
+        "realAccountName",
+        "realOrderId",
+        "realAddress",
+        "realChatText",
+        "realItemTitle",
+        "realAmount",
+        "realBusinessMetric",
+        "imageUrl",
+        "qrContent",
+        "password",
+        "verificationCode",
+        "cookie",
+        "token",
+        "localStorage",
+        "sessionStorage"
+      ]
+    },
+    {
+      "order": 60,
+      "id": "seller.selectSite",
+      "surface": "seller",
+      "routePattern": "#/select-site",
+      "family": "seller-gate",
+      "layer": "M5",
+      "evidence": "Live + Static",
+      "readiness": "R5/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D2_FORM_AND_SHELL_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G4",
+      "routePlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "site/identity list",
+        "selection button"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "fieldNames",
+        "inputTypes",
+        "validationHintCategories",
+        "uploadZones",
+        "emptyStateCategories",
+        "shellAnchors",
+        "tabNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [],
+      "stopStates": [
+        "S4_LOGIN_EXPIRED",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "pageStopPoints": [
+        "switch site"
+      ],
+      "gateStopPoints": [
+        "any proactive action beyond naming the boundary"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "nextVerificationAction": "Verify fields, validation categories, upload zones, empty states, and shell anchors; stop before save, upload, submit, send, or publish.",
+      "redactionRequired": true,
+      "prohibitedOutput": [
+        "realAccountName",
+        "realOrderId",
+        "realAddress",
+        "realChatText",
+        "realItemTitle",
+        "realAmount",
+        "realBusinessMetric",
+        "imageUrl",
+        "qrContent",
+        "password",
+        "verificationCode",
+        "cookie",
+        "token",
+        "localStorage",
+        "sessionStorage"
+      ]
+    },
+    {
+      "order": 61,
+      "id": "seller.accountCheck",
+      "surface": "seller",
+      "routePattern": "#/account-check",
+      "family": "seller-gate",
+      "layer": "M5",
+      "evidence": "Live + Static",
+      "readiness": "R5/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D2_FORM_AND_SHELL_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G4",
+      "routePlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "account check",
+        "continue",
+        "re-login",
+        "switch"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "fieldNames",
+        "inputTypes",
+        "validationHintCategories",
+        "uploadZones",
+        "emptyStateCategories",
+        "shellAnchors",
+        "tabNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [],
+      "stopStates": [
+        "S4_LOGIN_EXPIRED",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "pageStopPoints": [
+        "continue",
+        "re-login",
+        "switch account"
+      ],
+      "gateStopPoints": [
+        "any proactive action beyond naming the boundary"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "nextVerificationAction": "Verify fields, validation categories, upload zones, empty states, and shell anchors; stop before save, upload, submit, send, or publish.",
+      "redactionRequired": true,
+      "prohibitedOutput": [
+        "realAccountName",
+        "realOrderId",
+        "realAddress",
+        "realChatText",
+        "realItemTitle",
+        "realAmount",
+        "realBusinessMetric",
+        "imageUrl",
+        "qrContent",
+        "password",
+        "verificationCode",
+        "cookie",
+        "token",
+        "localStorage",
+        "sessionStorage"
+      ]
+    },
+    {
+      "order": 62,
+      "id": "seller.accountCheckUser",
+      "surface": "seller",
+      "routePattern": "#/account-check?userNick=...",
+      "family": "seller-gate",
+      "layer": "M5",
+      "evidence": "Deep/Param",
+      "readiness": "R5",
+      "liveCoverage": "requires-user-context",
+      "deepeningQueue": "D4_REQUIRES_USER_CONTEXT",
+      "transitionClass": "REQUIRES_USER_CONTEXT",
+      "defaultActionGate": "G4",
+      "routePlan": "Do not open by guessing parameters. Verify only when the user supplies a URL or business context.",
+      "waitFor": [
+        "account-check parameter"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "requiredParameterType",
+        "riskBoundary",
+        "userConfirmationNeeded",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [],
+      "stopStates": [
+        "S4_LOGIN_EXPIRED",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "pageStopPoints": [
+        "guess real account name"
+      ],
+      "gateStopPoints": [
+        "any proactive action beyond naming the boundary"
+      ],
+      "passEvidence": [
+        "required parameter type identified",
+        "user-provided context confirmed",
+        "private parameters redacted",
+        "business action boundary recorded"
+      ],
+      "nextVerificationAction": "Wait for user-supplied URL or context; verify route shape and boundary only.",
+      "redactionRequired": true,
+      "prohibitedOutput": [
+        "realAccountName",
+        "realOrderId",
+        "realAddress",
+        "realChatText",
+        "realItemTitle",
+        "realAmount",
+        "realBusinessMetric",
+        "imageUrl",
+        "qrContent",
+        "password",
+        "verificationCode",
+        "cookie",
+        "token",
+        "localStorage",
+        "sessionStorage"
+      ]
+    },
+    {
+      "order": 63,
+      "id": "seller.login",
+      "surface": "seller",
+      "routePattern": "#/login",
+      "family": "seller-gate",
+      "layer": "M5",
+      "evidence": "Shell/Container",
+      "readiness": "R5",
+      "liveCoverage": "shell-boundary",
+      "deepeningQueue": "D6_SHELL_BOUNDARY",
+      "transitionClass": "SHELL_ONLY",
+      "defaultActionGate": "G4",
+      "routePlan": "Open shell only if already reachable; identify login, iframe, or container boundary and stop.",
+      "waitFor": [
+        "login",
+        "scan",
+        "verification entry"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "containerType",
+        "embeddedTargetShape",
+        "permissionBoundary",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [],
+      "stopStates": [
+        "S4_LOGIN_EXPIRED",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "pageStopPoints": [
+        "scan",
+        "enter verification code"
+      ],
+      "gateStopPoints": [
+        "any proactive action beyond naming the boundary"
+      ],
+      "passEvidence": [
+        "container type identified",
+        "embedded target shape described",
+        "login or permission boundary recorded",
+        "no embedded action triggered"
+      ],
+      "nextVerificationAction": "Verify shell/container type only; stop before embedded login, install, or external app action.",
+      "redactionRequired": true,
+      "prohibitedOutput": [
+        "realAccountName",
+        "realOrderId",
+        "realAddress",
+        "realChatText",
+        "realItemTitle",
+        "realAmount",
+        "realBusinessMetric",
+        "imageUrl",
+        "qrContent",
+        "password",
+        "verificationCode",
+        "cookie",
+        "token",
+        "localStorage",
+        "sessionStorage"
+      ]
+    },
+    {
+      "order": 64,
+      "id": "seller.noPermission",
+      "surface": "seller",
+      "routePattern": "#/no-permission",
+      "family": "seller-gate",
+      "layer": "M5",
+      "evidence": "Live + Static",
+      "readiness": "R5",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D2_FORM_AND_SHELL_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G4",
+      "routePlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "no-permission message",
+        "return/jump controls"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "fieldNames",
+        "inputTypes",
+        "validationHintCategories",
+        "uploadZones",
+        "emptyStateCategories",
+        "shellAnchors",
+        "tabNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [],
+      "stopStates": [
+        "S4_LOGIN_EXPIRED",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "pageStopPoints": [],
+      "gateStopPoints": [
+        "any proactive action beyond naming the boundary"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "nextVerificationAction": "Verify fields, validation categories, upload zones, empty states, and shell anchors; stop before save, upload, submit, send, or publish.",
+      "redactionRequired": true,
+      "prohibitedOutput": [
+        "realAccountName",
+        "realOrderId",
+        "realAddress",
+        "realChatText",
+        "realItemTitle",
+        "realAmount",
+        "realBusinessMetric",
+        "imageUrl",
+        "qrContent",
+        "password",
+        "verificationCode",
+        "cookie",
+        "token",
+        "localStorage",
+        "sessionStorage"
+      ]
+    },
+    {
+      "order": 65,
+      "id": "seller.iframe",
+      "surface": "seller",
+      "routePattern": "#/iframe?url=...",
+      "family": "seller-shell",
+      "layer": "M6",
+      "evidence": "Shell/Container",
+      "readiness": "R5",
+      "liveCoverage": "shell-boundary",
+      "deepeningQueue": "D6_SHELL_BOUNDARY",
+      "transitionClass": "SHELL_ONLY",
+      "defaultActionGate": "G1",
+      "routePlan": "Open shell only if already reachable; identify login, iframe, or container boundary and stop.",
+      "waitFor": [
+        "iframe source",
+        "loading/failure state"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "containerType",
+        "embeddedTargetShape",
+        "permissionBoundary",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S3_NETWORK_OR_API_FAILURE"
+      ],
+      "stopStates": [
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "pageStopPoints": [
+        "operate external page without separate review"
+      ],
+      "gateStopPoints": [
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "container type identified",
+        "embedded target shape described",
+        "login or permission boundary recorded",
+        "no embedded action triggered"
+      ],
+      "nextVerificationAction": "Verify shell/container type only; stop before embedded login, install, or external app action.",
+      "redactionRequired": true,
+      "prohibitedOutput": [
+        "realAccountName",
+        "realOrderId",
+        "realAddress",
+        "realChatText",
+        "realItemTitle",
+        "realAmount",
+        "realBusinessMetric",
+        "imageUrl",
+        "qrContent",
+        "password",
+        "verificationCode",
+        "cookie",
+        "token",
+        "localStorage",
+        "sessionStorage"
+      ]
+    },
+    {
+      "order": 66,
+      "id": "seller.playground",
+      "surface": "seller",
+      "routePattern": "#/playground",
+      "family": "internal-test",
+      "layer": "M6",
+      "evidence": "Static Only",
+      "readiness": "R5/R4",
+      "liveCoverage": "static-only",
+      "deepeningQueue": "D5_STATIC_ONLY",
+      "transitionClass": "STATIC_ONLY",
+      "defaultActionGate": "G4",
+      "routePlan": "Do not open for coverage. Verify from static route, module, signal, or API evidence only.",
+      "waitFor": [
+        "test entry"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "staticRoute",
+        "moduleName",
+        "staticApiFamily",
+        "riskBoundary",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [],
+      "stopStates": [
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "pageStopPoints": [
+        "visit proactively",
+        "trigger test action"
+      ],
+      "gateStopPoints": [
+        "any proactive action beyond naming the boundary"
+      ],
+      "passEvidence": [
+        "static module or route signal identified",
+        "API or Page signal mapped to family",
+        "risk boundary recorded",
+        "no live probing attempted"
+      ],
+      "nextVerificationAction": "Keep as static evidence; verify module name, static API family, and risk boundary only.",
+      "redactionRequired": true,
+      "prohibitedOutput": [
+        "realAccountName",
+        "realOrderId",
+        "realAddress",
+        "realChatText",
+        "realItemTitle",
+        "realAmount",
+        "realBusinessMetric",
+        "imageUrl",
+        "qrContent",
+        "password",
+        "verificationCode",
+        "cookie",
+        "token",
+        "localStorage",
+        "sessionStorage"
+      ]
+    }
+  ]
+}

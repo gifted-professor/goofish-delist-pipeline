@@ -1,0 +1,2271 @@
+{
+  "schema": "goofish-page-dossier-index/v1",
+  "date": "2026-06-22",
+  "purpose": "Machine-readable index for the human per-page Goofish/Xianyu dossiers.",
+  "sources": {
+    "pageDossiers": "goofish-page-dossiers.md",
+    "pageOntology": "goofish-page-ontology.json",
+    "pageVerificationChecklist": "goofish-page-verification-checklist.json",
+    "accountProfileProbeTemplate": "goofish-account-profile-probe-template.json"
+  },
+  "privacy": {
+    "storesRealAccount": false,
+    "storesRealOrder": false,
+    "storesRealAddress": false,
+    "storesRealChat": false,
+    "storesRealItemTitle": false,
+    "storesRealAmount": false,
+    "storesBusinessMetricValue": false,
+    "storesImageUrl": false,
+    "storesQrContent": false,
+    "storesLoginMaterial": false,
+    "storesCookieOrToken": false,
+    "storesBrowserStorage": false
+  },
+  "totals": {
+    "pages": 66,
+    "bySurface": {
+      "www": 31,
+      "seller": 35
+    },
+    "byFamily": {
+      "public-discovery": 3,
+      "item-detail": 1,
+      "public-profile": 1,
+      "buyer-account": 2,
+      "buyer-trade": 6,
+      "draft-input": 4,
+      "message": 2,
+      "identity": 6,
+      "internal-module": 3,
+      "public-content": 3,
+      "internal-test": 2,
+      "seller-data": 4,
+      "seller-item": 4,
+      "seller-trade": 6,
+      "seller-finance": 4,
+      "seller-account": 2,
+      "seller-security": 1,
+      "seller-ad": 1,
+      "seller-shell": 4,
+      "seller-message": 2,
+      "seller-gate": 5
+    },
+    "byRunMode": {
+      "LIVE_READ_ONLY": 40,
+      "WAIT_FOR_USER_CONTEXT": 8,
+      "STATIC_EVIDENCE_ONLY": 16,
+      "SHELL_BOUNDARY_ONLY": 2
+    },
+    "byCoverage": {
+      "observed-live": 40,
+      "requires-user-context": 8,
+      "shell-boundary": 2,
+      "static-only": 16
+    },
+    "byTransitionClass": {
+      "READ_WITH_REDACTION": 32,
+      "REQUIRES_USER_CONTEXT": 8,
+      "SAFE_READ": 8,
+      "SHELL_ONLY": 2,
+      "STATIC_ONLY": 16
+    },
+    "redactionRequired": 60
+  },
+  "familyRollups": {
+    "buyer-account": {
+      "pages": 2,
+      "ids": [
+        "www.personalSelf",
+        "www.collection"
+      ],
+      "meaning": "买家账号内页面。重点理解个人中心、收藏、账号设置、模块入口和账号态边界。"
+    },
+    "buyer-trade": {
+      "pages": 6,
+      "ids": [
+        "www.bought",
+        "www.orderDetail",
+        "www.createOrder",
+        "www.paySuccess",
+        "www.yhbCreateOrder",
+        "www.yhbOrderDetail"
+      ],
+      "meaning": "买家交易页。重点理解订单、支付、物流、售后和状态节点结构，只读不触发交易。"
+    },
+    "draft-input": {
+      "pages": 4,
+      "ids": [
+        "www.publish",
+        "www.publishScene",
+        "www.publishEdit",
+        "www.feedback"
+      ],
+      "meaning": "草稿输入页。重点理解表单字段、校验提示、输入区和上传/提交边界。"
+    },
+    "identity": {
+      "pages": 6,
+      "ids": [
+        "www.account",
+        "www.login",
+        "www.loginRedirect",
+        "www.findAccount",
+        "www.selectAccount",
+        "www.loginValidation"
+      ],
+      "meaning": "身份或登录门禁页。重点识别登录、验证、账号选择、站点选择和权限门禁。"
+    },
+    "internal-module": {
+      "pages": 3,
+      "ids": [
+        "www.accountApi",
+        "www.commonVideoLayout",
+        "seller.notificationApi"
+      ],
+      "meaning": "内部模块或资源页。重点识别模块存在和风险边界，不当作业务页面操作。"
+    },
+    "internal-test": {
+      "pages": 2,
+      "ids": [
+        "www.playground",
+        "seller.playground"
+      ],
+      "meaning": "内部测试页。重点识别测试入口，不主动访问或触发测试动作。"
+    },
+    "item-detail": {
+      "pages": 1,
+      "ids": [
+        "www.item"
+      ],
+      "meaning": "商品详情页。重点理解商品信息区、保障标签、卖家卡片、操作按钮和交易入口边界。"
+    },
+    "message": {
+      "pages": 2,
+      "ids": [
+        "www.im",
+        "www.imItem"
+      ],
+      "meaning": "消息页。重点理解会话外壳、输入区、工具栏和发送边界，不读取具体私聊内容。"
+    },
+    "public-content": {
+      "pages": 3,
+      "ids": [
+        "www.changelog",
+        "www.commonVideo",
+        "www.upgradeBrowser"
+      ],
+      "meaning": "公共内容或承接页。重点理解静态内容、视频/升级/承接形态和外部跳转边界。"
+    },
+    "public-discovery": {
+      "pages": 3,
+      "ids": [
+        "www.home",
+        "www.search",
+        "www.machFeeds"
+      ],
+      "meaning": "公开找货和内容发现页。重点理解搜索、频道、筛选、排序、商品卡片和推荐流结构。"
+    },
+    "public-profile": {
+      "pages": 1,
+      "ids": [
+        "www.personalOther"
+      ],
+      "meaning": "公开个人主页。重点理解主页资料区、信用信息区、宝贝列表、关注和联系入口边界。"
+    },
+    "seller-account": {
+      "pages": 2,
+      "ids": [
+        "seller.subAccount",
+        "seller.csDispatch"
+      ],
+      "meaning": "卖家账号资料页。重点理解基础资料、主体字段、店铺资料和编辑/保存边界。"
+    },
+    "seller-ad": {
+      "pages": 1,
+      "ids": [
+        "seller.adHome"
+      ],
+      "meaning": "推广投放页。重点理解推广入口、计划/付费动作边界和数据只读口径。"
+    },
+    "seller-data": {
+      "pages": 4,
+      "ids": [
+        "seller.dataOverview",
+        "seller.commodityData",
+        "seller.fanData",
+        "seller.customerServiceData"
+      ],
+      "meaning": "卖家数据页。重点理解指标卡、日期筛选、图表和表头，不记录真实经营数值。"
+    },
+    "seller-finance": {
+      "pages": 4,
+      "ids": [
+        "seller.incomeBill",
+        "seller.expenseBill",
+        "seller.invoiceApply",
+        "seller.basicInfo"
+      ],
+      "meaning": "卖家财务页。重点理解账单、发票、主体资料、日期筛选和导出/下载边界。"
+    },
+    "seller-gate": {
+      "pages": 5,
+      "ids": [
+        "seller.selectSite",
+        "seller.accountCheck",
+        "seller.accountCheckUser",
+        "seller.login",
+        "seller.noPermission"
+      ],
+      "meaning": "卖家门禁页。重点识别站点选择、账号检查、无权限和登录边界。"
+    },
+    "seller-item": {
+      "pages": 4,
+      "ids": [
+        "seller.itemPublish",
+        "seller.goodsManage",
+        "seller.postTemplate",
+        "seller.postTemplateCreate"
+      ],
+      "meaning": "卖家商品页。重点理解商品管理、发布字段、模板、状态 tab 和上下架/删除边界。"
+    },
+    "seller-message": {
+      "pages": 2,
+      "ids": [
+        "seller.im",
+        "seller.imItem"
+      ],
+      "meaning": "卖家消息页。重点理解消息壳、会话入口、桌面端承接和发送/文件边界。"
+    },
+    "seller-security": {
+      "pages": 1,
+      "ids": [
+        "seller.securityCenter"
+      ],
+      "meaning": "安全和权限页。重点理解安全中心、子账号、权限、客服分流和身份校验边界。"
+    },
+    "seller-shell": {
+      "pages": 4,
+      "ids": [
+        "seller.notificationCenter",
+        "seller.imDesktop",
+        "seller.download",
+        "seller.iframe"
+      ],
+      "meaning": "卖家外壳或 iframe 容器。重点识别容器、嵌入目标和边界，不进入嵌入动作。"
+    },
+    "seller-trade": {
+      "pages": 6,
+      "ids": [
+        "seller.orderManage",
+        "seller.orderDetail",
+        "seller.refundManage",
+        "seller.evaluationManage",
+        "seller.complaintManage",
+        "seller.refundAddress"
+      ],
+      "meaning": "卖家交易和售后页。重点理解订单、退款、评价、投诉、地址等表格和状态类别。"
+    }
+  },
+  "pages": [
+    {
+      "order": 1,
+      "id": "www.home",
+      "docAnchor": "www-home",
+      "surface": "www",
+      "routePattern": "/",
+      "family": "public-discovery",
+      "riskSummary": "M0 / R0 / observed-live / SAFE_READ / G0",
+      "runMode": "LIVE_READ_ONLY",
+      "openPlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "search box",
+        "channel entries",
+        "recommended item cards",
+        "sidebar tools"
+      ],
+      "stopPoints": [
+        "message entry",
+        "publish entry",
+        "order entry",
+        "state-changing controls",
+        "private values outside public structure"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "redactionRequired": false
+    },
+    {
+      "order": 2,
+      "id": "www.search",
+      "docAnchor": "www-search",
+      "surface": "www",
+      "routePattern": "/search?q=...",
+      "family": "public-discovery",
+      "riskSummary": "M0 / R0 / observed-live / SAFE_READ / G0",
+      "runMode": "LIVE_READ_ONLY",
+      "openPlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "query box",
+        "sort controls",
+        "price inputs",
+        "filter tags",
+        "item cards",
+        "pagination"
+      ],
+      "stopPoints": [
+        "unstable location panel",
+        "collect",
+        "contact",
+        "purchase",
+        "state-changing controls",
+        "private values outside public structure"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "redactionRequired": false
+    },
+    {
+      "order": 3,
+      "id": "www.machFeeds",
+      "docAnchor": "www-machfeeds",
+      "surface": "www",
+      "routePattern": "/mach-feeds?machId=...&publishTimes=...",
+      "family": "public-discovery",
+      "riskSummary": "M0 / R0 / observed-live / SAFE_READ / G0",
+      "runMode": "LIVE_READ_ONLY",
+      "openPlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "channel title",
+        "waterfall feed",
+        "item-card links"
+      ],
+      "stopPoints": [
+        "collect",
+        "contact",
+        "purchase",
+        "state-changing controls",
+        "private values outside public structure"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "redactionRequired": false
+    },
+    {
+      "order": 4,
+      "id": "www.item",
+      "docAnchor": "www-item",
+      "surface": "www",
+      "routePattern": "/item?id=...&categoryId=...",
+      "family": "item-detail",
+      "riskSummary": "M0/M3 / R0/R3 / requires-user-context / REQUIRES_USER_CONTEXT / G1",
+      "runMode": "WAIT_FOR_USER_CONTEXT",
+      "openPlan": "Do not open by guessing parameters. Verify only when the user supplies a URL or business context.",
+      "waitFor": [
+        "image area",
+        "price area",
+        "assurance labels",
+        "seller card",
+        "action buttons",
+        "recommendations"
+      ],
+      "stopPoints": [
+        "collect",
+        "chat",
+        "buy now",
+        "downshelf",
+        "delete",
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "required parameter type identified",
+        "user-provided context confirmed",
+        "private parameters redacted",
+        "business action boundary recorded"
+      ],
+      "redactionRequired": true
+    },
+    {
+      "order": 5,
+      "id": "www.personalOther",
+      "docAnchor": "www-personalother",
+      "surface": "www",
+      "routePattern": "/personal?userId=...",
+      "family": "public-profile",
+      "riskSummary": "M0/M1 / R0/R3 / requires-user-context / REQUIRES_USER_CONTEXT / G1",
+      "runMode": "WAIT_FOR_USER_CONTEXT",
+      "openPlan": "Do not open by guessing parameters. Verify only when the user supplies a URL or business context.",
+      "waitFor": [
+        "public profile block",
+        "credit area",
+        "item list",
+        "follow/contact entries"
+      ],
+      "stopPoints": [
+        "follow",
+        "contact",
+        "purchase",
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "required parameter type identified",
+        "user-provided context confirmed",
+        "private parameters redacted",
+        "business action boundary recorded"
+      ],
+      "redactionRequired": true
+    },
+    {
+      "order": 6,
+      "id": "www.personalSelf",
+      "docAnchor": "www-personalself",
+      "surface": "www",
+      "routePattern": "/personal",
+      "family": "buyer-account",
+      "riskSummary": "M1/M2 / R1/R3 / observed-live / SAFE_READ / G1",
+      "runMode": "LIVE_READ_ONLY",
+      "openPlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "left navigation",
+        "home tab",
+        "item/credit/manage tabs",
+        "filters"
+      ],
+      "stopPoints": [
+        "edit profile",
+        "manage item",
+        "downshelf",
+        "delete",
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "redactionRequired": true
+    },
+    {
+      "order": 7,
+      "id": "www.collection",
+      "docAnchor": "www-collection",
+      "surface": "www",
+      "routePattern": "/collection",
+      "family": "buyer-account",
+      "riskSummary": "M1/M3 / R1/R3 / observed-live / SAFE_READ / G1",
+      "runMode": "LIVE_READ_ONLY",
+      "openPlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "collection tab",
+        "item cards",
+        "uncollect button",
+        "want button"
+      ],
+      "stopPoints": [
+        "uncollect",
+        "want",
+        "contact",
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "redactionRequired": true
+    },
+    {
+      "order": 8,
+      "id": "www.bought",
+      "docAnchor": "www-bought",
+      "surface": "www",
+      "routePattern": "/bought",
+      "family": "buyer-trade",
+      "riskSummary": "M1/M3 / R1/R4 / observed-live / READ_WITH_REDACTION / G1",
+      "runMode": "LIVE_READ_ONLY",
+      "openPlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "order tabs",
+        "order cards",
+        "more menu",
+        "logistics record",
+        "snapshot entry"
+      ],
+      "stopPoints": [
+        "confirm receipt",
+        "refund",
+        "review",
+        "delete",
+        "complaint",
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "redactionRequired": true
+    },
+    {
+      "order": 9,
+      "id": "www.orderDetail",
+      "docAnchor": "www-orderdetail",
+      "surface": "www",
+      "routePattern": "/order-detail?orderId=...",
+      "family": "buyer-trade",
+      "riskSummary": "M3 / R1/R4 / requires-user-context / REQUIRES_USER_CONTEXT / G1",
+      "runMode": "WAIT_FOR_USER_CONTEXT",
+      "openPlan": "Do not open by guessing parameters. Verify only when the user supplies a URL or business context.",
+      "waitFor": [
+        "status nodes",
+        "order field labels",
+        "logistics module",
+        "after-sale entry"
+      ],
+      "stopPoints": [
+        "any order-state change",
+        "real order value logging",
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "required parameter type identified",
+        "user-provided context confirmed",
+        "private parameters redacted",
+        "business action boundary recorded"
+      ],
+      "redactionRequired": true
+    },
+    {
+      "order": 10,
+      "id": "www.createOrder",
+      "docAnchor": "www-createorder",
+      "surface": "www",
+      "routePattern": "/create-order?itemId=...",
+      "family": "buyer-trade",
+      "riskSummary": "M3/M5 / R4 / requires-user-context / REQUIRES_USER_CONTEXT / G1",
+      "runMode": "WAIT_FOR_USER_CONTEXT",
+      "openPlan": "Do not open by guessing parameters. Verify only when the user supplies a URL or business context.",
+      "waitFor": [
+        "sku",
+        "quantity",
+        "address fields",
+        "price-detail block",
+        "payment area",
+        "scan-to-pay fallback"
+      ],
+      "stopPoints": [
+        "submit order",
+        "pay",
+        "change address",
+        "bind account",
+        "verify identity",
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "required parameter type identified",
+        "user-provided context confirmed",
+        "private parameters redacted",
+        "business action boundary recorded"
+      ],
+      "redactionRequired": true
+    },
+    {
+      "order": 11,
+      "id": "www.paySuccess",
+      "docAnchor": "www-paysuccess",
+      "surface": "www",
+      "routePattern": "/pay-success?orderId=...&itemId=...",
+      "family": "buyer-trade",
+      "riskSummary": "M3 / R4 / static-only / STATIC_ONLY / G1",
+      "runMode": "STATIC_EVIDENCE_ONLY",
+      "openPlan": "Do not open for coverage. Verify from static route, module, signal, or API evidence only.",
+      "waitFor": [
+        "payment result structure",
+        "order-detail entry",
+        "recommendations"
+      ],
+      "stopPoints": [
+        "trigger payment for testing",
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "static module or route signal identified",
+        "API or Page signal mapped to family",
+        "risk boundary recorded",
+        "no live probing attempted"
+      ],
+      "redactionRequired": true
+    },
+    {
+      "order": 12,
+      "id": "www.publish",
+      "docAnchor": "www-publish",
+      "surface": "www",
+      "routePattern": "/publish",
+      "family": "draft-input",
+      "riskSummary": "M2/M3 / R2/R3 / observed-live / READ_WITH_REDACTION / G2",
+      "runMode": "LIVE_READ_ONLY",
+      "openPlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "image/video uploader",
+        "description",
+        "category",
+        "properties",
+        "sku",
+        "price",
+        "location",
+        "shipping settings"
+      ],
+      "stopPoints": [
+        "upload",
+        "save draft",
+        "publish",
+        "edit existing item",
+        "save",
+        "submit",
+        "send",
+        "overwrite existing content"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "redactionRequired": true
+    },
+    {
+      "order": 13,
+      "id": "www.publishScene",
+      "docAnchor": "www-publishscene",
+      "surface": "www",
+      "routePattern": "/publish?scene=xyPcMainPublish",
+      "family": "draft-input",
+      "riskSummary": "M2/M3 / R2/R3 / static-only / STATIC_ONLY / G2",
+      "runMode": "STATIC_EVIDENCE_ONLY",
+      "openPlan": "Do not open for coverage. Verify from static route, module, signal, or API evidence only.",
+      "waitFor": [
+        "publish scene parameter",
+        "publish form fields"
+      ],
+      "stopPoints": [
+        "save",
+        "publish",
+        "upload",
+        "submit",
+        "send",
+        "overwrite existing content"
+      ],
+      "passEvidence": [
+        "static module or route signal identified",
+        "API or Page signal mapped to family",
+        "risk boundary recorded",
+        "no live probing attempted"
+      ],
+      "redactionRequired": true
+    },
+    {
+      "order": 14,
+      "id": "www.publishEdit",
+      "docAnchor": "www-publishedit",
+      "surface": "www",
+      "routePattern": "/publish?scene=xyPcMainPublish&itemId=...",
+      "family": "draft-input",
+      "riskSummary": "M2/M3 / R3/R4 / static-only / STATIC_ONLY / G2",
+      "runMode": "STATIC_EVIDENCE_ONLY",
+      "openPlan": "Do not open for coverage. Verify from static route, module, signal, or API evidence only.",
+      "waitFor": [
+        "item context parameter",
+        "publish/edit form fields"
+      ],
+      "stopPoints": [
+        "overwrite existing item",
+        "save",
+        "publish",
+        "upload",
+        "submit",
+        "send",
+        "overwrite existing content"
+      ],
+      "passEvidence": [
+        "static module or route signal identified",
+        "API or Page signal mapped to family",
+        "risk boundary recorded",
+        "no live probing attempted"
+      ],
+      "redactionRequired": true
+    },
+    {
+      "order": 15,
+      "id": "www.im",
+      "docAnchor": "www-im",
+      "surface": "www",
+      "routePattern": "/im",
+      "family": "message",
+      "riskSummary": "M1/M2/M3 / R1/R2/R3 / observed-live / READ_WITH_REDACTION / G2",
+      "runMode": "LIVE_READ_ONLY",
+      "openPlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "empty state",
+        "session list",
+        "input area",
+        "toolbar",
+        "item/order card tools",
+        "file tool"
+      ],
+      "stopPoints": [
+        "read specific private chat",
+        "send",
+        "send card",
+        "upload file",
+        "upload",
+        "save",
+        "submit",
+        "publish",
+        "overwrite existing content"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "redactionRequired": true
+    },
+    {
+      "order": 16,
+      "id": "www.imItem",
+      "docAnchor": "www-imitem",
+      "surface": "www",
+      "routePattern": "/im?itemId=...&peerUserId=...",
+      "family": "message",
+      "riskSummary": "M1/M3 / R3/R4 / requires-user-context / REQUIRES_USER_CONTEXT / G2",
+      "runMode": "WAIT_FOR_USER_CONTEXT",
+      "openPlan": "Do not open by guessing parameters. Verify only when the user supplies a URL or business context.",
+      "waitFor": [
+        "item-linked chat parameters",
+        "input area"
+      ],
+      "stopPoints": [
+        "read specific conversation",
+        "send",
+        "upload",
+        "save",
+        "submit",
+        "publish",
+        "overwrite existing content"
+      ],
+      "passEvidence": [
+        "required parameter type identified",
+        "user-provided context confirmed",
+        "private parameters redacted",
+        "business action boundary recorded"
+      ],
+      "redactionRequired": true
+    },
+    {
+      "order": 17,
+      "id": "www.account",
+      "docAnchor": "www-account",
+      "surface": "www",
+      "routePattern": "/account",
+      "family": "identity",
+      "riskSummary": "M1/M5 / R1/R3 / observed-live / READ_WITH_REDACTION / G4",
+      "runMode": "LIVE_READ_ONLY",
+      "openPlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "basic info module",
+        "stay signed in",
+        "notice switch",
+        "verification entry",
+        "security center"
+      ],
+      "stopPoints": [
+        "toggle notice",
+        "verify identity",
+        "switch account",
+        "logout",
+        "any proactive action beyond naming the boundary"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "redactionRequired": true
+    },
+    {
+      "order": 18,
+      "id": "www.accountApi",
+      "docAnchor": "www-accountapi",
+      "surface": "www",
+      "routePattern": "/account/api",
+      "family": "internal-module",
+      "riskSummary": "M6 / R5 / static-only / STATIC_ONLY / G4",
+      "runMode": "STATIC_EVIDENCE_ONLY",
+      "openPlan": "Do not open for coverage. Verify from static route, module, signal, or API evidence only.",
+      "waitFor": [
+        "module path"
+      ],
+      "stopPoints": [
+        "direct call",
+        "page navigation",
+        "any proactive action beyond naming the boundary"
+      ],
+      "passEvidence": [
+        "static module or route signal identified",
+        "API or Page signal mapped to family",
+        "risk boundary recorded",
+        "no live probing attempted"
+      ],
+      "redactionRequired": true
+    },
+    {
+      "order": 19,
+      "id": "www.feedback",
+      "docAnchor": "www-feedback",
+      "surface": "www",
+      "routePattern": "/feedback?from=...",
+      "family": "draft-input",
+      "riskSummary": "M2/M3 / R2/R3 / observed-live / READ_WITH_REDACTION / G2",
+      "runMode": "LIVE_READ_ONLY",
+      "openPlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "feedback type",
+        "source page option",
+        "text area",
+        "screenshot upload",
+        "submit"
+      ],
+      "stopPoints": [
+        "upload screenshot",
+        "submit",
+        "upload",
+        "save",
+        "send",
+        "publish",
+        "overwrite existing content"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "redactionRequired": true
+    },
+    {
+      "order": 20,
+      "id": "www.changelog",
+      "docAnchor": "www-changelog",
+      "surface": "www",
+      "routePattern": "/changelog",
+      "family": "public-content",
+      "riskSummary": "M0 / R0 / observed-live / SAFE_READ / G0",
+      "runMode": "LIVE_READ_ONLY",
+      "openPlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "update-log title",
+        "feature entries"
+      ],
+      "stopPoints": [
+        "state-changing controls",
+        "private values outside public structure"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "redactionRequired": false
+    },
+    {
+      "order": 21,
+      "id": "www.login",
+      "docAnchor": "www-login",
+      "surface": "www",
+      "routePattern": "/login",
+      "family": "identity",
+      "riskSummary": "M5 / R5 / observed-live / READ_WITH_REDACTION / G4",
+      "runMode": "LIVE_READ_ONLY",
+      "openPlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "login method",
+        "scan container",
+        "verification entry",
+        "redirect parameter"
+      ],
+      "stopPoints": [
+        "scan",
+        "enter verification code",
+        "bypass risk control",
+        "any proactive action beyond naming the boundary"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "redactionRequired": true
+    },
+    {
+      "order": 22,
+      "id": "www.loginRedirect",
+      "docAnchor": "www-loginredirect",
+      "surface": "www",
+      "routePattern": "/login?spm=...&redirectURL=...",
+      "family": "identity",
+      "riskSummary": "M5 / R5 / static-only / STATIC_ONLY / G4",
+      "runMode": "STATIC_EVIDENCE_ONLY",
+      "openPlan": "Do not open for coverage. Verify from static route, module, signal, or API evidence only.",
+      "waitFor": [
+        "redirect parameter"
+      ],
+      "stopPoints": [
+        "change login parameters",
+        "bypass risk control",
+        "any proactive action beyond naming the boundary"
+      ],
+      "passEvidence": [
+        "static module or route signal identified",
+        "API or Page signal mapped to family",
+        "risk boundary recorded",
+        "no live probing attempted"
+      ],
+      "redactionRequired": true
+    },
+    {
+      "order": 23,
+      "id": "www.findAccount",
+      "docAnchor": "www-findaccount",
+      "surface": "www",
+      "routePattern": "/find-account",
+      "family": "identity",
+      "riskSummary": "M5 / R5 / static-only / STATIC_ONLY / G4",
+      "runMode": "STATIC_EVIDENCE_ONLY",
+      "openPlan": "Do not open for coverage. Verify from static route, module, signal, or API evidence only.",
+      "waitFor": [
+        "account recovery placeholder",
+        "redirect behavior"
+      ],
+      "stopPoints": [
+        "recover account",
+        "any proactive action beyond naming the boundary"
+      ],
+      "passEvidence": [
+        "static module or route signal identified",
+        "API or Page signal mapped to family",
+        "risk boundary recorded",
+        "no live probing attempted"
+      ],
+      "redactionRequired": true
+    },
+    {
+      "order": 24,
+      "id": "www.selectAccount",
+      "docAnchor": "www-selectaccount",
+      "surface": "www",
+      "routePattern": "/select-account",
+      "family": "identity",
+      "riskSummary": "M5 / R5 / static-only / STATIC_ONLY / G4",
+      "runMode": "STATIC_EVIDENCE_ONLY",
+      "openPlan": "Do not open for coverage. Verify from static route, module, signal, or API evidence only.",
+      "waitFor": [
+        "account selection placeholder",
+        "redirect behavior"
+      ],
+      "stopPoints": [
+        "switch account",
+        "any proactive action beyond naming the boundary"
+      ],
+      "passEvidence": [
+        "static module or route signal identified",
+        "API or Page signal mapped to family",
+        "risk boundary recorded",
+        "no live probing attempted"
+      ],
+      "redactionRequired": true
+    },
+    {
+      "order": 25,
+      "id": "www.loginValidation",
+      "docAnchor": "www-loginvalidation",
+      "surface": "www",
+      "routePattern": "/login-validation",
+      "family": "identity",
+      "riskSummary": "M5 / R5 / static-only / STATIC_ONLY / G4",
+      "runMode": "STATIC_EVIDENCE_ONLY",
+      "openPlan": "Do not open for coverage. Verify from static route, module, signal, or API evidence only.",
+      "waitFor": [
+        "login validation placeholder"
+      ],
+      "stopPoints": [
+        "enter verification code",
+        "any proactive action beyond naming the boundary"
+      ],
+      "passEvidence": [
+        "static module or route signal identified",
+        "API or Page signal mapped to family",
+        "risk boundary recorded",
+        "no live probing attempted"
+      ],
+      "redactionRequired": true
+    },
+    {
+      "order": 26,
+      "id": "www.commonVideo",
+      "docAnchor": "www-commonvideo",
+      "surface": "www",
+      "routePattern": "/common-video",
+      "family": "public-content",
+      "riskSummary": "M0/M6 / R0/R4 / static-only / STATIC_ONLY / G0",
+      "runMode": "STATIC_EVIDENCE_ONLY",
+      "openPlan": "Do not open for coverage. Verify from static route, module, signal, or API evidence only.",
+      "waitFor": [
+        "video container",
+        "title/material config",
+        "playback controls"
+      ],
+      "stopPoints": [
+        "play proactively",
+        "download",
+        "capture video",
+        "state-changing controls",
+        "private values outside public structure"
+      ],
+      "passEvidence": [
+        "static module or route signal identified",
+        "API or Page signal mapped to family",
+        "risk boundary recorded",
+        "no live probing attempted"
+      ],
+      "redactionRequired": false
+    },
+    {
+      "order": 27,
+      "id": "www.commonVideoLayout",
+      "docAnchor": "www-commonvideolayout",
+      "surface": "www",
+      "routePattern": "/common-video/layout",
+      "family": "internal-module",
+      "riskSummary": "M6 / R5 / static-only / STATIC_ONLY / G4",
+      "runMode": "STATIC_EVIDENCE_ONLY",
+      "openPlan": "Do not open for coverage. Verify from static route, module, signal, or API evidence only.",
+      "waitFor": [
+        "layout package path"
+      ],
+      "stopPoints": [
+        "page navigation",
+        "any proactive action beyond naming the boundary"
+      ],
+      "passEvidence": [
+        "static module or route signal identified",
+        "API or Page signal mapped to family",
+        "risk boundary recorded",
+        "no live probing attempted"
+      ],
+      "redactionRequired": true
+    },
+    {
+      "order": 28,
+      "id": "www.upgradeBrowser",
+      "docAnchor": "www-upgradebrowser",
+      "surface": "www",
+      "routePattern": "/upgrade-browser",
+      "family": "public-content",
+      "riskSummary": "M0/M6 / R0/R3 / static-only / STATIC_ONLY / G0",
+      "runMode": "STATIC_EVIDENCE_ONLY",
+      "openPlan": "Do not open for coverage. Verify from static route, module, signal, or API evidence only.",
+      "waitFor": [
+        "browser recommendation list",
+        "download entry"
+      ],
+      "stopPoints": [
+        "download",
+        "install",
+        "state-changing controls",
+        "private values outside public structure"
+      ],
+      "passEvidence": [
+        "static module or route signal identified",
+        "API or Page signal mapped to family",
+        "risk boundary recorded",
+        "no live probing attempted"
+      ],
+      "redactionRequired": false
+    },
+    {
+      "order": 29,
+      "id": "www.playground",
+      "docAnchor": "www-playground",
+      "surface": "www",
+      "routePattern": "/playground",
+      "family": "internal-test",
+      "riskSummary": "M6 / R4/R5 / static-only / STATIC_ONLY / G4",
+      "runMode": "STATIC_EVIDENCE_ONLY",
+      "openPlan": "Do not open for coverage. Verify from static route, module, signal, or API evidence only.",
+      "waitFor": [
+        "internal test entry",
+        "login/upload/qr/payment test controls"
+      ],
+      "stopPoints": [
+        "visit proactively",
+        "trigger test action",
+        "any proactive action beyond naming the boundary"
+      ],
+      "passEvidence": [
+        "static module or route signal identified",
+        "API or Page signal mapped to family",
+        "risk boundary recorded",
+        "no live probing attempted"
+      ],
+      "redactionRequired": true
+    },
+    {
+      "order": 30,
+      "id": "www.yhbCreateOrder",
+      "docAnchor": "www-yhbcreateorder",
+      "surface": "www",
+      "routePattern": "create-order-yhb package",
+      "family": "buyer-trade",
+      "riskSummary": "M3 / R4 / static-only / STATIC_ONLY / G1",
+      "runMode": "STATIC_EVIDENCE_ONLY",
+      "openPlan": "Do not open for coverage. Verify from static route, module, signal, or API evidence only.",
+      "waitFor": [
+        "YHB order render fields",
+        "YHB order create interface"
+      ],
+      "stopPoints": [
+        "create YHB order",
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "static module or route signal identified",
+        "API or Page signal mapped to family",
+        "risk boundary recorded",
+        "no live probing attempted"
+      ],
+      "redactionRequired": true
+    },
+    {
+      "order": 31,
+      "id": "www.yhbOrderDetail",
+      "docAnchor": "www-yhborderdetail",
+      "surface": "www",
+      "routePattern": "order-detail-yhb package",
+      "family": "buyer-trade",
+      "riskSummary": "M3 / R4 / static-only / STATIC_ONLY / G1",
+      "runMode": "STATIC_EVIDENCE_ONLY",
+      "openPlan": "Do not open for coverage. Verify from static route, module, signal, or API evidence only.",
+      "waitFor": [
+        "report fields",
+        "dispute fields",
+        "review-related fields"
+      ],
+      "stopPoints": [
+        "after-sale action",
+        "review action",
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "static module or route signal identified",
+        "API or Page signal mapped to family",
+        "risk boundary recorded",
+        "no live probing attempted"
+      ],
+      "redactionRequired": true
+    },
+    {
+      "order": 32,
+      "id": "seller.dataOverview",
+      "docAnchor": "seller-dataoverview",
+      "surface": "seller",
+      "routePattern": "#/seller-data/data",
+      "family": "seller-data",
+      "riskSummary": "M4 / R1/R3 / observed-live / SAFE_READ / G1",
+      "runMode": "LIVE_READ_ONLY",
+      "openPlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "date controls",
+        "metric cards",
+        "trend charts",
+        "info popovers"
+      ],
+      "stopPoints": [
+        "record real numbers",
+        "export",
+        "download",
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "redactionRequired": true
+    },
+    {
+      "order": 33,
+      "id": "seller.commodityData",
+      "docAnchor": "seller-commoditydata",
+      "surface": "seller",
+      "routePattern": "#/seller-data/commodity",
+      "family": "seller-data",
+      "riskSummary": "M4 / R1/R3 / observed-live / READ_WITH_REDACTION / G1",
+      "runMode": "LIVE_READ_ONLY",
+      "openPlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "search",
+        "date",
+        "commodity table",
+        "metric columns",
+        "pagination",
+        "download"
+      ],
+      "stopPoints": [
+        "download item detail",
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "redactionRequired": true
+    },
+    {
+      "order": 34,
+      "id": "seller.fanData",
+      "docAnchor": "seller-fandata",
+      "surface": "seller",
+      "routePattern": "#/seller-data/fanData",
+      "family": "seller-data",
+      "riskSummary": "M4 / R1/R3 / observed-live / SAFE_READ / G1",
+      "runMode": "LIVE_READ_ONLY",
+      "openPlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "date",
+        "fan metrics",
+        "profile distributions",
+        "region/user-group modules"
+      ],
+      "stopPoints": [
+        "record real audience numbers",
+        "export",
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "redactionRequired": true
+    },
+    {
+      "order": 35,
+      "id": "seller.customerServiceData",
+      "docAnchor": "seller-customerservicedata",
+      "surface": "seller",
+      "routePattern": "#/seller-data/customerService",
+      "family": "seller-data",
+      "riskSummary": "M4 / R1/R3 / observed-live / READ_WITH_REDACTION / G1",
+      "runMode": "LIVE_READ_ONLY",
+      "openPlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "consultation metrics",
+        "satisfaction fields",
+        "customer-service table",
+        "export"
+      ],
+      "stopPoints": [
+        "export customer-service detail",
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "redactionRequired": true
+    },
+    {
+      "order": 36,
+      "id": "seller.itemPublish",
+      "docAnchor": "seller-itempublish",
+      "surface": "seller",
+      "routePattern": "#/seller-item/publish",
+      "family": "seller-item",
+      "riskSummary": "M2/M4 / R2/R3 / observed-live / READ_WITH_REDACTION / G2",
+      "runMode": "LIVE_READ_ONLY",
+      "openPlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "image/video uploader",
+        "title/description",
+        "category",
+        "sku",
+        "price",
+        "stock",
+        "shipping settings"
+      ],
+      "stopPoints": [
+        "upload",
+        "save",
+        "publish",
+        "submit",
+        "send",
+        "overwrite existing content"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "redactionRequired": true
+    },
+    {
+      "order": 37,
+      "id": "seller.goodsManage",
+      "docAnchor": "seller-goodsmanage",
+      "surface": "seller",
+      "routePattern": "#/seller-item/goods-manage",
+      "family": "seller-item",
+      "riskSummary": "M4 / R1/R3 / observed-live / READ_WITH_REDACTION / G2",
+      "runMode": "LIVE_READ_ONLY",
+      "openPlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "status tabs",
+        "search/filter",
+        "item table",
+        "bulk actions",
+        "operation column"
+      ],
+      "stopPoints": [
+        "edit",
+        "copy",
+        "adjust price",
+        "shelf changes",
+        "delete",
+        "upload",
+        "save",
+        "submit",
+        "send",
+        "publish",
+        "overwrite existing content"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "redactionRequired": true
+    },
+    {
+      "order": 38,
+      "id": "seller.postTemplate",
+      "docAnchor": "seller-posttemplate",
+      "surface": "seller",
+      "routePattern": "#/seller-item/post-temple",
+      "family": "seller-item",
+      "riskSummary": "M4 / R1/R3 / observed-live / READ_WITH_REDACTION / G2",
+      "runMode": "LIVE_READ_ONLY",
+      "openPlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "template list",
+        "create entry",
+        "operation column",
+        "delete/default confirmation"
+      ],
+      "stopPoints": [
+        "create",
+        "edit",
+        "delete",
+        "set default",
+        "upload",
+        "save",
+        "submit",
+        "send",
+        "publish",
+        "overwrite existing content"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "redactionRequired": true
+    },
+    {
+      "order": 39,
+      "id": "seller.postTemplateCreate",
+      "docAnchor": "seller-posttemplatecreate",
+      "surface": "seller",
+      "routePattern": "#/seller-item/post-temple/create",
+      "family": "seller-item",
+      "riskSummary": "M4 / R2/R3 / observed-live / READ_WITH_REDACTION / G2",
+      "runMode": "LIVE_READ_ONLY",
+      "openPlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "template name",
+        "shipping location",
+        "billing mode",
+        "region modal",
+        "save"
+      ],
+      "stopPoints": [
+        "save real template",
+        "upload",
+        "save",
+        "submit",
+        "send",
+        "publish",
+        "overwrite existing content"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "redactionRequired": true
+    },
+    {
+      "order": 40,
+      "id": "seller.orderManage",
+      "docAnchor": "seller-ordermanage",
+      "surface": "seller",
+      "routePattern": "#/seller-trade/order-manage",
+      "family": "seller-trade",
+      "riskSummary": "M3/M4 / R1/R4 / observed-live / READ_WITH_REDACTION / G1",
+      "runMode": "LIVE_READ_ONLY",
+      "openPlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "order-status tabs",
+        "search conditions",
+        "date",
+        "order table",
+        "operation column"
+      ],
+      "stopPoints": [
+        "ship",
+        "change logistics",
+        "remark",
+        "contact",
+        "view funds",
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "redactionRequired": true
+    },
+    {
+      "order": 41,
+      "id": "seller.orderDetail",
+      "docAnchor": "seller-orderdetail",
+      "surface": "seller",
+      "routePattern": "#/seller-trade/order-manage/order-detail?orderId=...",
+      "family": "seller-trade",
+      "riskSummary": "M3/M4 / R1/R4 / requires-user-context / REQUIRES_USER_CONTEXT / G1",
+      "runMode": "WAIT_FOR_USER_CONTEXT",
+      "openPlan": "Do not open by guessing parameters. Verify only when the user supplies a URL or business context.",
+      "waitFor": [
+        "status nodes",
+        "logistics",
+        "address-modification area",
+        "trade messages",
+        "operation buttons"
+      ],
+      "stopPoints": [
+        "guess order id",
+        "order action",
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "required parameter type identified",
+        "user-provided context confirmed",
+        "private parameters redacted",
+        "business action boundary recorded"
+      ],
+      "redactionRequired": true
+    },
+    {
+      "order": 42,
+      "id": "seller.refundManage",
+      "docAnchor": "seller-refundmanage",
+      "surface": "seller",
+      "routePattern": "#/seller-trade/refund-manage",
+      "family": "seller-trade",
+      "riskSummary": "M3/M4 / R1/R4 / observed-live / READ_WITH_REDACTION / G1",
+      "runMode": "LIVE_READ_ONLY",
+      "openPlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "refund type",
+        "status filter",
+        "reason",
+        "logistics",
+        "operation column"
+      ],
+      "stopPoints": [
+        "agree refund",
+        "refuse refund",
+        "compensate",
+        "confirm receipt",
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "redactionRequired": true
+    },
+    {
+      "order": 43,
+      "id": "seller.evaluationManage",
+      "docAnchor": "seller-evaluationmanage",
+      "surface": "seller",
+      "routePattern": "#/seller-trade/evaluation-manage",
+      "family": "seller-trade",
+      "riskSummary": "M3/M4 / R1/R3 / observed-live / READ_WITH_REDACTION / G1",
+      "runMode": "LIVE_READ_ONLY",
+      "openPlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "evaluation filters",
+        "evaluation table",
+        "batch review",
+        "report/contact"
+      ],
+      "stopPoints": [
+        "review",
+        "report",
+        "contact",
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "redactionRequired": true
+    },
+    {
+      "order": 44,
+      "id": "seller.complaintManage",
+      "docAnchor": "seller-complaintmanage",
+      "surface": "seller",
+      "routePattern": "#/seller-trade/complaint-manage",
+      "family": "seller-trade",
+      "riskSummary": "M3/M4 / R1/R4 / observed-live / READ_WITH_REDACTION / G1",
+      "runMode": "LIVE_READ_ONLY",
+      "openPlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "complaint status",
+        "complaint table",
+        "detail/proof entry"
+      ],
+      "stopPoints": [
+        "submit proof",
+        "revoke",
+        "refuse",
+        "submit material",
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "redactionRequired": true
+    },
+    {
+      "order": 45,
+      "id": "seller.refundAddress",
+      "docAnchor": "seller-refundaddress",
+      "surface": "seller",
+      "routePattern": "#/seller-trade/refund-address",
+      "family": "seller-trade",
+      "riskSummary": "M4 / R1/R3 / observed-live / READ_WITH_REDACTION / G1",
+      "runMode": "LIVE_READ_ONLY",
+      "openPlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "address table",
+        "default status",
+        "operation column",
+        "add/edit/delete"
+      ],
+      "stopPoints": [
+        "add address",
+        "edit address",
+        "delete address",
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "redactionRequired": true
+    },
+    {
+      "order": 46,
+      "id": "seller.incomeBill",
+      "docAnchor": "seller-incomebill",
+      "surface": "seller",
+      "routePattern": "#/seller-finance/income-bill",
+      "family": "seller-finance",
+      "riskSummary": "M4 / R1/R3 / observed-live / READ_WITH_REDACTION / G1",
+      "runMode": "LIVE_READ_ONLY",
+      "openPlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "month/day/detail tabs",
+        "date",
+        "business type",
+        "bill table",
+        "export/download"
+      ],
+      "stopPoints": [
+        "export",
+        "historical download",
+        "download full detail",
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "redactionRequired": true
+    },
+    {
+      "order": 47,
+      "id": "seller.expenseBill",
+      "docAnchor": "seller-expensebill",
+      "surface": "seller",
+      "routePattern": "#/seller-finance/expense-bill",
+      "family": "seller-finance",
+      "riskSummary": "M4 / R1/R3 / observed-live / READ_WITH_REDACTION / G1",
+      "runMode": "LIVE_READ_ONLY",
+      "openPlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "month/day/detail tabs",
+        "expense type",
+        "bill table",
+        "export/download"
+      ],
+      "stopPoints": [
+        "export",
+        "download",
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "redactionRequired": true
+    },
+    {
+      "order": 48,
+      "id": "seller.invoiceApply",
+      "docAnchor": "seller-invoiceapply",
+      "surface": "seller",
+      "routePattern": "#/seller-finance/invoice-apply",
+      "family": "seller-finance",
+      "riskSummary": "M4 / R1/R3 / observed-live / READ_WITH_REDACTION / G1",
+      "runMode": "LIVE_READ_ONLY",
+      "openPlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "pending/applied/legacy tabs",
+        "business type",
+        "apply",
+        "export"
+      ],
+      "stopPoints": [
+        "apply invoice",
+        "export",
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "redactionRequired": true
+    },
+    {
+      "order": 49,
+      "id": "seller.basicInfo",
+      "docAnchor": "seller-basicinfo",
+      "surface": "seller",
+      "routePattern": "#/seller-finance/basic-info",
+      "family": "seller-finance",
+      "riskSummary": "M4/M5 / R1/R3 / observed-live / READ_WITH_REDACTION / G1",
+      "runMode": "LIVE_READ_ONLY",
+      "openPlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "invoice entity form",
+        "edit/save"
+      ],
+      "stopPoints": [
+        "modify entity data",
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "redactionRequired": true
+    },
+    {
+      "order": 50,
+      "id": "seller.subAccount",
+      "docAnchor": "seller-subaccount",
+      "surface": "seller",
+      "routePattern": "#/seller-account/sub-account",
+      "family": "seller-account",
+      "riskSummary": "M4/M5 / R1/R4 / observed-live / READ_WITH_REDACTION / G1",
+      "runMode": "LIVE_READ_ONLY",
+      "openPlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "sub-account table",
+        "role",
+        "status",
+        "routing config",
+        "new/disable/permission"
+      ],
+      "stopPoints": [
+        "create sub-account",
+        "disable account",
+        "change permission",
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "redactionRequired": true
+    },
+    {
+      "order": 51,
+      "id": "seller.csDispatch",
+      "docAnchor": "seller-csdispatch",
+      "surface": "seller",
+      "routePattern": "#/im-cs-dispatch/customer-routing-service",
+      "family": "seller-account",
+      "riskSummary": "M4/M5 / R1/R4 / observed-live / READ_WITH_REDACTION / G1",
+      "runMode": "LIVE_READ_ONLY",
+      "openPlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "groups",
+        "reception scope",
+        "participating service agents",
+        "switch",
+        "save"
+      ],
+      "stopPoints": [
+        "save",
+        "enable/disable",
+        "create group",
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "redactionRequired": true
+    },
+    {
+      "order": 52,
+      "id": "seller.securityCenter",
+      "docAnchor": "seller-securitycenter",
+      "surface": "seller",
+      "routePattern": "#/seller-sc/home",
+      "family": "seller-security",
+      "riskSummary": "M4 / R1/R4 / observed-live / READ_WITH_REDACTION / G1",
+      "runMode": "LIVE_READ_ONLY",
+      "openPlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "violation table",
+        "penalty status",
+        "appeal status",
+        "detail/appeal"
+      ],
+      "stopPoints": [
+        "view sensitive detail",
+        "appeal",
+        "process",
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "redactionRequired": true
+    },
+    {
+      "order": 53,
+      "id": "seller.adHome",
+      "docAnchor": "seller-adhome",
+      "surface": "seller",
+      "routePattern": "#/seller-ad/home",
+      "family": "seller-ad",
+      "riskSummary": "M4 / R1/R4 / observed-live / READ_WITH_REDACTION / G1",
+      "runMode": "LIVE_READ_ONLY",
+      "openPlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "date",
+        "promotion metrics",
+        "plan entry",
+        "carousel controls"
+      ],
+      "stopPoints": [
+        "create plan",
+        "launch paid promotion",
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "redactionRequired": true
+    },
+    {
+      "order": 54,
+      "id": "seller.notificationCenter",
+      "docAnchor": "seller-notificationcenter",
+      "surface": "seller",
+      "routePattern": "#/notification-center",
+      "family": "seller-shell",
+      "riskSummary": "M4 / R1/R3 / observed-live / READ_WITH_REDACTION / G1",
+      "runMode": "LIVE_READ_ONLY",
+      "openPlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "notification list",
+        "unread status",
+        "detail entry",
+        "mark read/clear unread"
+      ],
+      "stopPoints": [
+        "mark read",
+        "clear unread",
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "redactionRequired": true
+    },
+    {
+      "order": 55,
+      "id": "seller.notificationApi",
+      "docAnchor": "seller-notificationapi",
+      "surface": "seller",
+      "routePattern": "#/notification-center/api*",
+      "family": "internal-module",
+      "riskSummary": "M6 / R5 / static-only / STATIC_ONLY / G4",
+      "runMode": "STATIC_EVIDENCE_ONLY",
+      "openPlan": "Do not open for coverage. Verify from static route, module, signal, or API evidence only.",
+      "waitFor": [
+        "internal API/interface module"
+      ],
+      "stopPoints": [
+        "direct call",
+        "any proactive action beyond naming the boundary"
+      ],
+      "passEvidence": [
+        "static module or route signal identified",
+        "API or Page signal mapped to family",
+        "risk boundary recorded",
+        "no live probing attempted"
+      ],
+      "redactionRequired": true
+    },
+    {
+      "order": 56,
+      "id": "seller.im",
+      "docAnchor": "seller-im",
+      "surface": "seller",
+      "routePattern": "#/im",
+      "family": "seller-message",
+      "riskSummary": "M3/M4 / R1/R2/R3 / observed-live / READ_WITH_REDACTION / G2",
+      "runMode": "LIVE_READ_ONLY",
+      "openPlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "session list",
+        "search",
+        "input area",
+        "toolbar",
+        "quick replies",
+        "file",
+        "transfer"
+      ],
+      "stopPoints": [
+        "read specific conversation",
+        "send",
+        "file upload",
+        "transfer",
+        "upload",
+        "save",
+        "submit",
+        "publish",
+        "overwrite existing content"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "redactionRequired": true
+    },
+    {
+      "order": 57,
+      "id": "seller.imItem",
+      "docAnchor": "seller-imitem",
+      "surface": "seller",
+      "routePattern": "#/im?itemId=...",
+      "family": "seller-message",
+      "riskSummary": "M3/M4 / R3/R4 / requires-user-context / REQUIRES_USER_CONTEXT / G2",
+      "runMode": "WAIT_FOR_USER_CONTEXT",
+      "openPlan": "Do not open by guessing parameters. Verify only when the user supplies a URL or business context.",
+      "waitFor": [
+        "item-linked message parameter"
+      ],
+      "stopPoints": [
+        "guess parameter",
+        "send",
+        "upload",
+        "save",
+        "submit",
+        "publish",
+        "overwrite existing content"
+      ],
+      "passEvidence": [
+        "required parameter type identified",
+        "user-provided context confirmed",
+        "private parameters redacted",
+        "business action boundary recorded"
+      ],
+      "redactionRequired": true
+    },
+    {
+      "order": 58,
+      "id": "seller.imDesktop",
+      "docAnchor": "seller-imdesktop",
+      "surface": "seller",
+      "routePattern": "#/im-desktop",
+      "family": "seller-shell",
+      "riskSummary": "M6 / R5/R3 / observed-live / READ_WITH_REDACTION / G1",
+      "runMode": "LIVE_READ_ONLY",
+      "openPlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "download/open client prompt"
+      ],
+      "stopPoints": [
+        "download",
+        "install",
+        "open",
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "redactionRequired": true
+    },
+    {
+      "order": 59,
+      "id": "seller.download",
+      "docAnchor": "seller-download",
+      "surface": "seller",
+      "routePattern": "#/download",
+      "family": "seller-shell",
+      "riskSummary": "M6 / R5/R3 / observed-live / READ_WITH_REDACTION / G1",
+      "runMode": "LIVE_READ_ONLY",
+      "openPlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "download button",
+        "client type"
+      ],
+      "stopPoints": [
+        "download",
+        "install",
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "redactionRequired": true
+    },
+    {
+      "order": 60,
+      "id": "seller.selectSite",
+      "docAnchor": "seller-selectsite",
+      "surface": "seller",
+      "routePattern": "#/select-site",
+      "family": "seller-gate",
+      "riskSummary": "M5 / R5/R3 / observed-live / READ_WITH_REDACTION / G4",
+      "runMode": "LIVE_READ_ONLY",
+      "openPlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "site/identity list",
+        "selection button"
+      ],
+      "stopPoints": [
+        "switch site",
+        "any proactive action beyond naming the boundary"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "redactionRequired": true
+    },
+    {
+      "order": 61,
+      "id": "seller.accountCheck",
+      "docAnchor": "seller-accountcheck",
+      "surface": "seller",
+      "routePattern": "#/account-check",
+      "family": "seller-gate",
+      "riskSummary": "M5 / R5/R3 / observed-live / READ_WITH_REDACTION / G4",
+      "runMode": "LIVE_READ_ONLY",
+      "openPlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "account check",
+        "continue",
+        "re-login",
+        "switch"
+      ],
+      "stopPoints": [
+        "continue",
+        "re-login",
+        "switch account",
+        "any proactive action beyond naming the boundary"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "redactionRequired": true
+    },
+    {
+      "order": 62,
+      "id": "seller.accountCheckUser",
+      "docAnchor": "seller-accountcheckuser",
+      "surface": "seller",
+      "routePattern": "#/account-check?userNick=...",
+      "family": "seller-gate",
+      "riskSummary": "M5 / R5 / requires-user-context / REQUIRES_USER_CONTEXT / G4",
+      "runMode": "WAIT_FOR_USER_CONTEXT",
+      "openPlan": "Do not open by guessing parameters. Verify only when the user supplies a URL or business context.",
+      "waitFor": [
+        "account-check parameter"
+      ],
+      "stopPoints": [
+        "guess real account name",
+        "any proactive action beyond naming the boundary"
+      ],
+      "passEvidence": [
+        "required parameter type identified",
+        "user-provided context confirmed",
+        "private parameters redacted",
+        "business action boundary recorded"
+      ],
+      "redactionRequired": true
+    },
+    {
+      "order": 63,
+      "id": "seller.login",
+      "docAnchor": "seller-login",
+      "surface": "seller",
+      "routePattern": "#/login",
+      "family": "seller-gate",
+      "riskSummary": "M5 / R5 / shell-boundary / SHELL_ONLY / G4",
+      "runMode": "SHELL_BOUNDARY_ONLY",
+      "openPlan": "Open shell only if already reachable; identify login, iframe, or container boundary and stop.",
+      "waitFor": [
+        "login",
+        "scan",
+        "verification entry"
+      ],
+      "stopPoints": [
+        "scan",
+        "enter verification code",
+        "any proactive action beyond naming the boundary"
+      ],
+      "passEvidence": [
+        "container type identified",
+        "embedded target shape described",
+        "login or permission boundary recorded",
+        "no embedded action triggered"
+      ],
+      "redactionRequired": true
+    },
+    {
+      "order": 64,
+      "id": "seller.noPermission",
+      "docAnchor": "seller-nopermission",
+      "surface": "seller",
+      "routePattern": "#/no-permission",
+      "family": "seller-gate",
+      "riskSummary": "M5 / R5 / observed-live / READ_WITH_REDACTION / G4",
+      "runMode": "LIVE_READ_ONLY",
+      "openPlan": "Open route or navigate from known menu in a logged-in profile; wait for structural anchors only.",
+      "waitFor": [
+        "no-permission message",
+        "return/jump controls"
+      ],
+      "stopPoints": [
+        "any proactive action beyond naming the boundary"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "redactionRequired": true
+    },
+    {
+      "order": 65,
+      "id": "seller.iframe",
+      "docAnchor": "seller-iframe",
+      "surface": "seller",
+      "routePattern": "#/iframe?url=...",
+      "family": "seller-shell",
+      "riskSummary": "M6 / R5 / shell-boundary / SHELL_ONLY / G1",
+      "runMode": "SHELL_BOUNDARY_ONLY",
+      "openPlan": "Open shell only if already reachable; identify login, iframe, or container boundary and stop.",
+      "waitFor": [
+        "iframe source",
+        "loading/failure state"
+      ],
+      "stopPoints": [
+        "operate external page without separate review",
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "container type identified",
+        "embedded target shape described",
+        "login or permission boundary recorded",
+        "no embedded action triggered"
+      ],
+      "redactionRequired": true
+    },
+    {
+      "order": 66,
+      "id": "seller.playground",
+      "docAnchor": "seller-playground",
+      "surface": "seller",
+      "routePattern": "#/playground",
+      "family": "internal-test",
+      "riskSummary": "M6 / R5/R4 / static-only / STATIC_ONLY / G4",
+      "runMode": "STATIC_EVIDENCE_ONLY",
+      "openPlan": "Do not open for coverage. Verify from static route, module, signal, or API evidence only.",
+      "waitFor": [
+        "test entry"
+      ],
+      "stopPoints": [
+        "visit proactively",
+        "trigger test action",
+        "any proactive action beyond naming the boundary"
+      ],
+      "passEvidence": [
+        "static module or route signal identified",
+        "API or Page signal mapped to family",
+        "risk boundary recorded",
+        "no live probing attempted"
+      ],
+      "redactionRequired": true
+    }
+  ]
+}

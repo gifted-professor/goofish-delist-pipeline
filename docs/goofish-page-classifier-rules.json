@@ -1,0 +1,3241 @@
+{
+  "schema": "goofish-page-classifier-rules/v1",
+  "date": "2026-06-22",
+  "purpose": "Classify known and unknown Goofish/Xianyu pages into safe read, redacted read, user-context, static-only, shell-boundary, or stop categories.",
+  "sources": {
+    "pageManifest": "goofish-page-manifest.json",
+    "pageOntology": "goofish-page-ontology.json",
+    "routeInventory": "goofish-route-inventory.md",
+    "probePolicy": "goofish-probe-policy.json",
+    "actionGateRules": "goofish-action-gate-rules.json",
+    "stateModalRules": "goofish-state-modal-rules.json"
+  },
+  "privacy": {
+    "storeRouteShapeOnly": true,
+    "storeRealAccount": false,
+    "storeRealOrder": false,
+    "storeRealAddress": false,
+    "storeRealChat": false,
+    "storeRealItemTitle": false,
+    "storeRealAmount": false,
+    "storeBusinessMetricValue": false,
+    "storeImageUrl": false,
+    "storeQrContent": false,
+    "storeLoginMaterial": false,
+    "storeCookieOrToken": false,
+    "storeBrowserStorage": false
+  },
+  "totals": {
+    "knownPageRules": 66,
+    "routeFamilyRules": 22,
+    "parameterRiskRules": 8,
+    "domSignalRules": 9,
+    "familiesCovered": 21
+  },
+  "exactKnownPageRules": [
+    {
+      "order": 1,
+      "id": "www.home",
+      "surface": "www",
+      "routePattern": "/",
+      "routeRegex": "^/(?:$|[?#])",
+      "family": "public-discovery",
+      "layer": "M0",
+      "readiness": "R0",
+      "defaultCoverage": "observed-live",
+      "transitionClass": "SAFE_READ",
+      "defaultActionGate": "G0",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S3_NETWORK_OR_API_FAILURE",
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "anchors": [
+        "search box",
+        "channel entries",
+        "recommended item cards",
+        "sidebar tools"
+      ],
+      "stopPoints": [
+        "message entry",
+        "publish entry",
+        "order entry"
+      ],
+      "classification": "KNOWN_SAFE_READ"
+    },
+    {
+      "order": 2,
+      "id": "www.search",
+      "surface": "www",
+      "routePattern": "/search?q=...",
+      "routeRegex": "^/search\\?q=[^&#/]+(?:$|[?#])",
+      "family": "public-discovery",
+      "layer": "M0",
+      "readiness": "R0",
+      "defaultCoverage": "observed-live",
+      "transitionClass": "SAFE_READ",
+      "defaultActionGate": "G0",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S3_NETWORK_OR_API_FAILURE",
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "anchors": [
+        "query box",
+        "sort controls",
+        "price inputs",
+        "filter tags",
+        "item cards",
+        "pagination"
+      ],
+      "stopPoints": [
+        "unstable location panel",
+        "collect",
+        "contact",
+        "purchase"
+      ],
+      "classification": "KNOWN_SAFE_READ"
+    },
+    {
+      "order": 3,
+      "id": "www.machFeeds",
+      "surface": "www",
+      "routePattern": "/mach-feeds?machId=...&publishTimes=...",
+      "routeRegex": "^/mach-feeds\\?machId=[^&#/]+&publishTimes=[^&#/]+(?:$|[?#])",
+      "family": "public-discovery",
+      "layer": "M0",
+      "readiness": "R0",
+      "defaultCoverage": "observed-live",
+      "transitionClass": "SAFE_READ",
+      "defaultActionGate": "G0",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S3_NETWORK_OR_API_FAILURE",
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "anchors": [
+        "channel title",
+        "waterfall feed",
+        "item-card links"
+      ],
+      "stopPoints": [
+        "collect",
+        "contact",
+        "purchase"
+      ],
+      "classification": "KNOWN_SAFE_READ"
+    },
+    {
+      "order": 4,
+      "id": "www.item",
+      "surface": "www",
+      "routePattern": "/item?id=...&categoryId=...",
+      "routeRegex": "^/item\\?id=[^&#/]+&categoryId=[^&#/]+(?:$|[?#])",
+      "family": "item-detail",
+      "layer": "M0/M3",
+      "readiness": "R0/R3",
+      "defaultCoverage": "requires-user-context",
+      "transitionClass": "REQUIRES_USER_CONTEXT",
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S6_QR_OR_APP_BRIDGE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "anchors": [
+        "image area",
+        "price area",
+        "assurance labels",
+        "seller card",
+        "action buttons",
+        "recommendations"
+      ],
+      "stopPoints": [
+        "collect",
+        "chat",
+        "buy now",
+        "downshelf",
+        "delete"
+      ],
+      "classification": "KNOWN_REQUIRES_USER_CONTEXT"
+    },
+    {
+      "order": 5,
+      "id": "www.personalOther",
+      "surface": "www",
+      "routePattern": "/personal?userId=...",
+      "routeRegex": "^/personal\\?userId=[^&#/]+(?:$|[?#])",
+      "family": "public-profile",
+      "layer": "M0/M1",
+      "readiness": "R0/R3",
+      "defaultCoverage": "requires-user-context",
+      "transitionClass": "REQUIRES_USER_CONTEXT",
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S6_QR_OR_APP_BRIDGE",
+        "S7_CONFIRM_DIALOG"
+      ],
+      "anchors": [
+        "public profile block",
+        "credit area",
+        "item list",
+        "follow/contact entries"
+      ],
+      "stopPoints": [
+        "follow",
+        "contact",
+        "purchase"
+      ],
+      "classification": "KNOWN_REQUIRES_USER_CONTEXT"
+    },
+    {
+      "order": 6,
+      "id": "www.personalSelf",
+      "surface": "www",
+      "routePattern": "/personal",
+      "routeRegex": "^/personal(?:$|[?#])",
+      "family": "buyer-account",
+      "layer": "M1/M2",
+      "readiness": "R1/R3",
+      "defaultCoverage": "observed-live",
+      "transitionClass": "SAFE_READ",
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S4_LOGIN_EXPIRED",
+        "S6_QR_OR_APP_BRIDGE",
+        "S7_CONFIRM_DIALOG"
+      ],
+      "anchors": [
+        "left navigation",
+        "home tab",
+        "item/credit/manage tabs",
+        "filters"
+      ],
+      "stopPoints": [
+        "edit profile",
+        "manage item",
+        "downshelf",
+        "delete"
+      ],
+      "classification": "KNOWN_SAFE_READ"
+    },
+    {
+      "order": 7,
+      "id": "www.collection",
+      "surface": "www",
+      "routePattern": "/collection",
+      "routeRegex": "^/collection(?:$|[?#])",
+      "family": "buyer-account",
+      "layer": "M1/M3",
+      "readiness": "R1/R3",
+      "defaultCoverage": "observed-live",
+      "transitionClass": "SAFE_READ",
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S4_LOGIN_EXPIRED",
+        "S6_QR_OR_APP_BRIDGE",
+        "S7_CONFIRM_DIALOG"
+      ],
+      "anchors": [
+        "collection tab",
+        "item cards",
+        "uncollect button",
+        "want button"
+      ],
+      "stopPoints": [
+        "uncollect",
+        "want",
+        "contact"
+      ],
+      "classification": "KNOWN_SAFE_READ"
+    },
+    {
+      "order": 8,
+      "id": "www.bought",
+      "surface": "www",
+      "routePattern": "/bought",
+      "routeRegex": "^/bought(?:$|[?#])",
+      "family": "buyer-trade",
+      "layer": "M1/M3",
+      "readiness": "R1/R4",
+      "defaultCoverage": "observed-live",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S4_LOGIN_EXPIRED",
+        "S6_QR_OR_APP_BRIDGE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "anchors": [
+        "order tabs",
+        "order cards",
+        "more menu",
+        "logistics record",
+        "snapshot entry"
+      ],
+      "stopPoints": [
+        "confirm receipt",
+        "refund",
+        "review",
+        "delete",
+        "complaint"
+      ],
+      "classification": "KNOWN_READ_WITH_REDACTION"
+    },
+    {
+      "order": 9,
+      "id": "www.orderDetail",
+      "surface": "www",
+      "routePattern": "/order-detail?orderId=...",
+      "routeRegex": "^/order-detail\\?orderId=[^&#/]+(?:$|[?#])",
+      "family": "buyer-trade",
+      "layer": "M3",
+      "readiness": "R1/R4",
+      "defaultCoverage": "requires-user-context",
+      "transitionClass": "REQUIRES_USER_CONTEXT",
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S4_LOGIN_EXPIRED",
+        "S6_QR_OR_APP_BRIDGE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "anchors": [
+        "status nodes",
+        "order field labels",
+        "logistics module",
+        "after-sale entry"
+      ],
+      "stopPoints": [
+        "any order-state change",
+        "real order value logging"
+      ],
+      "classification": "KNOWN_REQUIRES_USER_CONTEXT"
+    },
+    {
+      "order": 10,
+      "id": "www.createOrder",
+      "surface": "www",
+      "routePattern": "/create-order?itemId=...",
+      "routeRegex": "^/create-order\\?itemId=[^&#/]+(?:$|[?#])",
+      "family": "buyer-trade",
+      "layer": "M3/M5",
+      "readiness": "R4",
+      "defaultCoverage": "requires-user-context",
+      "transitionClass": "REQUIRES_USER_CONTEXT",
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S4_LOGIN_EXPIRED",
+        "S6_QR_OR_APP_BRIDGE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "anchors": [
+        "sku",
+        "quantity",
+        "address fields",
+        "price-detail block",
+        "payment area",
+        "scan-to-pay fallback"
+      ],
+      "stopPoints": [
+        "submit order",
+        "pay",
+        "change address",
+        "bind account",
+        "verify identity"
+      ],
+      "classification": "KNOWN_REQUIRES_USER_CONTEXT"
+    },
+    {
+      "order": 11,
+      "id": "www.paySuccess",
+      "surface": "www",
+      "routePattern": "/pay-success?orderId=...&itemId=...",
+      "routeRegex": "^/pay-success\\?orderId=[^&#/]+&itemId=[^&#/]+(?:$|[?#])",
+      "family": "buyer-trade",
+      "layer": "M3",
+      "readiness": "R4",
+      "defaultCoverage": "static-only",
+      "transitionClass": "STATIC_ONLY",
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S4_LOGIN_EXPIRED",
+        "S6_QR_OR_APP_BRIDGE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "anchors": [
+        "payment result structure",
+        "order-detail entry",
+        "recommendations"
+      ],
+      "stopPoints": [
+        "trigger payment for testing"
+      ],
+      "classification": "KNOWN_STATIC_ONLY"
+    },
+    {
+      "order": 12,
+      "id": "www.publish",
+      "surface": "www",
+      "routePattern": "/publish",
+      "routeRegex": "^/publish(?:$|[?#])",
+      "family": "draft-input",
+      "layer": "M2/M3",
+      "readiness": "R2/R3",
+      "defaultCoverage": "observed-live",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G2",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S4_LOGIN_EXPIRED",
+        "S7_CONFIRM_DIALOG",
+        "S8_FORM_VALIDATION",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "anchors": [
+        "image/video uploader",
+        "description",
+        "category",
+        "properties",
+        "sku",
+        "price",
+        "location",
+        "shipping settings"
+      ],
+      "stopPoints": [
+        "upload",
+        "save draft",
+        "publish",
+        "edit existing item"
+      ],
+      "classification": "KNOWN_READ_WITH_REDACTION"
+    },
+    {
+      "order": 13,
+      "id": "www.publishScene",
+      "surface": "www",
+      "routePattern": "/publish?scene=xyPcMainPublish",
+      "routeRegex": "^/publish\\?scene=xyPcMainPublish(?:$|[?#])",
+      "family": "draft-input",
+      "layer": "M2/M3",
+      "readiness": "R2/R3",
+      "defaultCoverage": "static-only",
+      "transitionClass": "STATIC_ONLY",
+      "defaultActionGate": "G2",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S4_LOGIN_EXPIRED",
+        "S7_CONFIRM_DIALOG",
+        "S8_FORM_VALIDATION",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "anchors": [
+        "publish scene parameter",
+        "publish form fields"
+      ],
+      "stopPoints": [
+        "save",
+        "publish"
+      ],
+      "classification": "KNOWN_STATIC_ONLY"
+    },
+    {
+      "order": 14,
+      "id": "www.publishEdit",
+      "surface": "www",
+      "routePattern": "/publish?scene=xyPcMainPublish&itemId=...",
+      "routeRegex": "^/publish\\?scene=xyPcMainPublish&itemId=[^&#/]+(?:$|[?#])",
+      "family": "draft-input",
+      "layer": "M2/M3",
+      "readiness": "R3/R4",
+      "defaultCoverage": "static-only",
+      "transitionClass": "STATIC_ONLY",
+      "defaultActionGate": "G2",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S4_LOGIN_EXPIRED",
+        "S7_CONFIRM_DIALOG",
+        "S8_FORM_VALIDATION",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "anchors": [
+        "item context parameter",
+        "publish/edit form fields"
+      ],
+      "stopPoints": [
+        "overwrite existing item",
+        "save",
+        "publish"
+      ],
+      "classification": "KNOWN_STATIC_ONLY"
+    },
+    {
+      "order": 15,
+      "id": "www.im",
+      "surface": "www",
+      "routePattern": "/im",
+      "routeRegex": "^/im(?:$|[?#])",
+      "family": "message",
+      "layer": "M1/M2/M3",
+      "readiness": "R1/R2/R3",
+      "defaultCoverage": "observed-live",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G2",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S4_LOGIN_EXPIRED",
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "anchors": [
+        "empty state",
+        "session list",
+        "input area",
+        "toolbar",
+        "item/order card tools",
+        "file tool"
+      ],
+      "stopPoints": [
+        "read specific private chat",
+        "send",
+        "send card",
+        "upload file"
+      ],
+      "classification": "KNOWN_READ_WITH_REDACTION"
+    },
+    {
+      "order": 16,
+      "id": "www.imItem",
+      "surface": "www",
+      "routePattern": "/im?itemId=...&peerUserId=...",
+      "routeRegex": "^/im\\?itemId=[^&#/]+&peerUserId=[^&#/]+(?:$|[?#])",
+      "family": "message",
+      "layer": "M1/M3",
+      "readiness": "R3/R4",
+      "defaultCoverage": "requires-user-context",
+      "transitionClass": "REQUIRES_USER_CONTEXT",
+      "defaultActionGate": "G2",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S4_LOGIN_EXPIRED",
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "anchors": [
+        "item-linked chat parameters",
+        "input area"
+      ],
+      "stopPoints": [
+        "read specific conversation",
+        "send"
+      ],
+      "classification": "KNOWN_REQUIRES_USER_CONTEXT"
+    },
+    {
+      "order": 17,
+      "id": "www.account",
+      "surface": "www",
+      "routePattern": "/account",
+      "routeRegex": "^/account(?:$|[?#])",
+      "family": "identity",
+      "layer": "M1/M5",
+      "readiness": "R1/R3",
+      "defaultCoverage": "observed-live",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G4",
+      "expectedStates": [
+        "S4_LOGIN_EXPIRED",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "anchors": [
+        "basic info module",
+        "stay signed in",
+        "notice switch",
+        "verification entry",
+        "security center"
+      ],
+      "stopPoints": [
+        "toggle notice",
+        "verify identity",
+        "switch account",
+        "logout"
+      ],
+      "classification": "KNOWN_READ_WITH_REDACTION"
+    },
+    {
+      "order": 18,
+      "id": "www.accountApi",
+      "surface": "www",
+      "routePattern": "/account/api",
+      "routeRegex": "^/account/api(?:$|[?#])",
+      "family": "internal-module",
+      "layer": "M6",
+      "readiness": "R5",
+      "defaultCoverage": "static-only",
+      "transitionClass": "STATIC_ONLY",
+      "defaultActionGate": "G4",
+      "expectedStates": [
+        "S3_NETWORK_OR_API_FAILURE"
+      ],
+      "anchors": [
+        "module path"
+      ],
+      "stopPoints": [
+        "direct call",
+        "page navigation"
+      ],
+      "classification": "KNOWN_STATIC_ONLY"
+    },
+    {
+      "order": 19,
+      "id": "www.feedback",
+      "surface": "www",
+      "routePattern": "/feedback?from=...",
+      "routeRegex": "^/feedback\\?from=[^&#/]+(?:$|[?#])",
+      "family": "draft-input",
+      "layer": "M2/M3",
+      "readiness": "R2/R3",
+      "defaultCoverage": "observed-live",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G2",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S4_LOGIN_EXPIRED",
+        "S7_CONFIRM_DIALOG",
+        "S8_FORM_VALIDATION",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "anchors": [
+        "feedback type",
+        "source page option",
+        "text area",
+        "screenshot upload",
+        "submit"
+      ],
+      "stopPoints": [
+        "upload screenshot",
+        "submit"
+      ],
+      "classification": "KNOWN_READ_WITH_REDACTION"
+    },
+    {
+      "order": 20,
+      "id": "www.changelog",
+      "surface": "www",
+      "routePattern": "/changelog",
+      "routeRegex": "^/changelog(?:$|[?#])",
+      "family": "public-content",
+      "layer": "M0",
+      "readiness": "R0",
+      "defaultCoverage": "observed-live",
+      "transitionClass": "SAFE_READ",
+      "defaultActionGate": "G0",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S6_QR_OR_APP_BRIDGE",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "anchors": [
+        "update-log title",
+        "feature entries"
+      ],
+      "stopPoints": [],
+      "classification": "KNOWN_SAFE_READ"
+    },
+    {
+      "order": 21,
+      "id": "www.login",
+      "surface": "www",
+      "routePattern": "/login",
+      "routeRegex": "^/login(?:$|[?#])",
+      "family": "identity",
+      "layer": "M5",
+      "readiness": "R5",
+      "defaultCoverage": "observed-live",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G4",
+      "expectedStates": [
+        "S4_LOGIN_EXPIRED",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "anchors": [
+        "login method",
+        "scan container",
+        "verification entry",
+        "redirect parameter"
+      ],
+      "stopPoints": [
+        "scan",
+        "enter verification code",
+        "bypass risk control"
+      ],
+      "classification": "KNOWN_READ_WITH_REDACTION"
+    },
+    {
+      "order": 22,
+      "id": "www.loginRedirect",
+      "surface": "www",
+      "routePattern": "/login?spm=...&redirectURL=...",
+      "routeRegex": "^/login\\?spm=[^&#/]+&redirectURL=[^&#/]+(?:$|[?#])",
+      "family": "identity",
+      "layer": "M5",
+      "readiness": "R5",
+      "defaultCoverage": "static-only",
+      "transitionClass": "STATIC_ONLY",
+      "defaultActionGate": "G4",
+      "expectedStates": [
+        "S4_LOGIN_EXPIRED",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "anchors": [
+        "redirect parameter"
+      ],
+      "stopPoints": [
+        "change login parameters",
+        "bypass risk control"
+      ],
+      "classification": "KNOWN_STATIC_ONLY"
+    },
+    {
+      "order": 23,
+      "id": "www.findAccount",
+      "surface": "www",
+      "routePattern": "/find-account",
+      "routeRegex": "^/find-account(?:$|[?#])",
+      "family": "identity",
+      "layer": "M5",
+      "readiness": "R5",
+      "defaultCoverage": "static-only",
+      "transitionClass": "STATIC_ONLY",
+      "defaultActionGate": "G4",
+      "expectedStates": [
+        "S4_LOGIN_EXPIRED",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "anchors": [
+        "account recovery placeholder",
+        "redirect behavior"
+      ],
+      "stopPoints": [
+        "recover account"
+      ],
+      "classification": "KNOWN_STATIC_ONLY"
+    },
+    {
+      "order": 24,
+      "id": "www.selectAccount",
+      "surface": "www",
+      "routePattern": "/select-account",
+      "routeRegex": "^/select-account(?:$|[?#])",
+      "family": "identity",
+      "layer": "M5",
+      "readiness": "R5",
+      "defaultCoverage": "static-only",
+      "transitionClass": "STATIC_ONLY",
+      "defaultActionGate": "G4",
+      "expectedStates": [
+        "S4_LOGIN_EXPIRED",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "anchors": [
+        "account selection placeholder",
+        "redirect behavior"
+      ],
+      "stopPoints": [
+        "switch account"
+      ],
+      "classification": "KNOWN_STATIC_ONLY"
+    },
+    {
+      "order": 25,
+      "id": "www.loginValidation",
+      "surface": "www",
+      "routePattern": "/login-validation",
+      "routeRegex": "^/login-validation(?:$|[?#])",
+      "family": "identity",
+      "layer": "M5",
+      "readiness": "R5",
+      "defaultCoverage": "static-only",
+      "transitionClass": "STATIC_ONLY",
+      "defaultActionGate": "G4",
+      "expectedStates": [
+        "S4_LOGIN_EXPIRED",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "anchors": [
+        "login validation placeholder"
+      ],
+      "stopPoints": [
+        "enter verification code"
+      ],
+      "classification": "KNOWN_STATIC_ONLY"
+    },
+    {
+      "order": 26,
+      "id": "www.commonVideo",
+      "surface": "www",
+      "routePattern": "/common-video",
+      "routeRegex": "^/common-video(?:$|[?#])",
+      "family": "public-content",
+      "layer": "M0/M6",
+      "readiness": "R0/R4",
+      "defaultCoverage": "static-only",
+      "transitionClass": "STATIC_ONLY",
+      "defaultActionGate": "G0",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S6_QR_OR_APP_BRIDGE",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "anchors": [
+        "video container",
+        "title/material config",
+        "playback controls"
+      ],
+      "stopPoints": [
+        "play proactively",
+        "download",
+        "capture video"
+      ],
+      "classification": "KNOWN_STATIC_ONLY"
+    },
+    {
+      "order": 27,
+      "id": "www.commonVideoLayout",
+      "surface": "www",
+      "routePattern": "/common-video/layout",
+      "routeRegex": "^/common-video/layout(?:$|[?#])",
+      "family": "internal-module",
+      "layer": "M6",
+      "readiness": "R5",
+      "defaultCoverage": "static-only",
+      "transitionClass": "STATIC_ONLY",
+      "defaultActionGate": "G4",
+      "expectedStates": [
+        "S3_NETWORK_OR_API_FAILURE"
+      ],
+      "anchors": [
+        "layout package path"
+      ],
+      "stopPoints": [
+        "page navigation"
+      ],
+      "classification": "KNOWN_STATIC_ONLY"
+    },
+    {
+      "order": 28,
+      "id": "www.upgradeBrowser",
+      "surface": "www",
+      "routePattern": "/upgrade-browser",
+      "routeRegex": "^/upgrade-browser(?:$|[?#])",
+      "family": "public-content",
+      "layer": "M0/M6",
+      "readiness": "R0/R3",
+      "defaultCoverage": "static-only",
+      "transitionClass": "STATIC_ONLY",
+      "defaultActionGate": "G0",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S6_QR_OR_APP_BRIDGE",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "anchors": [
+        "browser recommendation list",
+        "download entry"
+      ],
+      "stopPoints": [
+        "download",
+        "install"
+      ],
+      "classification": "KNOWN_STATIC_ONLY"
+    },
+    {
+      "order": 29,
+      "id": "www.playground",
+      "surface": "www",
+      "routePattern": "/playground",
+      "routeRegex": "^/playground(?:$|[?#])",
+      "family": "internal-test",
+      "layer": "M6",
+      "readiness": "R4/R5",
+      "defaultCoverage": "static-only",
+      "transitionClass": "STATIC_ONLY",
+      "defaultActionGate": "G4",
+      "expectedStates": [
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "anchors": [
+        "internal test entry",
+        "login/upload/qr/payment test controls"
+      ],
+      "stopPoints": [
+        "visit proactively",
+        "trigger test action"
+      ],
+      "classification": "KNOWN_STATIC_ONLY"
+    },
+    {
+      "order": 30,
+      "id": "www.yhbCreateOrder",
+      "surface": "www",
+      "routePattern": "create-order-yhb package",
+      "routeRegex": null,
+      "family": "buyer-trade",
+      "layer": "M3",
+      "readiness": "R4",
+      "defaultCoverage": "static-only",
+      "transitionClass": "STATIC_ONLY",
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S4_LOGIN_EXPIRED",
+        "S6_QR_OR_APP_BRIDGE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "anchors": [
+        "YHB order render fields",
+        "YHB order create interface"
+      ],
+      "stopPoints": [
+        "create YHB order"
+      ],
+      "classification": "KNOWN_STATIC_ONLY"
+    },
+    {
+      "order": 31,
+      "id": "www.yhbOrderDetail",
+      "surface": "www",
+      "routePattern": "order-detail-yhb package",
+      "routeRegex": null,
+      "family": "buyer-trade",
+      "layer": "M3",
+      "readiness": "R4",
+      "defaultCoverage": "static-only",
+      "transitionClass": "STATIC_ONLY",
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S4_LOGIN_EXPIRED",
+        "S6_QR_OR_APP_BRIDGE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "anchors": [
+        "report fields",
+        "dispute fields",
+        "review-related fields"
+      ],
+      "stopPoints": [
+        "after-sale action",
+        "review action"
+      ],
+      "classification": "KNOWN_STATIC_ONLY"
+    },
+    {
+      "order": 32,
+      "id": "seller.dataOverview",
+      "surface": "seller",
+      "routePattern": "#/seller-data/data",
+      "routeRegex": "^#/seller-data/data(?:$|[&#])",
+      "family": "seller-data",
+      "layer": "M4",
+      "readiness": "R1/R3",
+      "defaultCoverage": "observed-live",
+      "transitionClass": "SAFE_READ",
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S3_NETWORK_OR_API_FAILURE",
+        "S6_QR_OR_APP_BRIDGE",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "anchors": [
+        "date controls",
+        "metric cards",
+        "trend charts",
+        "info popovers"
+      ],
+      "stopPoints": [
+        "record real numbers",
+        "export",
+        "download"
+      ],
+      "classification": "KNOWN_SAFE_READ"
+    },
+    {
+      "order": 33,
+      "id": "seller.commodityData",
+      "surface": "seller",
+      "routePattern": "#/seller-data/commodity",
+      "routeRegex": "^#/seller-data/commodity(?:$|[&#])",
+      "family": "seller-data",
+      "layer": "M4",
+      "readiness": "R1/R3",
+      "defaultCoverage": "observed-live",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S3_NETWORK_OR_API_FAILURE",
+        "S6_QR_OR_APP_BRIDGE",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "anchors": [
+        "search",
+        "date",
+        "commodity table",
+        "metric columns",
+        "pagination",
+        "download"
+      ],
+      "stopPoints": [
+        "download item detail"
+      ],
+      "classification": "KNOWN_READ_WITH_REDACTION"
+    },
+    {
+      "order": 34,
+      "id": "seller.fanData",
+      "surface": "seller",
+      "routePattern": "#/seller-data/fanData",
+      "routeRegex": "^#/seller-data/fanData(?:$|[&#])",
+      "family": "seller-data",
+      "layer": "M4",
+      "readiness": "R1/R3",
+      "defaultCoverage": "observed-live",
+      "transitionClass": "SAFE_READ",
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S3_NETWORK_OR_API_FAILURE",
+        "S6_QR_OR_APP_BRIDGE",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "anchors": [
+        "date",
+        "fan metrics",
+        "profile distributions",
+        "region/user-group modules"
+      ],
+      "stopPoints": [
+        "record real audience numbers",
+        "export"
+      ],
+      "classification": "KNOWN_SAFE_READ"
+    },
+    {
+      "order": 35,
+      "id": "seller.customerServiceData",
+      "surface": "seller",
+      "routePattern": "#/seller-data/customerService",
+      "routeRegex": "^#/seller-data/customerService(?:$|[&#])",
+      "family": "seller-data",
+      "layer": "M4",
+      "readiness": "R1/R3",
+      "defaultCoverage": "observed-live",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S3_NETWORK_OR_API_FAILURE",
+        "S6_QR_OR_APP_BRIDGE",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "anchors": [
+        "consultation metrics",
+        "satisfaction fields",
+        "customer-service table",
+        "export"
+      ],
+      "stopPoints": [
+        "export customer-service detail"
+      ],
+      "classification": "KNOWN_READ_WITH_REDACTION"
+    },
+    {
+      "order": 36,
+      "id": "seller.itemPublish",
+      "surface": "seller",
+      "routePattern": "#/seller-item/publish",
+      "routeRegex": "^#/seller-item/publish(?:$|[&#])",
+      "family": "seller-item",
+      "layer": "M2/M4",
+      "readiness": "R2/R3",
+      "defaultCoverage": "observed-live",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G2",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S7_CONFIRM_DIALOG",
+        "S8_FORM_VALIDATION",
+        "S9_FILE_OR_EXPORT",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "anchors": [
+        "image/video uploader",
+        "title/description",
+        "category",
+        "sku",
+        "price",
+        "stock",
+        "shipping settings"
+      ],
+      "stopPoints": [
+        "upload",
+        "save",
+        "publish"
+      ],
+      "classification": "KNOWN_READ_WITH_REDACTION"
+    },
+    {
+      "order": 37,
+      "id": "seller.goodsManage",
+      "surface": "seller",
+      "routePattern": "#/seller-item/goods-manage",
+      "routeRegex": "^#/seller-item/goods-manage(?:$|[&#])",
+      "family": "seller-item",
+      "layer": "M4",
+      "readiness": "R1/R3",
+      "defaultCoverage": "observed-live",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G2",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S7_CONFIRM_DIALOG",
+        "S8_FORM_VALIDATION",
+        "S9_FILE_OR_EXPORT",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "anchors": [
+        "status tabs",
+        "search/filter",
+        "item table",
+        "bulk actions",
+        "operation column"
+      ],
+      "stopPoints": [
+        "edit",
+        "copy",
+        "adjust price",
+        "shelf changes",
+        "delete"
+      ],
+      "classification": "KNOWN_READ_WITH_REDACTION"
+    },
+    {
+      "order": 38,
+      "id": "seller.postTemplate",
+      "surface": "seller",
+      "routePattern": "#/seller-item/post-temple",
+      "routeRegex": "^#/seller-item/post-temple(?:$|[&#])",
+      "family": "seller-item",
+      "layer": "M4",
+      "readiness": "R1/R3",
+      "defaultCoverage": "observed-live",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G2",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S7_CONFIRM_DIALOG",
+        "S8_FORM_VALIDATION",
+        "S9_FILE_OR_EXPORT",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "anchors": [
+        "template list",
+        "create entry",
+        "operation column",
+        "delete/default confirmation"
+      ],
+      "stopPoints": [
+        "create",
+        "edit",
+        "delete",
+        "set default"
+      ],
+      "classification": "KNOWN_READ_WITH_REDACTION"
+    },
+    {
+      "order": 39,
+      "id": "seller.postTemplateCreate",
+      "surface": "seller",
+      "routePattern": "#/seller-item/post-temple/create",
+      "routeRegex": "^#/seller-item/post-temple/create(?:$|[&#])",
+      "family": "seller-item",
+      "layer": "M4",
+      "readiness": "R2/R3",
+      "defaultCoverage": "observed-live",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G2",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S7_CONFIRM_DIALOG",
+        "S8_FORM_VALIDATION",
+        "S9_FILE_OR_EXPORT",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "anchors": [
+        "template name",
+        "shipping location",
+        "billing mode",
+        "region modal",
+        "save"
+      ],
+      "stopPoints": [
+        "save real template"
+      ],
+      "classification": "KNOWN_READ_WITH_REDACTION"
+    },
+    {
+      "order": 40,
+      "id": "seller.orderManage",
+      "surface": "seller",
+      "routePattern": "#/seller-trade/order-manage",
+      "routeRegex": "^#/seller-trade/order-manage(?:$|[&#])",
+      "family": "seller-trade",
+      "layer": "M3/M4",
+      "readiness": "R1/R4",
+      "defaultCoverage": "observed-live",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "anchors": [
+        "order-status tabs",
+        "search conditions",
+        "date",
+        "order table",
+        "operation column"
+      ],
+      "stopPoints": [
+        "ship",
+        "change logistics",
+        "remark",
+        "contact",
+        "view funds"
+      ],
+      "classification": "KNOWN_READ_WITH_REDACTION"
+    },
+    {
+      "order": 41,
+      "id": "seller.orderDetail",
+      "surface": "seller",
+      "routePattern": "#/seller-trade/order-manage/order-detail?orderId=...",
+      "routeRegex": "^#/seller-trade/order-manage/order-detail\\?orderId=[^&#/]+(?:$|[&#])",
+      "family": "seller-trade",
+      "layer": "M3/M4",
+      "readiness": "R1/R4",
+      "defaultCoverage": "requires-user-context",
+      "transitionClass": "REQUIRES_USER_CONTEXT",
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "anchors": [
+        "status nodes",
+        "logistics",
+        "address-modification area",
+        "trade messages",
+        "operation buttons"
+      ],
+      "stopPoints": [
+        "guess order id",
+        "order action"
+      ],
+      "classification": "KNOWN_REQUIRES_USER_CONTEXT"
+    },
+    {
+      "order": 42,
+      "id": "seller.refundManage",
+      "surface": "seller",
+      "routePattern": "#/seller-trade/refund-manage",
+      "routeRegex": "^#/seller-trade/refund-manage(?:$|[&#])",
+      "family": "seller-trade",
+      "layer": "M3/M4",
+      "readiness": "R1/R4",
+      "defaultCoverage": "observed-live",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "anchors": [
+        "refund type",
+        "status filter",
+        "reason",
+        "logistics",
+        "operation column"
+      ],
+      "stopPoints": [
+        "agree refund",
+        "refuse refund",
+        "compensate",
+        "confirm receipt"
+      ],
+      "classification": "KNOWN_READ_WITH_REDACTION"
+    },
+    {
+      "order": 43,
+      "id": "seller.evaluationManage",
+      "surface": "seller",
+      "routePattern": "#/seller-trade/evaluation-manage",
+      "routeRegex": "^#/seller-trade/evaluation-manage(?:$|[&#])",
+      "family": "seller-trade",
+      "layer": "M3/M4",
+      "readiness": "R1/R3",
+      "defaultCoverage": "observed-live",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "anchors": [
+        "evaluation filters",
+        "evaluation table",
+        "batch review",
+        "report/contact"
+      ],
+      "stopPoints": [
+        "review",
+        "report",
+        "contact"
+      ],
+      "classification": "KNOWN_READ_WITH_REDACTION"
+    },
+    {
+      "order": 44,
+      "id": "seller.complaintManage",
+      "surface": "seller",
+      "routePattern": "#/seller-trade/complaint-manage",
+      "routeRegex": "^#/seller-trade/complaint-manage(?:$|[&#])",
+      "family": "seller-trade",
+      "layer": "M3/M4",
+      "readiness": "R1/R4",
+      "defaultCoverage": "observed-live",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "anchors": [
+        "complaint status",
+        "complaint table",
+        "detail/proof entry"
+      ],
+      "stopPoints": [
+        "submit proof",
+        "revoke",
+        "refuse",
+        "submit material"
+      ],
+      "classification": "KNOWN_READ_WITH_REDACTION"
+    },
+    {
+      "order": 45,
+      "id": "seller.refundAddress",
+      "surface": "seller",
+      "routePattern": "#/seller-trade/refund-address",
+      "routeRegex": "^#/seller-trade/refund-address(?:$|[&#])",
+      "family": "seller-trade",
+      "layer": "M4",
+      "readiness": "R1/R3",
+      "defaultCoverage": "observed-live",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "anchors": [
+        "address table",
+        "default status",
+        "operation column",
+        "add/edit/delete"
+      ],
+      "stopPoints": [
+        "add address",
+        "edit address",
+        "delete address"
+      ],
+      "classification": "KNOWN_READ_WITH_REDACTION"
+    },
+    {
+      "order": 46,
+      "id": "seller.incomeBill",
+      "surface": "seller",
+      "routePattern": "#/seller-finance/income-bill",
+      "routeRegex": "^#/seller-finance/income-bill(?:$|[&#])",
+      "family": "seller-finance",
+      "layer": "M4",
+      "readiness": "R1/R3",
+      "defaultCoverage": "observed-live",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "anchors": [
+        "month/day/detail tabs",
+        "date",
+        "business type",
+        "bill table",
+        "export/download"
+      ],
+      "stopPoints": [
+        "export",
+        "historical download",
+        "download full detail"
+      ],
+      "classification": "KNOWN_READ_WITH_REDACTION"
+    },
+    {
+      "order": 47,
+      "id": "seller.expenseBill",
+      "surface": "seller",
+      "routePattern": "#/seller-finance/expense-bill",
+      "routeRegex": "^#/seller-finance/expense-bill(?:$|[&#])",
+      "family": "seller-finance",
+      "layer": "M4",
+      "readiness": "R1/R3",
+      "defaultCoverage": "observed-live",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "anchors": [
+        "month/day/detail tabs",
+        "expense type",
+        "bill table",
+        "export/download"
+      ],
+      "stopPoints": [
+        "export",
+        "download"
+      ],
+      "classification": "KNOWN_READ_WITH_REDACTION"
+    },
+    {
+      "order": 48,
+      "id": "seller.invoiceApply",
+      "surface": "seller",
+      "routePattern": "#/seller-finance/invoice-apply",
+      "routeRegex": "^#/seller-finance/invoice-apply(?:$|[&#])",
+      "family": "seller-finance",
+      "layer": "M4",
+      "readiness": "R1/R3",
+      "defaultCoverage": "observed-live",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "anchors": [
+        "pending/applied/legacy tabs",
+        "business type",
+        "apply",
+        "export"
+      ],
+      "stopPoints": [
+        "apply invoice",
+        "export"
+      ],
+      "classification": "KNOWN_READ_WITH_REDACTION"
+    },
+    {
+      "order": 49,
+      "id": "seller.basicInfo",
+      "surface": "seller",
+      "routePattern": "#/seller-finance/basic-info",
+      "routeRegex": "^#/seller-finance/basic-info(?:$|[&#])",
+      "family": "seller-finance",
+      "layer": "M4/M5",
+      "readiness": "R1/R3",
+      "defaultCoverage": "observed-live",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "anchors": [
+        "invoice entity form",
+        "edit/save"
+      ],
+      "stopPoints": [
+        "modify entity data"
+      ],
+      "classification": "KNOWN_READ_WITH_REDACTION"
+    },
+    {
+      "order": 50,
+      "id": "seller.subAccount",
+      "surface": "seller",
+      "routePattern": "#/seller-account/sub-account",
+      "routeRegex": "^#/seller-account/sub-account(?:$|[&#])",
+      "family": "seller-account",
+      "layer": "M4/M5",
+      "readiness": "R1/R4",
+      "defaultCoverage": "observed-live",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "anchors": [
+        "sub-account table",
+        "role",
+        "status",
+        "routing config",
+        "new/disable/permission"
+      ],
+      "stopPoints": [
+        "create sub-account",
+        "disable account",
+        "change permission"
+      ],
+      "classification": "KNOWN_READ_WITH_REDACTION"
+    },
+    {
+      "order": 51,
+      "id": "seller.csDispatch",
+      "surface": "seller",
+      "routePattern": "#/im-cs-dispatch/customer-routing-service",
+      "routeRegex": "^#/im-cs-dispatch/customer-routing-service(?:$|[&#])",
+      "family": "seller-account",
+      "layer": "M4/M5",
+      "readiness": "R1/R4",
+      "defaultCoverage": "observed-live",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "anchors": [
+        "groups",
+        "reception scope",
+        "participating service agents",
+        "switch",
+        "save"
+      ],
+      "stopPoints": [
+        "save",
+        "enable/disable",
+        "create group"
+      ],
+      "classification": "KNOWN_READ_WITH_REDACTION"
+    },
+    {
+      "order": 52,
+      "id": "seller.securityCenter",
+      "surface": "seller",
+      "routePattern": "#/seller-sc/home",
+      "routeRegex": "^#/seller-sc/home(?:$|[&#])",
+      "family": "seller-security",
+      "layer": "M4",
+      "readiness": "R1/R4",
+      "defaultCoverage": "observed-live",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "anchors": [
+        "violation table",
+        "penalty status",
+        "appeal status",
+        "detail/appeal"
+      ],
+      "stopPoints": [
+        "view sensitive detail",
+        "appeal",
+        "process"
+      ],
+      "classification": "KNOWN_READ_WITH_REDACTION"
+    },
+    {
+      "order": 53,
+      "id": "seller.adHome",
+      "surface": "seller",
+      "routePattern": "#/seller-ad/home",
+      "routeRegex": "^#/seller-ad/home(?:$|[&#])",
+      "family": "seller-ad",
+      "layer": "M4",
+      "readiness": "R1/R4",
+      "defaultCoverage": "observed-live",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "anchors": [
+        "date",
+        "promotion metrics",
+        "plan entry",
+        "carousel controls"
+      ],
+      "stopPoints": [
+        "create plan",
+        "launch paid promotion"
+      ],
+      "classification": "KNOWN_READ_WITH_REDACTION"
+    },
+    {
+      "order": 54,
+      "id": "seller.notificationCenter",
+      "surface": "seller",
+      "routePattern": "#/notification-center",
+      "routeRegex": "^#/notification-center(?:$|[&#])",
+      "family": "seller-shell",
+      "layer": "M4",
+      "readiness": "R1/R3",
+      "defaultCoverage": "observed-live",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S3_NETWORK_OR_API_FAILURE",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "anchors": [
+        "notification list",
+        "unread status",
+        "detail entry",
+        "mark read/clear unread"
+      ],
+      "stopPoints": [
+        "mark read",
+        "clear unread"
+      ],
+      "classification": "KNOWN_READ_WITH_REDACTION"
+    },
+    {
+      "order": 55,
+      "id": "seller.notificationApi",
+      "surface": "seller",
+      "routePattern": "#/notification-center/api*",
+      "routeRegex": "^#/notification-center/api\\*(?:$|[&#])",
+      "family": "internal-module",
+      "layer": "M6",
+      "readiness": "R5",
+      "defaultCoverage": "static-only",
+      "transitionClass": "STATIC_ONLY",
+      "defaultActionGate": "G4",
+      "expectedStates": [
+        "S3_NETWORK_OR_API_FAILURE"
+      ],
+      "anchors": [
+        "internal API/interface module"
+      ],
+      "stopPoints": [
+        "direct call"
+      ],
+      "classification": "KNOWN_STATIC_ONLY"
+    },
+    {
+      "order": 56,
+      "id": "seller.im",
+      "surface": "seller",
+      "routePattern": "#/im",
+      "routeRegex": "^#/im(?:$|[&#])",
+      "family": "seller-message",
+      "layer": "M3/M4",
+      "readiness": "R1/R2/R3",
+      "defaultCoverage": "observed-live",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G2",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "anchors": [
+        "session list",
+        "search",
+        "input area",
+        "toolbar",
+        "quick replies",
+        "file",
+        "transfer"
+      ],
+      "stopPoints": [
+        "read specific conversation",
+        "send",
+        "file upload",
+        "transfer"
+      ],
+      "classification": "KNOWN_READ_WITH_REDACTION"
+    },
+    {
+      "order": 57,
+      "id": "seller.imItem",
+      "surface": "seller",
+      "routePattern": "#/im?itemId=...",
+      "routeRegex": "^#/im\\?itemId=[^&#/]+(?:$|[&#])",
+      "family": "seller-message",
+      "layer": "M3/M4",
+      "readiness": "R3/R4",
+      "defaultCoverage": "requires-user-context",
+      "transitionClass": "REQUIRES_USER_CONTEXT",
+      "defaultActionGate": "G2",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "anchors": [
+        "item-linked message parameter"
+      ],
+      "stopPoints": [
+        "guess parameter",
+        "send"
+      ],
+      "classification": "KNOWN_REQUIRES_USER_CONTEXT"
+    },
+    {
+      "order": 58,
+      "id": "seller.imDesktop",
+      "surface": "seller",
+      "routePattern": "#/im-desktop",
+      "routeRegex": "^#/im-desktop(?:$|[&#])",
+      "family": "seller-shell",
+      "layer": "M6",
+      "readiness": "R5/R3",
+      "defaultCoverage": "observed-live",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S3_NETWORK_OR_API_FAILURE",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "anchors": [
+        "download/open client prompt"
+      ],
+      "stopPoints": [
+        "download",
+        "install",
+        "open"
+      ],
+      "classification": "KNOWN_READ_WITH_REDACTION"
+    },
+    {
+      "order": 59,
+      "id": "seller.download",
+      "surface": "seller",
+      "routePattern": "#/download",
+      "routeRegex": "^#/download(?:$|[&#])",
+      "family": "seller-shell",
+      "layer": "M6",
+      "readiness": "R5/R3",
+      "defaultCoverage": "observed-live",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S3_NETWORK_OR_API_FAILURE",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "anchors": [
+        "download button",
+        "client type"
+      ],
+      "stopPoints": [
+        "download",
+        "install"
+      ],
+      "classification": "KNOWN_READ_WITH_REDACTION"
+    },
+    {
+      "order": 60,
+      "id": "seller.selectSite",
+      "surface": "seller",
+      "routePattern": "#/select-site",
+      "routeRegex": "^#/select-site(?:$|[&#])",
+      "family": "seller-gate",
+      "layer": "M5",
+      "readiness": "R5/R3",
+      "defaultCoverage": "observed-live",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G4",
+      "expectedStates": [
+        "S4_LOGIN_EXPIRED",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "anchors": [
+        "site/identity list",
+        "selection button"
+      ],
+      "stopPoints": [
+        "switch site"
+      ],
+      "classification": "KNOWN_READ_WITH_REDACTION"
+    },
+    {
+      "order": 61,
+      "id": "seller.accountCheck",
+      "surface": "seller",
+      "routePattern": "#/account-check",
+      "routeRegex": "^#/account-check(?:$|[&#])",
+      "family": "seller-gate",
+      "layer": "M5",
+      "readiness": "R5/R3",
+      "defaultCoverage": "observed-live",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G4",
+      "expectedStates": [
+        "S4_LOGIN_EXPIRED",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "anchors": [
+        "account check",
+        "continue",
+        "re-login",
+        "switch"
+      ],
+      "stopPoints": [
+        "continue",
+        "re-login",
+        "switch account"
+      ],
+      "classification": "KNOWN_READ_WITH_REDACTION"
+    },
+    {
+      "order": 62,
+      "id": "seller.accountCheckUser",
+      "surface": "seller",
+      "routePattern": "#/account-check?userNick=...",
+      "routeRegex": "^#/account-check\\?userNick=[^&#/]+(?:$|[&#])",
+      "family": "seller-gate",
+      "layer": "M5",
+      "readiness": "R5",
+      "defaultCoverage": "requires-user-context",
+      "transitionClass": "REQUIRES_USER_CONTEXT",
+      "defaultActionGate": "G4",
+      "expectedStates": [
+        "S4_LOGIN_EXPIRED",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "anchors": [
+        "account-check parameter"
+      ],
+      "stopPoints": [
+        "guess real account name"
+      ],
+      "classification": "KNOWN_REQUIRES_USER_CONTEXT"
+    },
+    {
+      "order": 63,
+      "id": "seller.login",
+      "surface": "seller",
+      "routePattern": "#/login",
+      "routeRegex": "^#/login(?:$|[&#])",
+      "family": "seller-gate",
+      "layer": "M5",
+      "readiness": "R5",
+      "defaultCoverage": "shell-boundary",
+      "transitionClass": "SHELL_ONLY",
+      "defaultActionGate": "G4",
+      "expectedStates": [
+        "S4_LOGIN_EXPIRED",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "anchors": [
+        "login",
+        "scan",
+        "verification entry"
+      ],
+      "stopPoints": [
+        "scan",
+        "enter verification code"
+      ],
+      "classification": "KNOWN_SHELL_BOUNDARY"
+    },
+    {
+      "order": 64,
+      "id": "seller.noPermission",
+      "surface": "seller",
+      "routePattern": "#/no-permission",
+      "routeRegex": "^#/no-permission(?:$|[&#])",
+      "family": "seller-gate",
+      "layer": "M5",
+      "readiness": "R5",
+      "defaultCoverage": "observed-live",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G4",
+      "expectedStates": [
+        "S4_LOGIN_EXPIRED",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "anchors": [
+        "no-permission message",
+        "return/jump controls"
+      ],
+      "stopPoints": [],
+      "classification": "KNOWN_READ_WITH_REDACTION"
+    },
+    {
+      "order": 65,
+      "id": "seller.iframe",
+      "surface": "seller",
+      "routePattern": "#/iframe?url=...",
+      "routeRegex": "^#/iframe\\?url=[^&#/]+(?:$|[&#])",
+      "family": "seller-shell",
+      "layer": "M6",
+      "readiness": "R5",
+      "defaultCoverage": "shell-boundary",
+      "transitionClass": "SHELL_ONLY",
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S3_NETWORK_OR_API_FAILURE",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "anchors": [
+        "iframe source",
+        "loading/failure state"
+      ],
+      "stopPoints": [
+        "operate external page without separate review"
+      ],
+      "classification": "KNOWN_SHELL_BOUNDARY"
+    },
+    {
+      "order": 66,
+      "id": "seller.playground",
+      "surface": "seller",
+      "routePattern": "#/playground",
+      "routeRegex": "^#/playground(?:$|[&#])",
+      "family": "internal-test",
+      "layer": "M6",
+      "readiness": "R5/R4",
+      "defaultCoverage": "static-only",
+      "transitionClass": "STATIC_ONLY",
+      "defaultActionGate": "G4",
+      "expectedStates": [
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "anchors": [
+        "test entry"
+      ],
+      "stopPoints": [
+        "visit proactively",
+        "trigger test action"
+      ],
+      "classification": "KNOWN_STATIC_ONLY"
+    }
+  ],
+  "routeFamilyRules": [
+    {
+      "id": "www-public-home",
+      "surface": "www",
+      "urlRegex": "^https://www\\.goofish\\.com/?(?:[?#].*)?$",
+      "family": "public-discovery",
+      "confidence": "high",
+      "result": "PUBLIC_READ_ONLY"
+    },
+    {
+      "id": "www-search-like",
+      "surface": "www",
+      "pathRegex": "^/search(?:$|[?#])",
+      "family": "public-discovery",
+      "confidence": "high",
+      "result": "PUBLIC_READ_ONLY"
+    },
+    {
+      "id": "www-channel-feed-like",
+      "surface": "www",
+      "pathRegex": "^/mach-feeds(?:$|[?#])",
+      "family": "public-discovery",
+      "confidence": "high",
+      "result": "PUBLIC_READ_ONLY"
+    },
+    {
+      "id": "www-item-param-like",
+      "surface": "www",
+      "pathRegex": "^/item(?:$|[?#])",
+      "family": "item-detail",
+      "confidence": "medium",
+      "result": "REQUIRES_USER_CONTEXT"
+    },
+    {
+      "id": "www-personal-like",
+      "surface": "www",
+      "pathRegex": "^/personal(?:$|[?#])",
+      "family": "public-profile",
+      "confidence": "medium",
+      "result": "READ_WITH_REDACTION"
+    },
+    {
+      "id": "www-buyer-trade-like",
+      "surface": "www",
+      "pathRegex": "^/(bought|order-detail|create-order|pay-success)(?:$|[?#])",
+      "family": "buyer-trade",
+      "confidence": "high",
+      "result": "READ_WITH_REDACTION_OR_CONTEXT"
+    },
+    {
+      "id": "www-publish-like",
+      "surface": "www",
+      "pathRegex": "^/publish(?:$|[?#])",
+      "family": "draft-input",
+      "confidence": "high",
+      "result": "DRAFT_ONLY"
+    },
+    {
+      "id": "www-message-like",
+      "surface": "www",
+      "pathRegex": "^/im(?:$|[?#])",
+      "family": "message",
+      "confidence": "high",
+      "result": "MESSAGE_SHELL_ONLY"
+    },
+    {
+      "id": "www-identity-like",
+      "surface": "www",
+      "pathRegex": "^/(login|find-account|select-account|login-validation|account)(?:$|[?#])",
+      "family": "identity",
+      "confidence": "high",
+      "result": "IDENTITY_GATE"
+    },
+    {
+      "id": "www-static-content-like",
+      "surface": "www",
+      "pathRegex": "^/(common-video|upgrade-browser|changelog)(?:$|[?#])",
+      "family": "public-content",
+      "confidence": "medium",
+      "result": "PUBLIC_OR_STATIC_READ"
+    },
+    {
+      "id": "www-internal-like",
+      "surface": "www",
+      "pathRegex": "^/(playground|account/api|common-video/layout)(?:$|[?#])",
+      "family": "internal-module",
+      "confidence": "high",
+      "result": "STATIC_OR_INTERNAL_ONLY"
+    },
+    {
+      "id": "seller-data-like",
+      "surface": "seller",
+      "hashRegex": "^#/seller-data/",
+      "family": "seller-data",
+      "confidence": "high",
+      "result": "SELLER_READ_WITH_REDACTION"
+    },
+    {
+      "id": "seller-item-like",
+      "surface": "seller",
+      "hashRegex": "^#/seller-item/",
+      "family": "seller-item",
+      "confidence": "high",
+      "result": "SELLER_DRAFT_OR_ITEM_READ"
+    },
+    {
+      "id": "seller-trade-like",
+      "surface": "seller",
+      "hashRegex": "^#/seller-trade/",
+      "family": "seller-trade",
+      "confidence": "high",
+      "result": "SELLER_TRADE_READ_WITH_REDACTION"
+    },
+    {
+      "id": "seller-finance-like",
+      "surface": "seller",
+      "hashRegex": "^#/seller-finance/",
+      "family": "seller-finance",
+      "confidence": "high",
+      "result": "SELLER_FINANCE_READ_WITH_REDACTION"
+    },
+    {
+      "id": "seller-account-like",
+      "surface": "seller",
+      "hashRegex": "^#/seller-account/",
+      "family": "seller-account",
+      "confidence": "high",
+      "result": "SELLER_ACCOUNT_READ_WITH_REDACTION"
+    },
+    {
+      "id": "seller-security-like",
+      "surface": "seller",
+      "hashRegex": "^#/seller-sc/",
+      "family": "seller-security",
+      "confidence": "high",
+      "result": "SELLER_SECURITY_READ_WITH_REDACTION"
+    },
+    {
+      "id": "seller-ad-like",
+      "surface": "seller",
+      "hashRegex": "^#/seller-ad/",
+      "family": "seller-ad",
+      "confidence": "high",
+      "result": "SELLER_AD_READ_WITH_REDACTION"
+    },
+    {
+      "id": "seller-message-like",
+      "surface": "seller",
+      "hashRegex": "^#/(im|im-desktop)(?:$|[?#/])",
+      "family": "seller-message",
+      "confidence": "medium",
+      "result": "SELLER_MESSAGE_SHELL_ONLY"
+    },
+    {
+      "id": "seller-gate-like",
+      "surface": "seller",
+      "hashRegex": "^#/(select-site|account-check|login|no-permission)(?:$|[?#/])",
+      "family": "seller-gate",
+      "confidence": "high",
+      "result": "SELLER_GATE_STOP"
+    },
+    {
+      "id": "seller-shell-like",
+      "surface": "seller",
+      "hashRegex": "^#/(iframe|download|notification-center)(?:$|[?#/])",
+      "family": "seller-shell",
+      "confidence": "medium",
+      "result": "SHELL_OR_CONTAINER_ONLY"
+    },
+    {
+      "id": "seller-internal-like",
+      "surface": "seller",
+      "hashRegex": "^#/(playground|notification-center/api|notification-center/interface)",
+      "family": "internal-module",
+      "confidence": "high",
+      "result": "STATIC_OR_INTERNAL_ONLY"
+    }
+  ],
+  "parameterRiskRules": [
+    {
+      "id": "order-id-param",
+      "tokens": [
+        "orderId",
+        "bizOrderId",
+        "tradeId"
+      ],
+      "risk": "trade-private",
+      "action": "REQUIRES_USER_CONTEXT_AND_REDACTION"
+    },
+    {
+      "id": "item-id-param",
+      "tokens": [
+        "itemId",
+        "item_id",
+        "auctionId"
+      ],
+      "risk": "item-context",
+      "action": "REQUIRES_USER_CONTEXT_IF_NOT_PUBLIC_DETAIL"
+    },
+    {
+      "id": "user-param",
+      "tokens": [
+        "userId",
+        "peerUserId",
+        "userNick",
+        "nick",
+        "sellerId",
+        "buyerId"
+      ],
+      "risk": "account-identity",
+      "action": "REQUIRES_USER_CONTEXT_AND_REDACTION"
+    },
+    {
+      "id": "chat-param",
+      "tokens": [
+        "conversationId",
+        "chatId",
+        "peerId",
+        "messageId"
+      ],
+      "risk": "private-message",
+      "action": "MESSAGE_SHELL_ONLY"
+    },
+    {
+      "id": "address-logistics-param",
+      "tokens": [
+        "addressId",
+        "logisticsId",
+        "trackingNo",
+        "mailNo"
+      ],
+      "risk": "address-logistics",
+      "action": "REQUIRES_USER_CONTEXT_AND_REDACTION"
+    },
+    {
+      "id": "invoice-finance-param",
+      "tokens": [
+        "invoiceId",
+        "billId",
+        "fundId",
+        "payId",
+        "alipay"
+      ],
+      "risk": "finance-payment",
+      "action": "STOP_BEFORE_ACTION"
+    },
+    {
+      "id": "redirect-param",
+      "tokens": [
+        "redirectURL",
+        "redirectUrl",
+        "returnUrl",
+        "targetUrl",
+        "url"
+      ],
+      "risk": "external-or-embedded-target",
+      "action": "SHELL_BOUNDARY_ONLY"
+    },
+    {
+      "id": "scene-source-param",
+      "tokens": [
+        "scene",
+        "spm",
+        "from",
+        "source"
+      ],
+      "risk": "tracking-or-entry-context",
+      "action": "READ_ROUTE_SHAPE_ONLY"
+    }
+  ],
+  "domSignalRules": [
+    {
+      "id": "search-or-feed-dom",
+      "signals": [
+        "search box",
+        "sort controls",
+        "filter tags",
+        "item cards",
+        "waterfall feed"
+      ],
+      "family": "public-discovery",
+      "defaultActionGate": "G0",
+      "action": "PUBLIC_READ_ONLY"
+    },
+    {
+      "id": "item-detail-dom",
+      "signals": [
+        "image area",
+        "price area",
+        "assurance labels",
+        "seller card",
+        "buy now"
+      ],
+      "family": "item-detail",
+      "defaultActionGate": "G1",
+      "action": "READ_WITH_TRADE_BOUNDARY"
+    },
+    {
+      "id": "buyer-order-dom",
+      "signals": [
+        "order tabs",
+        "order cards",
+        "status nodes",
+        "address fields",
+        "payment area"
+      ],
+      "family": "buyer-trade",
+      "defaultActionGate": "G1",
+      "action": "READ_WITH_REDACTION"
+    },
+    {
+      "id": "draft-form-dom",
+      "signals": [
+        "form fields",
+        "text area",
+        "validation hint",
+        "upload area",
+        "submit button"
+      ],
+      "family": "draft-input",
+      "defaultActionGate": "G2",
+      "action": "DRAFT_ONLY"
+    },
+    {
+      "id": "message-shell-dom",
+      "signals": [
+        "conversation shell",
+        "input area",
+        "toolbar",
+        "send"
+      ],
+      "family": "message",
+      "defaultActionGate": "G2",
+      "action": "MESSAGE_SHELL_ONLY"
+    },
+    {
+      "id": "seller-table-dom",
+      "signals": [
+        "left menu",
+        "status tabs",
+        "search conditions",
+        "table headers",
+        "operation column"
+      ],
+      "family": "seller-trade",
+      "defaultActionGate": "G1",
+      "action": "SELLER_TABLE_READ_WITH_REDACTION"
+    },
+    {
+      "id": "finance-dom",
+      "signals": [
+        "bill tabs",
+        "date range",
+        "export button",
+        "invoice apply"
+      ],
+      "family": "seller-finance",
+      "defaultActionGate": "G1",
+      "action": "FINANCE_READ_WITH_EXPORT_BOUNDARY"
+    },
+    {
+      "id": "identity-gate-dom",
+      "signals": [
+        "login methods",
+        "scan prompt",
+        "verification entry",
+        "account check",
+        "no permission"
+      ],
+      "family": "identity",
+      "defaultActionGate": "G4",
+      "action": "STOP_FOR_USER"
+    },
+    {
+      "id": "shell-container-dom",
+      "signals": [
+        "iframe",
+        "download entry",
+        "desktop client",
+        "open app",
+        "install"
+      ],
+      "family": "seller-shell",
+      "defaultActionGate": "G4",
+      "action": "SHELL_BOUNDARY_ONLY"
+    }
+  ],
+  "familyDefaults": {
+    "public-discovery": {
+      "family": "public-discovery",
+      "probeMode": "publicRead",
+      "maxActionGate": "G0",
+      "waitForAny": [
+        "search box",
+        "sort controls",
+        "filter tags",
+        "item cards",
+        "waterfall feed",
+        "empty state"
+      ],
+      "allowedRead": [
+        "search controls",
+        "filter controls",
+        "card structure",
+        "pagination structure"
+      ],
+      "stopOn": [
+        "collect",
+        "contact",
+        "purchase",
+        "message entry",
+        "publish entry",
+        "order entry"
+      ],
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S3_NETWORK_OR_API_FAILURE",
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "defaultActionGate": "G0"
+    },
+    "item-detail": {
+      "family": "item-detail",
+      "probeMode": "publicReadWithTradeBoundary",
+      "maxActionGate": "G1",
+      "waitForAny": [
+        "image area",
+        "price area",
+        "assurance labels",
+        "seller card",
+        "action buttons"
+      ],
+      "allowedRead": [
+        "field names",
+        "button names",
+        "assurance category",
+        "recommendation structure"
+      ],
+      "stopOn": [
+        "collect",
+        "chat",
+        "buy now",
+        "downshelf",
+        "delete"
+      ],
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S6_QR_OR_APP_BRIDGE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "defaultActionGate": "G1"
+    },
+    "public-profile": {
+      "family": "public-profile",
+      "probeMode": "publicReadWithAccountBoundary",
+      "maxActionGate": "G1",
+      "waitForAny": [
+        "public profile block",
+        "credit area",
+        "item list",
+        "follow/contact entries"
+      ],
+      "allowedRead": [
+        "public profile structure",
+        "tab names",
+        "item-list structure"
+      ],
+      "stopOn": [
+        "follow",
+        "contact",
+        "purchase"
+      ],
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S6_QR_OR_APP_BRIDGE",
+        "S7_CONFIRM_DIALOG"
+      ],
+      "defaultActionGate": "G1"
+    },
+    "buyer-account": {
+      "family": "buyer-account",
+      "probeMode": "loggedInRead",
+      "maxActionGate": "G1",
+      "waitForAny": [
+        "left navigation",
+        "tabs",
+        "item cards",
+        "collection tab",
+        "account module",
+        "empty state"
+      ],
+      "allowedRead": [
+        "field names",
+        "tab names",
+        "status categories",
+        "button names"
+      ],
+      "stopOn": [
+        "edit profile",
+        "manage item",
+        "downshelf",
+        "delete",
+        "uncollect",
+        "want",
+        "toggle notice",
+        "switch account",
+        "logout"
+      ],
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S4_LOGIN_EXPIRED",
+        "S6_QR_OR_APP_BRIDGE",
+        "S7_CONFIRM_DIALOG"
+      ],
+      "defaultActionGate": "G1"
+    },
+    "buyer-trade": {
+      "family": "buyer-trade",
+      "probeMode": "tradeReadOnly",
+      "maxActionGate": "G1",
+      "waitForAny": [
+        "order tabs",
+        "order cards",
+        "status nodes",
+        "address fields",
+        "price-detail block",
+        "payment area"
+      ],
+      "allowedRead": [
+        "field names",
+        "status-node categories",
+        "button names",
+        "module names"
+      ],
+      "stopOn": [
+        "submit order",
+        "pay",
+        "change address",
+        "confirm receipt",
+        "refund",
+        "review",
+        "complaint",
+        "real order value logging"
+      ],
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S4_LOGIN_EXPIRED",
+        "S6_QR_OR_APP_BRIDGE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "defaultActionGate": "G1"
+    },
+    "draft-input": {
+      "family": "draft-input",
+      "probeMode": "draftAssist",
+      "maxActionGate": "G2",
+      "waitForAny": [
+        "form fields",
+        "text area",
+        "validation hint",
+        "upload area",
+        "submit button"
+      ],
+      "allowedRead": [
+        "form field names",
+        "validation types",
+        "button names",
+        "draft intent"
+      ],
+      "stopOn": [
+        "upload",
+        "save",
+        "save draft",
+        "publish",
+        "submit",
+        "edit existing item",
+        "overwrite existing item"
+      ],
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S4_LOGIN_EXPIRED",
+        "S7_CONFIRM_DIALOG",
+        "S8_FORM_VALIDATION",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "defaultActionGate": "G2"
+    },
+    "message": {
+      "family": "message",
+      "probeMode": "messageShellRead",
+      "maxActionGate": "G2",
+      "waitForAny": [
+        "empty state",
+        "conversation shell",
+        "input area",
+        "toolbar"
+      ],
+      "allowedRead": [
+        "conversation shell",
+        "input structure",
+        "tool button names"
+      ],
+      "stopOn": [
+        "read specific private chat",
+        "read specific conversation",
+        "send",
+        "send card",
+        "upload file"
+      ],
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S4_LOGIN_EXPIRED",
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "defaultActionGate": "G2"
+    },
+    "identity": {
+      "family": "identity",
+      "probeMode": "identityGate",
+      "maxActionGate": "G4",
+      "waitForAny": [
+        "login methods",
+        "scan prompt",
+        "verification entry",
+        "account module",
+        "redirect parameter"
+      ],
+      "allowedRead": [
+        "gate type",
+        "module names",
+        "status category"
+      ],
+      "stopOn": [
+        "scan",
+        "enter verification code",
+        "recover account",
+        "switch account",
+        "verify identity",
+        "bypass risk control",
+        "change login parameters"
+      ],
+      "expectedStates": [
+        "S4_LOGIN_EXPIRED",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "defaultActionGate": "G4"
+    },
+    "public-content": {
+      "family": "public-content",
+      "probeMode": "publicContentRead",
+      "maxActionGate": "G0",
+      "waitForAny": [
+        "content title",
+        "video container",
+        "browser list",
+        "changelog entries",
+        "empty state"
+      ],
+      "allowedRead": [
+        "content structure",
+        "container type",
+        "button names"
+      ],
+      "stopOn": [
+        "play proactively",
+        "download",
+        "install",
+        "capture video"
+      ],
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S6_QR_OR_APP_BRIDGE",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "defaultActionGate": "G0"
+    },
+    "seller-data": {
+      "family": "seller-data",
+      "probeMode": "sellerMetricReadOnly",
+      "maxActionGate": "G1",
+      "waitForAny": [
+        "date control",
+        "metric cards",
+        "chart",
+        "table headers",
+        "export button",
+        "empty state"
+      ],
+      "allowedRead": [
+        "metric names",
+        "filter fields",
+        "table headers",
+        "chart type"
+      ],
+      "stopOn": [
+        "record real numbers",
+        "record real audience numbers",
+        "export",
+        "download",
+        "download item detail",
+        "export customer-service detail"
+      ],
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S3_NETWORK_OR_API_FAILURE",
+        "S6_QR_OR_APP_BRIDGE",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "defaultActionGate": "G1"
+    },
+    "seller-item": {
+      "family": "seller-item",
+      "probeMode": "sellerItemReadOrDraft",
+      "maxActionGate": "G2",
+      "waitForAny": [
+        "status tabs",
+        "filters",
+        "table headers",
+        "publish fields",
+        "template fields"
+      ],
+      "allowedRead": [
+        "field names",
+        "tab names",
+        "table headers",
+        "draft structure"
+      ],
+      "stopOn": [
+        "upload",
+        "save",
+        "publish",
+        "edit",
+        "copy",
+        "adjust price",
+        "shelf changes",
+        "delete",
+        "create",
+        "set default"
+      ],
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S7_CONFIRM_DIALOG",
+        "S8_FORM_VALIDATION",
+        "S9_FILE_OR_EXPORT",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "defaultActionGate": "G2"
+    },
+    "seller-trade": {
+      "family": "seller-trade",
+      "probeMode": "sellerTradeReadOnly",
+      "maxActionGate": "G1",
+      "waitForAny": [
+        "order tabs",
+        "refund status",
+        "evaluation table",
+        "complaint table",
+        "address table",
+        "operation column"
+      ],
+      "allowedRead": [
+        "status categories",
+        "field names",
+        "table headers",
+        "operation names"
+      ],
+      "stopOn": [
+        "ship",
+        "change logistics",
+        "remark",
+        "contact",
+        "view funds",
+        "agree refund",
+        "refuse refund",
+        "compensate",
+        "confirm receipt",
+        "review",
+        "report",
+        "submit proof",
+        "revoke",
+        "submit material",
+        "add address",
+        "edit address",
+        "delete address"
+      ],
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "defaultActionGate": "G1"
+    },
+    "seller-finance": {
+      "family": "seller-finance",
+      "probeMode": "sellerFinanceReadOnly",
+      "maxActionGate": "G1",
+      "waitForAny": [
+        "finance tabs",
+        "date control",
+        "table headers",
+        "export button",
+        "invoice button",
+        "entity fields"
+      ],
+      "allowedRead": [
+        "field names",
+        "tab names",
+        "button names",
+        "table headers"
+      ],
+      "stopOn": [
+        "export",
+        "download",
+        "historical download",
+        "download full detail",
+        "apply invoice",
+        "modify entity data"
+      ],
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "defaultActionGate": "G1"
+    },
+    "seller-account": {
+      "family": "seller-account",
+      "probeMode": "sellerPermissionReadOnly",
+      "maxActionGate": "G1",
+      "waitForAny": [
+        "sub-account table",
+        "permission fields",
+        "routing rules",
+        "group settings",
+        "save button"
+      ],
+      "allowedRead": [
+        "field names",
+        "status categories",
+        "rule structure",
+        "button names"
+      ],
+      "stopOn": [
+        "create sub-account",
+        "disable account",
+        "change permission",
+        "save",
+        "enable/disable",
+        "create group"
+      ],
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "defaultActionGate": "G1"
+    },
+    "seller-security": {
+      "family": "seller-security",
+      "probeMode": "sellerSecurityReadOnly",
+      "maxActionGate": "G1",
+      "waitForAny": [
+        "violation table",
+        "penalty status",
+        "appeal status",
+        "detail entry"
+      ],
+      "allowedRead": [
+        "field names",
+        "status categories",
+        "button names"
+      ],
+      "stopOn": [
+        "view sensitive detail",
+        "appeal",
+        "process"
+      ],
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "defaultActionGate": "G1"
+    },
+    "seller-ad": {
+      "family": "seller-ad",
+      "probeMode": "sellerAdReadOnly",
+      "maxActionGate": "G1",
+      "waitForAny": [
+        "date control",
+        "promotion metrics",
+        "plan entry",
+        "carousel controls"
+      ],
+      "allowedRead": [
+        "metric names",
+        "date controls",
+        "plan entry names"
+      ],
+      "stopOn": [
+        "create plan",
+        "launch paid promotion"
+      ],
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "defaultActionGate": "G1"
+    },
+    "seller-message": {
+      "family": "seller-message",
+      "probeMode": "sellerMessageShellRead",
+      "maxActionGate": "G2",
+      "waitForAny": [
+        "conversation list",
+        "search",
+        "input area",
+        "toolbar",
+        "quick replies",
+        "empty state"
+      ],
+      "allowedRead": [
+        "message shell",
+        "tool button names",
+        "input structure"
+      ],
+      "stopOn": [
+        "read specific conversation",
+        "send",
+        "file upload",
+        "transfer",
+        "guess parameter"
+      ],
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "defaultActionGate": "G2"
+    },
+    "seller-gate": {
+      "family": "seller-gate",
+      "probeMode": "sellerGateRead",
+      "maxActionGate": "G4",
+      "waitForAny": [
+        "site list",
+        "account check",
+        "login prompt",
+        "no-permission message"
+      ],
+      "allowedRead": [
+        "gate type",
+        "button names",
+        "status category"
+      ],
+      "stopOn": [
+        "switch site",
+        "continue",
+        "re-login",
+        "switch account",
+        "guess real account name",
+        "scan",
+        "enter verification code"
+      ],
+      "expectedStates": [
+        "S4_LOGIN_EXPIRED",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "defaultActionGate": "G4"
+    },
+    "seller-shell": {
+      "family": "seller-shell",
+      "probeMode": "sellerShellRead",
+      "maxActionGate": "G1",
+      "waitForAny": [
+        "notification list",
+        "desktop prompt",
+        "download button",
+        "iframe source",
+        "container state"
+      ],
+      "allowedRead": [
+        "shell type",
+        "source shape",
+        "button names",
+        "status category"
+      ],
+      "stopOn": [
+        "mark read",
+        "clear unread",
+        "download",
+        "install",
+        "open",
+        "operate external page without separate review"
+      ],
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S3_NETWORK_OR_API_FAILURE",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "defaultActionGate": "G1"
+    },
+    "internal-module": {
+      "family": "internal-module",
+      "probeMode": "doNotProbe",
+      "maxActionGate": "G4",
+      "waitForAny": [],
+      "allowedRead": [
+        "module path only"
+      ],
+      "stopOn": [
+        "direct call",
+        "page navigation"
+      ],
+      "expectedStates": [
+        "S3_NETWORK_OR_API_FAILURE"
+      ],
+      "defaultActionGate": "G4"
+    },
+    "internal-test": {
+      "family": "internal-test",
+      "probeMode": "doNotProbe",
+      "maxActionGate": "G4",
+      "waitForAny": [],
+      "allowedRead": [
+        "test page label only"
+      ],
+      "stopOn": [
+        "visit proactively",
+        "trigger test action"
+      ],
+      "expectedStates": [
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "defaultActionGate": "G4"
+    }
+  },
+  "unknownDecisionTree": [
+    "Normalize domain, path, hash, and parameter names. Do not store raw private parameter values.",
+    "Try exactKnownPageRules. If matched, use the matched page ontology and verification checklist.",
+    "If exact match fails, detect surface from domain: www, seller, h5/app bridge, or unknown external.",
+    "Apply parameterRiskRules before any DOM probing. Parameter risk can upgrade a public-looking page to context-required.",
+    "Apply routeFamilyRules by path/hash prefix to infer family and default gate.",
+    "Wait only for safe structural anchors. Then apply domSignalRules if route is still ambiguous.",
+    "Apply stateModalRules. Login, permission, QR, confirm, file/export, and high-risk business states stop the probe.",
+    "If no rule matches, create an UNKNOWN_PAGE observation with route shape, surface guess, visible structural labels, and stop reason only."
+  ],
+  "unknownFallback": {
+    "classification": "UNKNOWN_PAGE_STOP_OR_READ_STRUCTURE_ONLY",
+    "inferredGate": "G4 until a safer family is proven",
+    "allowedRead": [
+      "routeShape",
+      "surfaceGuess",
+      "visibleStructuralAnchors",
+      "stateCategory",
+      "stopReason"
+    ],
+    "stopBefore": [
+      "click",
+      "submit",
+      "send",
+      "pay",
+      "refund",
+      "ship",
+      "export",
+      "download",
+      "upload",
+      "save",
+      "publish",
+      "delete",
+      "switchAccount",
+      "verifyIdentity",
+      "changePermission",
+      "install",
+      "callApiDirectly"
+    ],
+    "recordAsGap": true
+  },
+  "unknownOutputSchema": {
+    "pageId": "known id or UNKNOWN_PAGE",
+    "surfaceGuess": "www | seller | h5-app-bridge | external | unknown",
+    "routeShape": "path/hash shape with private values removed",
+    "matchedRuleIds": "string[]",
+    "inferredFamily": "family or unknown",
+    "inferredGate": "G0-G4, default G4 when uncertain",
+    "inferredState": "S0-S10 category only",
+    "allowedRead": [
+      "routeShape",
+      "surfaceGuess",
+      "family",
+      "stateCategory",
+      "anchorNames",
+      "fieldNames",
+      "buttonNames",
+      "stopReason"
+    ],
+    "forbidden": [
+      "realAccountName",
+      "realOrderId",
+      "realAddress",
+      "realChatText",
+      "realItemTitle",
+      "realAmount",
+      "realBusinessMetric",
+      "imageUrl",
+      "qrContent",
+      "password",
+      "verificationCode",
+      "cookie",
+      "token",
+      "localStorage",
+      "sessionStorage"
+    ],
+    "nextAction": "safe-read | read-with-redaction | needs-user-context | static-only | shell-boundary | stop"
+  }
+}

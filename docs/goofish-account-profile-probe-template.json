@@ -1,0 +1,4684 @@
+{
+  "schema": "goofish-account-profile-probe-template/v1",
+  "date": "2026-06-22",
+  "purpose": "Reusable safe run template for checking Goofish/Xianyu pages under one logged-in browser profile or account slot.",
+  "privacy": {
+    "putSecretsHere": false,
+    "storePasswords": false,
+    "storeVerificationCodes": false,
+    "storeCookies": false,
+    "storeTokens": false,
+    "storeBrowserStorage": false,
+    "storeRealAccountIdentity": false,
+    "storeRealOrderAddressChatItemAmountMetric": false
+  },
+  "accountSession": {
+    "accountSlot": "account-01",
+    "browserProfileAlias": "profile-alias-only",
+    "loginHandledByUser": true,
+    "loginMaterialAllowedInThisFile": false,
+    "sessionStartTime": "fill-at-runtime",
+    "operatorNote": "Use a separate browser profile per account. Do not paste credentials, cookies, tokens, QR content, or verification codes into this template."
+  },
+  "runOrder": [
+    "D3_LOW_RISK_LIVE",
+    "D2_FORM_AND_SHELL_LIVE",
+    "D1_HIGH_RISK_LIVE",
+    "D4_REQUIRES_USER_CONTEXT",
+    "D5_STATIC_ONLY",
+    "D6_SHELL_BOUNDARY"
+  ],
+  "pageIdsByQueue": {
+    "D3_LOW_RISK_LIVE": [
+      "www.home",
+      "www.search",
+      "www.machFeeds",
+      "www.personalSelf",
+      "www.collection",
+      "www.changelog",
+      "seller.dataOverview",
+      "seller.fanData"
+    ],
+    "D2_FORM_AND_SHELL_LIVE": [
+      "www.publish",
+      "www.im",
+      "www.feedback",
+      "www.login",
+      "seller.commodityData",
+      "seller.customerServiceData",
+      "seller.itemPublish",
+      "seller.goodsManage",
+      "seller.postTemplate",
+      "seller.postTemplateCreate",
+      "seller.download",
+      "seller.selectSite",
+      "seller.accountCheck",
+      "seller.noPermission"
+    ],
+    "D1_HIGH_RISK_LIVE": [
+      "www.bought",
+      "www.account",
+      "seller.orderManage",
+      "seller.refundManage",
+      "seller.evaluationManage",
+      "seller.complaintManage",
+      "seller.refundAddress",
+      "seller.incomeBill",
+      "seller.expenseBill",
+      "seller.invoiceApply",
+      "seller.basicInfo",
+      "seller.subAccount",
+      "seller.csDispatch",
+      "seller.securityCenter",
+      "seller.adHome",
+      "seller.notificationCenter",
+      "seller.im",
+      "seller.imDesktop"
+    ],
+    "D4_REQUIRES_USER_CONTEXT": [
+      "www.item",
+      "www.personalOther",
+      "www.orderDetail",
+      "www.createOrder",
+      "www.imItem",
+      "seller.orderDetail",
+      "seller.imItem",
+      "seller.accountCheckUser"
+    ],
+    "D5_STATIC_ONLY": [
+      "www.paySuccess",
+      "www.publishScene",
+      "www.publishEdit",
+      "www.accountApi",
+      "www.loginRedirect",
+      "www.findAccount",
+      "www.selectAccount",
+      "www.loginValidation",
+      "www.commonVideo",
+      "www.commonVideoLayout",
+      "www.upgradeBrowser",
+      "www.playground",
+      "www.yhbCreateOrder",
+      "www.yhbOrderDetail",
+      "seller.notificationApi",
+      "seller.playground"
+    ],
+    "D6_SHELL_BOUNDARY": [
+      "seller.login",
+      "seller.iframe"
+    ]
+  },
+  "globalReadWhitelist": [
+    "routeShape",
+    "surface",
+    "family",
+    "layer",
+    "readiness",
+    "coverageStatus",
+    "transitionClass",
+    "stateCategory",
+    "tabNames",
+    "fieldNames",
+    "tableHeaders",
+    "buttonNames",
+    "controlCategory",
+    "statusCategory",
+    "stopPoints"
+  ],
+  "globalOutputBlacklist": [
+    "realAccountName",
+    "realOrderId",
+    "realAddress",
+    "realChatText",
+    "realItemTitle",
+    "realAmount",
+    "realBusinessMetric",
+    "imageUrl",
+    "qrContent",
+    "password",
+    "verificationCode",
+    "cookie",
+    "token",
+    "localStorage",
+    "sessionStorage"
+  ],
+  "globalStopBefore": [
+    "submit",
+    "send",
+    "pay",
+    "purchase",
+    "confirmReceipt",
+    "refund",
+    "ship",
+    "complaintProof",
+    "review",
+    "export",
+    "download",
+    "upload",
+    "save",
+    "publish",
+    "delete",
+    "switchAccount",
+    "verifyIdentity",
+    "changePermission",
+    "install",
+    "callApiDirectly"
+  ],
+  "taskResultSchema": {
+    "pageId": "string",
+    "status": "pending | passed | stopped | skipped | needs-user-context | static-described | shell-described",
+    "observedState": "S0-S10 category only",
+    "observedAnchors": "string[]",
+    "observedFields": "field names only",
+    "observedControls": "button/control names only",
+    "stopReason": "string, no private values",
+    "privacyCheck": "must be true before saving"
+  },
+  "tasks": [
+    {
+      "order": 1,
+      "pageId": "www.home",
+      "routePattern": "/",
+      "queue": "D3_LOW_RISK_LIVE",
+      "surface": "www",
+      "coverage": "observed-live",
+      "transitionClass": "SAFE_READ",
+      "defaultActionGate": "G0",
+      "requiresUserContext": false,
+      "staticOnly": false,
+      "shellBoundary": false,
+      "redactionRequired": false,
+      "runMode": "LIVE_READ_ONLY",
+      "waitFor": [
+        "search box",
+        "channel entries",
+        "recommended item cards",
+        "sidebar tools"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "navigationEntries",
+        "filterControls",
+        "cardStructure",
+        "contentBlocks",
+        "routeShapes",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S3_NETWORK_OR_API_FAILURE"
+      ],
+      "stopStates": [
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "stopBefore": [
+        "message entry",
+        "publish entry",
+        "order entry",
+        "state-changing controls",
+        "private values outside public structure"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "resultFields": {
+        "status": "pending | passed | stopped | skipped | needs-user-context | static-described | shell-described",
+        "observedState": "S0-S10 category only",
+        "observedAnchors": [],
+        "observedControls": [],
+        "stopReason": "",
+        "notes": "structure-only, no private values"
+      }
+    },
+    {
+      "order": 2,
+      "pageId": "www.search",
+      "routePattern": "/search?q=...",
+      "queue": "D3_LOW_RISK_LIVE",
+      "surface": "www",
+      "coverage": "observed-live",
+      "transitionClass": "SAFE_READ",
+      "defaultActionGate": "G0",
+      "requiresUserContext": false,
+      "staticOnly": false,
+      "shellBoundary": false,
+      "redactionRequired": false,
+      "runMode": "LIVE_READ_ONLY",
+      "waitFor": [
+        "query box",
+        "sort controls",
+        "price inputs",
+        "filter tags",
+        "item cards",
+        "pagination"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "navigationEntries",
+        "filterControls",
+        "cardStructure",
+        "contentBlocks",
+        "routeShapes",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S3_NETWORK_OR_API_FAILURE"
+      ],
+      "stopStates": [
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "stopBefore": [
+        "unstable location panel",
+        "collect",
+        "contact",
+        "purchase",
+        "state-changing controls",
+        "private values outside public structure"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "resultFields": {
+        "status": "pending | passed | stopped | skipped | needs-user-context | static-described | shell-described",
+        "observedState": "S0-S10 category only",
+        "observedAnchors": [],
+        "observedControls": [],
+        "stopReason": "",
+        "notes": "structure-only, no private values"
+      }
+    },
+    {
+      "order": 3,
+      "pageId": "www.machFeeds",
+      "routePattern": "/mach-feeds?machId=...&publishTimes=...",
+      "queue": "D3_LOW_RISK_LIVE",
+      "surface": "www",
+      "coverage": "observed-live",
+      "transitionClass": "SAFE_READ",
+      "defaultActionGate": "G0",
+      "requiresUserContext": false,
+      "staticOnly": false,
+      "shellBoundary": false,
+      "redactionRequired": false,
+      "runMode": "LIVE_READ_ONLY",
+      "waitFor": [
+        "channel title",
+        "waterfall feed",
+        "item-card links"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "navigationEntries",
+        "filterControls",
+        "cardStructure",
+        "contentBlocks",
+        "routeShapes",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S3_NETWORK_OR_API_FAILURE"
+      ],
+      "stopStates": [
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "stopBefore": [
+        "collect",
+        "contact",
+        "purchase",
+        "state-changing controls",
+        "private values outside public structure"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "resultFields": {
+        "status": "pending | passed | stopped | skipped | needs-user-context | static-described | shell-described",
+        "observedState": "S0-S10 category only",
+        "observedAnchors": [],
+        "observedControls": [],
+        "stopReason": "",
+        "notes": "structure-only, no private values"
+      }
+    },
+    {
+      "order": 4,
+      "pageId": "www.personalSelf",
+      "routePattern": "/personal",
+      "queue": "D3_LOW_RISK_LIVE",
+      "surface": "www",
+      "coverage": "observed-live",
+      "transitionClass": "SAFE_READ",
+      "defaultActionGate": "G1",
+      "requiresUserContext": false,
+      "staticOnly": false,
+      "shellBoundary": false,
+      "redactionRequired": true,
+      "runMode": "LIVE_READ_ONLY",
+      "waitFor": [
+        "left navigation",
+        "home tab",
+        "item/credit/manage tabs",
+        "filters"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "navigationEntries",
+        "filterControls",
+        "cardStructure",
+        "contentBlocks",
+        "routeShapes",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStates": [
+        "S4_LOGIN_EXPIRED",
+        "S6_QR_OR_APP_BRIDGE",
+        "S7_CONFIRM_DIALOG"
+      ],
+      "stopBefore": [
+        "edit profile",
+        "manage item",
+        "downshelf",
+        "delete",
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "resultFields": {
+        "status": "pending | passed | stopped | skipped | needs-user-context | static-described | shell-described",
+        "observedState": "S0-S10 category only",
+        "observedAnchors": [],
+        "observedControls": [],
+        "stopReason": "",
+        "notes": "structure-only, no private values"
+      }
+    },
+    {
+      "order": 5,
+      "pageId": "www.collection",
+      "routePattern": "/collection",
+      "queue": "D3_LOW_RISK_LIVE",
+      "surface": "www",
+      "coverage": "observed-live",
+      "transitionClass": "SAFE_READ",
+      "defaultActionGate": "G1",
+      "requiresUserContext": false,
+      "staticOnly": false,
+      "shellBoundary": false,
+      "redactionRequired": true,
+      "runMode": "LIVE_READ_ONLY",
+      "waitFor": [
+        "collection tab",
+        "item cards",
+        "uncollect button",
+        "want button"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "navigationEntries",
+        "filterControls",
+        "cardStructure",
+        "contentBlocks",
+        "routeShapes",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStates": [
+        "S4_LOGIN_EXPIRED",
+        "S6_QR_OR_APP_BRIDGE",
+        "S7_CONFIRM_DIALOG"
+      ],
+      "stopBefore": [
+        "uncollect",
+        "want",
+        "contact",
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "resultFields": {
+        "status": "pending | passed | stopped | skipped | needs-user-context | static-described | shell-described",
+        "observedState": "S0-S10 category only",
+        "observedAnchors": [],
+        "observedControls": [],
+        "stopReason": "",
+        "notes": "structure-only, no private values"
+      }
+    },
+    {
+      "order": 6,
+      "pageId": "www.changelog",
+      "routePattern": "/changelog",
+      "queue": "D3_LOW_RISK_LIVE",
+      "surface": "www",
+      "coverage": "observed-live",
+      "transitionClass": "SAFE_READ",
+      "defaultActionGate": "G0",
+      "requiresUserContext": false,
+      "staticOnly": false,
+      "shellBoundary": false,
+      "redactionRequired": false,
+      "runMode": "LIVE_READ_ONLY",
+      "waitFor": [
+        "update-log title",
+        "feature entries"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "navigationEntries",
+        "filterControls",
+        "cardStructure",
+        "contentBlocks",
+        "routeShapes",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStates": [
+        "S6_QR_OR_APP_BRIDGE",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "stopBefore": [
+        "state-changing controls",
+        "private values outside public structure"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "resultFields": {
+        "status": "pending | passed | stopped | skipped | needs-user-context | static-described | shell-described",
+        "observedState": "S0-S10 category only",
+        "observedAnchors": [],
+        "observedControls": [],
+        "stopReason": "",
+        "notes": "structure-only, no private values"
+      }
+    },
+    {
+      "order": 7,
+      "pageId": "seller.dataOverview",
+      "routePattern": "#/seller-data/data",
+      "queue": "D3_LOW_RISK_LIVE",
+      "surface": "seller",
+      "coverage": "observed-live",
+      "transitionClass": "SAFE_READ",
+      "defaultActionGate": "G1",
+      "requiresUserContext": false,
+      "staticOnly": false,
+      "shellBoundary": false,
+      "redactionRequired": true,
+      "runMode": "LIVE_READ_ONLY",
+      "waitFor": [
+        "date controls",
+        "metric cards",
+        "trend charts",
+        "info popovers"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "navigationEntries",
+        "filterControls",
+        "cardStructure",
+        "contentBlocks",
+        "routeShapes",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S3_NETWORK_OR_API_FAILURE"
+      ],
+      "stopStates": [
+        "S6_QR_OR_APP_BRIDGE",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "stopBefore": [
+        "record real numbers",
+        "export",
+        "download",
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "resultFields": {
+        "status": "pending | passed | stopped | skipped | needs-user-context | static-described | shell-described",
+        "observedState": "S0-S10 category only",
+        "observedAnchors": [],
+        "observedControls": [],
+        "stopReason": "",
+        "notes": "structure-only, no private values"
+      }
+    },
+    {
+      "order": 8,
+      "pageId": "seller.fanData",
+      "routePattern": "#/seller-data/fanData",
+      "queue": "D3_LOW_RISK_LIVE",
+      "surface": "seller",
+      "coverage": "observed-live",
+      "transitionClass": "SAFE_READ",
+      "defaultActionGate": "G1",
+      "requiresUserContext": false,
+      "staticOnly": false,
+      "shellBoundary": false,
+      "redactionRequired": true,
+      "runMode": "LIVE_READ_ONLY",
+      "waitFor": [
+        "date",
+        "fan metrics",
+        "profile distributions",
+        "region/user-group modules"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "navigationEntries",
+        "filterControls",
+        "cardStructure",
+        "contentBlocks",
+        "routeShapes",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S3_NETWORK_OR_API_FAILURE"
+      ],
+      "stopStates": [
+        "S6_QR_OR_APP_BRIDGE",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "stopBefore": [
+        "record real audience numbers",
+        "export",
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "resultFields": {
+        "status": "pending | passed | stopped | skipped | needs-user-context | static-described | shell-described",
+        "observedState": "S0-S10 category only",
+        "observedAnchors": [],
+        "observedControls": [],
+        "stopReason": "",
+        "notes": "structure-only, no private values"
+      }
+    },
+    {
+      "order": 9,
+      "pageId": "www.publish",
+      "routePattern": "/publish",
+      "queue": "D2_FORM_AND_SHELL_LIVE",
+      "surface": "www",
+      "coverage": "observed-live",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G2",
+      "requiresUserContext": false,
+      "staticOnly": false,
+      "shellBoundary": false,
+      "redactionRequired": true,
+      "runMode": "LIVE_READ_ONLY",
+      "waitFor": [
+        "image/video uploader",
+        "description",
+        "category",
+        "properties",
+        "sku",
+        "price",
+        "location",
+        "shipping settings"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "fieldNames",
+        "inputTypes",
+        "validationHintCategories",
+        "uploadZones",
+        "emptyStateCategories",
+        "shellAnchors",
+        "tabNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S8_FORM_VALIDATION"
+      ],
+      "stopStates": [
+        "S4_LOGIN_EXPIRED",
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "stopBefore": [
+        "upload",
+        "save draft",
+        "publish",
+        "edit existing item",
+        "save",
+        "submit",
+        "send",
+        "overwrite existing content"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "resultFields": {
+        "status": "pending | passed | stopped | skipped | needs-user-context | static-described | shell-described",
+        "observedState": "S0-S10 category only",
+        "observedAnchors": [],
+        "observedControls": [],
+        "stopReason": "",
+        "notes": "structure-only, no private values"
+      }
+    },
+    {
+      "order": 10,
+      "pageId": "www.im",
+      "routePattern": "/im",
+      "queue": "D2_FORM_AND_SHELL_LIVE",
+      "surface": "www",
+      "coverage": "observed-live",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G2",
+      "requiresUserContext": false,
+      "staticOnly": false,
+      "shellBoundary": false,
+      "redactionRequired": true,
+      "runMode": "LIVE_READ_ONLY",
+      "waitFor": [
+        "empty state",
+        "session list",
+        "input area",
+        "toolbar",
+        "item/order card tools",
+        "file tool"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "fieldNames",
+        "inputTypes",
+        "validationHintCategories",
+        "uploadZones",
+        "emptyStateCategories",
+        "shellAnchors",
+        "tabNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStates": [
+        "S4_LOGIN_EXPIRED",
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "stopBefore": [
+        "read specific private chat",
+        "send",
+        "send card",
+        "upload file",
+        "upload",
+        "save",
+        "submit",
+        "publish",
+        "overwrite existing content"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "resultFields": {
+        "status": "pending | passed | stopped | skipped | needs-user-context | static-described | shell-described",
+        "observedState": "S0-S10 category only",
+        "observedAnchors": [],
+        "observedControls": [],
+        "stopReason": "",
+        "notes": "structure-only, no private values"
+      }
+    },
+    {
+      "order": 11,
+      "pageId": "www.feedback",
+      "routePattern": "/feedback?from=...",
+      "queue": "D2_FORM_AND_SHELL_LIVE",
+      "surface": "www",
+      "coverage": "observed-live",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G2",
+      "requiresUserContext": false,
+      "staticOnly": false,
+      "shellBoundary": false,
+      "redactionRequired": true,
+      "runMode": "LIVE_READ_ONLY",
+      "waitFor": [
+        "feedback type",
+        "source page option",
+        "text area",
+        "screenshot upload",
+        "submit"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "fieldNames",
+        "inputTypes",
+        "validationHintCategories",
+        "uploadZones",
+        "emptyStateCategories",
+        "shellAnchors",
+        "tabNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S8_FORM_VALIDATION"
+      ],
+      "stopStates": [
+        "S4_LOGIN_EXPIRED",
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "stopBefore": [
+        "upload screenshot",
+        "submit",
+        "upload",
+        "save",
+        "send",
+        "publish",
+        "overwrite existing content"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "resultFields": {
+        "status": "pending | passed | stopped | skipped | needs-user-context | static-described | shell-described",
+        "observedState": "S0-S10 category only",
+        "observedAnchors": [],
+        "observedControls": [],
+        "stopReason": "",
+        "notes": "structure-only, no private values"
+      }
+    },
+    {
+      "order": 12,
+      "pageId": "www.login",
+      "routePattern": "/login",
+      "queue": "D2_FORM_AND_SHELL_LIVE",
+      "surface": "www",
+      "coverage": "observed-live",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G4",
+      "requiresUserContext": false,
+      "staticOnly": false,
+      "shellBoundary": false,
+      "redactionRequired": true,
+      "runMode": "LIVE_READ_ONLY",
+      "waitFor": [
+        "login method",
+        "scan container",
+        "verification entry",
+        "redirect parameter"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "fieldNames",
+        "inputTypes",
+        "validationHintCategories",
+        "uploadZones",
+        "emptyStateCategories",
+        "shellAnchors",
+        "tabNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [],
+      "stopStates": [
+        "S4_LOGIN_EXPIRED",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "stopBefore": [
+        "scan",
+        "enter verification code",
+        "bypass risk control",
+        "any proactive action beyond naming the boundary"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "resultFields": {
+        "status": "pending | passed | stopped | skipped | needs-user-context | static-described | shell-described",
+        "observedState": "S0-S10 category only",
+        "observedAnchors": [],
+        "observedControls": [],
+        "stopReason": "",
+        "notes": "structure-only, no private values"
+      }
+    },
+    {
+      "order": 13,
+      "pageId": "seller.commodityData",
+      "routePattern": "#/seller-data/commodity",
+      "queue": "D2_FORM_AND_SHELL_LIVE",
+      "surface": "seller",
+      "coverage": "observed-live",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "requiresUserContext": false,
+      "staticOnly": false,
+      "shellBoundary": false,
+      "redactionRequired": true,
+      "runMode": "LIVE_READ_ONLY",
+      "waitFor": [
+        "search",
+        "date",
+        "commodity table",
+        "metric columns",
+        "pagination",
+        "download"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "fieldNames",
+        "inputTypes",
+        "validationHintCategories",
+        "uploadZones",
+        "emptyStateCategories",
+        "shellAnchors",
+        "tabNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S3_NETWORK_OR_API_FAILURE"
+      ],
+      "stopStates": [
+        "S6_QR_OR_APP_BRIDGE",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "stopBefore": [
+        "download item detail",
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "resultFields": {
+        "status": "pending | passed | stopped | skipped | needs-user-context | static-described | shell-described",
+        "observedState": "S0-S10 category only",
+        "observedAnchors": [],
+        "observedControls": [],
+        "stopReason": "",
+        "notes": "structure-only, no private values"
+      }
+    },
+    {
+      "order": 14,
+      "pageId": "seller.customerServiceData",
+      "routePattern": "#/seller-data/customerService",
+      "queue": "D2_FORM_AND_SHELL_LIVE",
+      "surface": "seller",
+      "coverage": "observed-live",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "requiresUserContext": false,
+      "staticOnly": false,
+      "shellBoundary": false,
+      "redactionRequired": true,
+      "runMode": "LIVE_READ_ONLY",
+      "waitFor": [
+        "consultation metrics",
+        "satisfaction fields",
+        "customer-service table",
+        "export"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "fieldNames",
+        "inputTypes",
+        "validationHintCategories",
+        "uploadZones",
+        "emptyStateCategories",
+        "shellAnchors",
+        "tabNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S3_NETWORK_OR_API_FAILURE"
+      ],
+      "stopStates": [
+        "S6_QR_OR_APP_BRIDGE",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "stopBefore": [
+        "export customer-service detail",
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "resultFields": {
+        "status": "pending | passed | stopped | skipped | needs-user-context | static-described | shell-described",
+        "observedState": "S0-S10 category only",
+        "observedAnchors": [],
+        "observedControls": [],
+        "stopReason": "",
+        "notes": "structure-only, no private values"
+      }
+    },
+    {
+      "order": 15,
+      "pageId": "seller.itemPublish",
+      "routePattern": "#/seller-item/publish",
+      "queue": "D2_FORM_AND_SHELL_LIVE",
+      "surface": "seller",
+      "coverage": "observed-live",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G2",
+      "requiresUserContext": false,
+      "staticOnly": false,
+      "shellBoundary": false,
+      "redactionRequired": true,
+      "runMode": "LIVE_READ_ONLY",
+      "waitFor": [
+        "image/video uploader",
+        "title/description",
+        "category",
+        "sku",
+        "price",
+        "stock",
+        "shipping settings"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "fieldNames",
+        "inputTypes",
+        "validationHintCategories",
+        "uploadZones",
+        "emptyStateCategories",
+        "shellAnchors",
+        "tabNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S8_FORM_VALIDATION"
+      ],
+      "stopStates": [
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "stopBefore": [
+        "upload",
+        "save",
+        "publish",
+        "submit",
+        "send",
+        "overwrite existing content"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "resultFields": {
+        "status": "pending | passed | stopped | skipped | needs-user-context | static-described | shell-described",
+        "observedState": "S0-S10 category only",
+        "observedAnchors": [],
+        "observedControls": [],
+        "stopReason": "",
+        "notes": "structure-only, no private values"
+      }
+    },
+    {
+      "order": 16,
+      "pageId": "seller.goodsManage",
+      "routePattern": "#/seller-item/goods-manage",
+      "queue": "D2_FORM_AND_SHELL_LIVE",
+      "surface": "seller",
+      "coverage": "observed-live",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G2",
+      "requiresUserContext": false,
+      "staticOnly": false,
+      "shellBoundary": false,
+      "redactionRequired": true,
+      "runMode": "LIVE_READ_ONLY",
+      "waitFor": [
+        "status tabs",
+        "search/filter",
+        "item table",
+        "bulk actions",
+        "operation column"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "fieldNames",
+        "inputTypes",
+        "validationHintCategories",
+        "uploadZones",
+        "emptyStateCategories",
+        "shellAnchors",
+        "tabNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S8_FORM_VALIDATION"
+      ],
+      "stopStates": [
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "stopBefore": [
+        "edit",
+        "copy",
+        "adjust price",
+        "shelf changes",
+        "delete",
+        "upload",
+        "save",
+        "submit",
+        "send",
+        "publish",
+        "overwrite existing content"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "resultFields": {
+        "status": "pending | passed | stopped | skipped | needs-user-context | static-described | shell-described",
+        "observedState": "S0-S10 category only",
+        "observedAnchors": [],
+        "observedControls": [],
+        "stopReason": "",
+        "notes": "structure-only, no private values"
+      }
+    },
+    {
+      "order": 17,
+      "pageId": "seller.postTemplate",
+      "routePattern": "#/seller-item/post-temple",
+      "queue": "D2_FORM_AND_SHELL_LIVE",
+      "surface": "seller",
+      "coverage": "observed-live",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G2",
+      "requiresUserContext": false,
+      "staticOnly": false,
+      "shellBoundary": false,
+      "redactionRequired": true,
+      "runMode": "LIVE_READ_ONLY",
+      "waitFor": [
+        "template list",
+        "create entry",
+        "operation column",
+        "delete/default confirmation"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "fieldNames",
+        "inputTypes",
+        "validationHintCategories",
+        "uploadZones",
+        "emptyStateCategories",
+        "shellAnchors",
+        "tabNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S8_FORM_VALIDATION"
+      ],
+      "stopStates": [
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "stopBefore": [
+        "create",
+        "edit",
+        "delete",
+        "set default",
+        "upload",
+        "save",
+        "submit",
+        "send",
+        "publish",
+        "overwrite existing content"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "resultFields": {
+        "status": "pending | passed | stopped | skipped | needs-user-context | static-described | shell-described",
+        "observedState": "S0-S10 category only",
+        "observedAnchors": [],
+        "observedControls": [],
+        "stopReason": "",
+        "notes": "structure-only, no private values"
+      }
+    },
+    {
+      "order": 18,
+      "pageId": "seller.postTemplateCreate",
+      "routePattern": "#/seller-item/post-temple/create",
+      "queue": "D2_FORM_AND_SHELL_LIVE",
+      "surface": "seller",
+      "coverage": "observed-live",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G2",
+      "requiresUserContext": false,
+      "staticOnly": false,
+      "shellBoundary": false,
+      "redactionRequired": true,
+      "runMode": "LIVE_READ_ONLY",
+      "waitFor": [
+        "template name",
+        "shipping location",
+        "billing mode",
+        "region modal",
+        "save"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "fieldNames",
+        "inputTypes",
+        "validationHintCategories",
+        "uploadZones",
+        "emptyStateCategories",
+        "shellAnchors",
+        "tabNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S8_FORM_VALIDATION"
+      ],
+      "stopStates": [
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "stopBefore": [
+        "save real template",
+        "upload",
+        "save",
+        "submit",
+        "send",
+        "publish",
+        "overwrite existing content"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "resultFields": {
+        "status": "pending | passed | stopped | skipped | needs-user-context | static-described | shell-described",
+        "observedState": "S0-S10 category only",
+        "observedAnchors": [],
+        "observedControls": [],
+        "stopReason": "",
+        "notes": "structure-only, no private values"
+      }
+    },
+    {
+      "order": 19,
+      "pageId": "seller.download",
+      "routePattern": "#/download",
+      "queue": "D2_FORM_AND_SHELL_LIVE",
+      "surface": "seller",
+      "coverage": "observed-live",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "requiresUserContext": false,
+      "staticOnly": false,
+      "shellBoundary": false,
+      "redactionRequired": true,
+      "runMode": "LIVE_READ_ONLY",
+      "waitFor": [
+        "download button",
+        "client type"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "fieldNames",
+        "inputTypes",
+        "validationHintCategories",
+        "uploadZones",
+        "emptyStateCategories",
+        "shellAnchors",
+        "tabNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S3_NETWORK_OR_API_FAILURE"
+      ],
+      "stopStates": [
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "stopBefore": [
+        "download",
+        "install",
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "resultFields": {
+        "status": "pending | passed | stopped | skipped | needs-user-context | static-described | shell-described",
+        "observedState": "S0-S10 category only",
+        "observedAnchors": [],
+        "observedControls": [],
+        "stopReason": "",
+        "notes": "structure-only, no private values"
+      }
+    },
+    {
+      "order": 20,
+      "pageId": "seller.selectSite",
+      "routePattern": "#/select-site",
+      "queue": "D2_FORM_AND_SHELL_LIVE",
+      "surface": "seller",
+      "coverage": "observed-live",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G4",
+      "requiresUserContext": false,
+      "staticOnly": false,
+      "shellBoundary": false,
+      "redactionRequired": true,
+      "runMode": "LIVE_READ_ONLY",
+      "waitFor": [
+        "site/identity list",
+        "selection button"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "fieldNames",
+        "inputTypes",
+        "validationHintCategories",
+        "uploadZones",
+        "emptyStateCategories",
+        "shellAnchors",
+        "tabNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [],
+      "stopStates": [
+        "S4_LOGIN_EXPIRED",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "stopBefore": [
+        "switch site",
+        "any proactive action beyond naming the boundary"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "resultFields": {
+        "status": "pending | passed | stopped | skipped | needs-user-context | static-described | shell-described",
+        "observedState": "S0-S10 category only",
+        "observedAnchors": [],
+        "observedControls": [],
+        "stopReason": "",
+        "notes": "structure-only, no private values"
+      }
+    },
+    {
+      "order": 21,
+      "pageId": "seller.accountCheck",
+      "routePattern": "#/account-check",
+      "queue": "D2_FORM_AND_SHELL_LIVE",
+      "surface": "seller",
+      "coverage": "observed-live",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G4",
+      "requiresUserContext": false,
+      "staticOnly": false,
+      "shellBoundary": false,
+      "redactionRequired": true,
+      "runMode": "LIVE_READ_ONLY",
+      "waitFor": [
+        "account check",
+        "continue",
+        "re-login",
+        "switch"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "fieldNames",
+        "inputTypes",
+        "validationHintCategories",
+        "uploadZones",
+        "emptyStateCategories",
+        "shellAnchors",
+        "tabNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [],
+      "stopStates": [
+        "S4_LOGIN_EXPIRED",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "stopBefore": [
+        "continue",
+        "re-login",
+        "switch account",
+        "any proactive action beyond naming the boundary"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "resultFields": {
+        "status": "pending | passed | stopped | skipped | needs-user-context | static-described | shell-described",
+        "observedState": "S0-S10 category only",
+        "observedAnchors": [],
+        "observedControls": [],
+        "stopReason": "",
+        "notes": "structure-only, no private values"
+      }
+    },
+    {
+      "order": 22,
+      "pageId": "seller.noPermission",
+      "routePattern": "#/no-permission",
+      "queue": "D2_FORM_AND_SHELL_LIVE",
+      "surface": "seller",
+      "coverage": "observed-live",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G4",
+      "requiresUserContext": false,
+      "staticOnly": false,
+      "shellBoundary": false,
+      "redactionRequired": true,
+      "runMode": "LIVE_READ_ONLY",
+      "waitFor": [
+        "no-permission message",
+        "return/jump controls"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "fieldNames",
+        "inputTypes",
+        "validationHintCategories",
+        "uploadZones",
+        "emptyStateCategories",
+        "shellAnchors",
+        "tabNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [],
+      "stopStates": [
+        "S4_LOGIN_EXPIRED",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "stopBefore": [
+        "any proactive action beyond naming the boundary"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "resultFields": {
+        "status": "pending | passed | stopped | skipped | needs-user-context | static-described | shell-described",
+        "observedState": "S0-S10 category only",
+        "observedAnchors": [],
+        "observedControls": [],
+        "stopReason": "",
+        "notes": "structure-only, no private values"
+      }
+    },
+    {
+      "order": 23,
+      "pageId": "www.bought",
+      "routePattern": "/bought",
+      "queue": "D1_HIGH_RISK_LIVE",
+      "surface": "www",
+      "coverage": "observed-live",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "requiresUserContext": false,
+      "staticOnly": false,
+      "shellBoundary": false,
+      "redactionRequired": true,
+      "runMode": "LIVE_READ_ONLY",
+      "waitFor": [
+        "order tabs",
+        "order cards",
+        "more menu",
+        "logistics record",
+        "snapshot entry"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "tabNames",
+        "filterFieldNames",
+        "tableHeaders",
+        "buttonCategories",
+        "statusCategories",
+        "modalCategories",
+        "fieldNames",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStates": [
+        "S4_LOGIN_EXPIRED",
+        "S6_QR_OR_APP_BRIDGE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "stopBefore": [
+        "confirm receipt",
+        "refund",
+        "review",
+        "delete",
+        "complaint",
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "resultFields": {
+        "status": "pending | passed | stopped | skipped | needs-user-context | static-described | shell-described",
+        "observedState": "S0-S10 category only",
+        "observedAnchors": [],
+        "observedControls": [],
+        "stopReason": "",
+        "notes": "structure-only, no private values"
+      }
+    },
+    {
+      "order": 24,
+      "pageId": "www.account",
+      "routePattern": "/account",
+      "queue": "D1_HIGH_RISK_LIVE",
+      "surface": "www",
+      "coverage": "observed-live",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G4",
+      "requiresUserContext": false,
+      "staticOnly": false,
+      "shellBoundary": false,
+      "redactionRequired": true,
+      "runMode": "LIVE_READ_ONLY",
+      "waitFor": [
+        "basic info module",
+        "stay signed in",
+        "notice switch",
+        "verification entry",
+        "security center"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "tabNames",
+        "filterFieldNames",
+        "tableHeaders",
+        "buttonCategories",
+        "statusCategories",
+        "modalCategories",
+        "fieldNames",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [],
+      "stopStates": [
+        "S4_LOGIN_EXPIRED",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "stopBefore": [
+        "toggle notice",
+        "verify identity",
+        "switch account",
+        "logout",
+        "any proactive action beyond naming the boundary"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "resultFields": {
+        "status": "pending | passed | stopped | skipped | needs-user-context | static-described | shell-described",
+        "observedState": "S0-S10 category only",
+        "observedAnchors": [],
+        "observedControls": [],
+        "stopReason": "",
+        "notes": "structure-only, no private values"
+      }
+    },
+    {
+      "order": 25,
+      "pageId": "seller.orderManage",
+      "routePattern": "#/seller-trade/order-manage",
+      "queue": "D1_HIGH_RISK_LIVE",
+      "surface": "seller",
+      "coverage": "observed-live",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "requiresUserContext": false,
+      "staticOnly": false,
+      "shellBoundary": false,
+      "redactionRequired": true,
+      "runMode": "LIVE_READ_ONLY",
+      "waitFor": [
+        "order-status tabs",
+        "search conditions",
+        "date",
+        "order table",
+        "operation column"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "tabNames",
+        "filterFieldNames",
+        "tableHeaders",
+        "buttonCategories",
+        "statusCategories",
+        "modalCategories",
+        "fieldNames",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStates": [
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "stopBefore": [
+        "ship",
+        "change logistics",
+        "remark",
+        "contact",
+        "view funds",
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "resultFields": {
+        "status": "pending | passed | stopped | skipped | needs-user-context | static-described | shell-described",
+        "observedState": "S0-S10 category only",
+        "observedAnchors": [],
+        "observedControls": [],
+        "stopReason": "",
+        "notes": "structure-only, no private values"
+      }
+    },
+    {
+      "order": 26,
+      "pageId": "seller.refundManage",
+      "routePattern": "#/seller-trade/refund-manage",
+      "queue": "D1_HIGH_RISK_LIVE",
+      "surface": "seller",
+      "coverage": "observed-live",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "requiresUserContext": false,
+      "staticOnly": false,
+      "shellBoundary": false,
+      "redactionRequired": true,
+      "runMode": "LIVE_READ_ONLY",
+      "waitFor": [
+        "refund type",
+        "status filter",
+        "reason",
+        "logistics",
+        "operation column"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "tabNames",
+        "filterFieldNames",
+        "tableHeaders",
+        "buttonCategories",
+        "statusCategories",
+        "modalCategories",
+        "fieldNames",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStates": [
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "stopBefore": [
+        "agree refund",
+        "refuse refund",
+        "compensate",
+        "confirm receipt",
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "resultFields": {
+        "status": "pending | passed | stopped | skipped | needs-user-context | static-described | shell-described",
+        "observedState": "S0-S10 category only",
+        "observedAnchors": [],
+        "observedControls": [],
+        "stopReason": "",
+        "notes": "structure-only, no private values"
+      }
+    },
+    {
+      "order": 27,
+      "pageId": "seller.evaluationManage",
+      "routePattern": "#/seller-trade/evaluation-manage",
+      "queue": "D1_HIGH_RISK_LIVE",
+      "surface": "seller",
+      "coverage": "observed-live",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "requiresUserContext": false,
+      "staticOnly": false,
+      "shellBoundary": false,
+      "redactionRequired": true,
+      "runMode": "LIVE_READ_ONLY",
+      "waitFor": [
+        "evaluation filters",
+        "evaluation table",
+        "batch review",
+        "report/contact"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "tabNames",
+        "filterFieldNames",
+        "tableHeaders",
+        "buttonCategories",
+        "statusCategories",
+        "modalCategories",
+        "fieldNames",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStates": [
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "stopBefore": [
+        "review",
+        "report",
+        "contact",
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "resultFields": {
+        "status": "pending | passed | stopped | skipped | needs-user-context | static-described | shell-described",
+        "observedState": "S0-S10 category only",
+        "observedAnchors": [],
+        "observedControls": [],
+        "stopReason": "",
+        "notes": "structure-only, no private values"
+      }
+    },
+    {
+      "order": 28,
+      "pageId": "seller.complaintManage",
+      "routePattern": "#/seller-trade/complaint-manage",
+      "queue": "D1_HIGH_RISK_LIVE",
+      "surface": "seller",
+      "coverage": "observed-live",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "requiresUserContext": false,
+      "staticOnly": false,
+      "shellBoundary": false,
+      "redactionRequired": true,
+      "runMode": "LIVE_READ_ONLY",
+      "waitFor": [
+        "complaint status",
+        "complaint table",
+        "detail/proof entry"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "tabNames",
+        "filterFieldNames",
+        "tableHeaders",
+        "buttonCategories",
+        "statusCategories",
+        "modalCategories",
+        "fieldNames",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStates": [
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "stopBefore": [
+        "submit proof",
+        "revoke",
+        "refuse",
+        "submit material",
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "resultFields": {
+        "status": "pending | passed | stopped | skipped | needs-user-context | static-described | shell-described",
+        "observedState": "S0-S10 category only",
+        "observedAnchors": [],
+        "observedControls": [],
+        "stopReason": "",
+        "notes": "structure-only, no private values"
+      }
+    },
+    {
+      "order": 29,
+      "pageId": "seller.refundAddress",
+      "routePattern": "#/seller-trade/refund-address",
+      "queue": "D1_HIGH_RISK_LIVE",
+      "surface": "seller",
+      "coverage": "observed-live",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "requiresUserContext": false,
+      "staticOnly": false,
+      "shellBoundary": false,
+      "redactionRequired": true,
+      "runMode": "LIVE_READ_ONLY",
+      "waitFor": [
+        "address table",
+        "default status",
+        "operation column",
+        "add/edit/delete"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "tabNames",
+        "filterFieldNames",
+        "tableHeaders",
+        "buttonCategories",
+        "statusCategories",
+        "modalCategories",
+        "fieldNames",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStates": [
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "stopBefore": [
+        "add address",
+        "edit address",
+        "delete address",
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "resultFields": {
+        "status": "pending | passed | stopped | skipped | needs-user-context | static-described | shell-described",
+        "observedState": "S0-S10 category only",
+        "observedAnchors": [],
+        "observedControls": [],
+        "stopReason": "",
+        "notes": "structure-only, no private values"
+      }
+    },
+    {
+      "order": 30,
+      "pageId": "seller.incomeBill",
+      "routePattern": "#/seller-finance/income-bill",
+      "queue": "D1_HIGH_RISK_LIVE",
+      "surface": "seller",
+      "coverage": "observed-live",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "requiresUserContext": false,
+      "staticOnly": false,
+      "shellBoundary": false,
+      "redactionRequired": true,
+      "runMode": "LIVE_READ_ONLY",
+      "waitFor": [
+        "month/day/detail tabs",
+        "date",
+        "business type",
+        "bill table",
+        "export/download"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "tabNames",
+        "filterFieldNames",
+        "tableHeaders",
+        "buttonCategories",
+        "statusCategories",
+        "modalCategories",
+        "fieldNames",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStates": [
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "stopBefore": [
+        "export",
+        "historical download",
+        "download full detail",
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "resultFields": {
+        "status": "pending | passed | stopped | skipped | needs-user-context | static-described | shell-described",
+        "observedState": "S0-S10 category only",
+        "observedAnchors": [],
+        "observedControls": [],
+        "stopReason": "",
+        "notes": "structure-only, no private values"
+      }
+    },
+    {
+      "order": 31,
+      "pageId": "seller.expenseBill",
+      "routePattern": "#/seller-finance/expense-bill",
+      "queue": "D1_HIGH_RISK_LIVE",
+      "surface": "seller",
+      "coverage": "observed-live",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "requiresUserContext": false,
+      "staticOnly": false,
+      "shellBoundary": false,
+      "redactionRequired": true,
+      "runMode": "LIVE_READ_ONLY",
+      "waitFor": [
+        "month/day/detail tabs",
+        "expense type",
+        "bill table",
+        "export/download"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "tabNames",
+        "filterFieldNames",
+        "tableHeaders",
+        "buttonCategories",
+        "statusCategories",
+        "modalCategories",
+        "fieldNames",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStates": [
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "stopBefore": [
+        "export",
+        "download",
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "resultFields": {
+        "status": "pending | passed | stopped | skipped | needs-user-context | static-described | shell-described",
+        "observedState": "S0-S10 category only",
+        "observedAnchors": [],
+        "observedControls": [],
+        "stopReason": "",
+        "notes": "structure-only, no private values"
+      }
+    },
+    {
+      "order": 32,
+      "pageId": "seller.invoiceApply",
+      "routePattern": "#/seller-finance/invoice-apply",
+      "queue": "D1_HIGH_RISK_LIVE",
+      "surface": "seller",
+      "coverage": "observed-live",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "requiresUserContext": false,
+      "staticOnly": false,
+      "shellBoundary": false,
+      "redactionRequired": true,
+      "runMode": "LIVE_READ_ONLY",
+      "waitFor": [
+        "pending/applied/legacy tabs",
+        "business type",
+        "apply",
+        "export"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "tabNames",
+        "filterFieldNames",
+        "tableHeaders",
+        "buttonCategories",
+        "statusCategories",
+        "modalCategories",
+        "fieldNames",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStates": [
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "stopBefore": [
+        "apply invoice",
+        "export",
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "resultFields": {
+        "status": "pending | passed | stopped | skipped | needs-user-context | static-described | shell-described",
+        "observedState": "S0-S10 category only",
+        "observedAnchors": [],
+        "observedControls": [],
+        "stopReason": "",
+        "notes": "structure-only, no private values"
+      }
+    },
+    {
+      "order": 33,
+      "pageId": "seller.basicInfo",
+      "routePattern": "#/seller-finance/basic-info",
+      "queue": "D1_HIGH_RISK_LIVE",
+      "surface": "seller",
+      "coverage": "observed-live",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "requiresUserContext": false,
+      "staticOnly": false,
+      "shellBoundary": false,
+      "redactionRequired": true,
+      "runMode": "LIVE_READ_ONLY",
+      "waitFor": [
+        "invoice entity form",
+        "edit/save"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "tabNames",
+        "filterFieldNames",
+        "tableHeaders",
+        "buttonCategories",
+        "statusCategories",
+        "modalCategories",
+        "fieldNames",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStates": [
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "stopBefore": [
+        "modify entity data",
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "resultFields": {
+        "status": "pending | passed | stopped | skipped | needs-user-context | static-described | shell-described",
+        "observedState": "S0-S10 category only",
+        "observedAnchors": [],
+        "observedControls": [],
+        "stopReason": "",
+        "notes": "structure-only, no private values"
+      }
+    },
+    {
+      "order": 34,
+      "pageId": "seller.subAccount",
+      "routePattern": "#/seller-account/sub-account",
+      "queue": "D1_HIGH_RISK_LIVE",
+      "surface": "seller",
+      "coverage": "observed-live",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "requiresUserContext": false,
+      "staticOnly": false,
+      "shellBoundary": false,
+      "redactionRequired": true,
+      "runMode": "LIVE_READ_ONLY",
+      "waitFor": [
+        "sub-account table",
+        "role",
+        "status",
+        "routing config",
+        "new/disable/permission"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "tabNames",
+        "filterFieldNames",
+        "tableHeaders",
+        "buttonCategories",
+        "statusCategories",
+        "modalCategories",
+        "fieldNames",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStates": [
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "stopBefore": [
+        "create sub-account",
+        "disable account",
+        "change permission",
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "resultFields": {
+        "status": "pending | passed | stopped | skipped | needs-user-context | static-described | shell-described",
+        "observedState": "S0-S10 category only",
+        "observedAnchors": [],
+        "observedControls": [],
+        "stopReason": "",
+        "notes": "structure-only, no private values"
+      }
+    },
+    {
+      "order": 35,
+      "pageId": "seller.csDispatch",
+      "routePattern": "#/im-cs-dispatch/customer-routing-service",
+      "queue": "D1_HIGH_RISK_LIVE",
+      "surface": "seller",
+      "coverage": "observed-live",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "requiresUserContext": false,
+      "staticOnly": false,
+      "shellBoundary": false,
+      "redactionRequired": true,
+      "runMode": "LIVE_READ_ONLY",
+      "waitFor": [
+        "groups",
+        "reception scope",
+        "participating service agents",
+        "switch",
+        "save"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "tabNames",
+        "filterFieldNames",
+        "tableHeaders",
+        "buttonCategories",
+        "statusCategories",
+        "modalCategories",
+        "fieldNames",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStates": [
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "stopBefore": [
+        "save",
+        "enable/disable",
+        "create group",
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "resultFields": {
+        "status": "pending | passed | stopped | skipped | needs-user-context | static-described | shell-described",
+        "observedState": "S0-S10 category only",
+        "observedAnchors": [],
+        "observedControls": [],
+        "stopReason": "",
+        "notes": "structure-only, no private values"
+      }
+    },
+    {
+      "order": 36,
+      "pageId": "seller.securityCenter",
+      "routePattern": "#/seller-sc/home",
+      "queue": "D1_HIGH_RISK_LIVE",
+      "surface": "seller",
+      "coverage": "observed-live",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "requiresUserContext": false,
+      "staticOnly": false,
+      "shellBoundary": false,
+      "redactionRequired": true,
+      "runMode": "LIVE_READ_ONLY",
+      "waitFor": [
+        "violation table",
+        "penalty status",
+        "appeal status",
+        "detail/appeal"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "tabNames",
+        "filterFieldNames",
+        "tableHeaders",
+        "buttonCategories",
+        "statusCategories",
+        "modalCategories",
+        "fieldNames",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStates": [
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "stopBefore": [
+        "view sensitive detail",
+        "appeal",
+        "process",
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "resultFields": {
+        "status": "pending | passed | stopped | skipped | needs-user-context | static-described | shell-described",
+        "observedState": "S0-S10 category only",
+        "observedAnchors": [],
+        "observedControls": [],
+        "stopReason": "",
+        "notes": "structure-only, no private values"
+      }
+    },
+    {
+      "order": 37,
+      "pageId": "seller.adHome",
+      "routePattern": "#/seller-ad/home",
+      "queue": "D1_HIGH_RISK_LIVE",
+      "surface": "seller",
+      "coverage": "observed-live",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "requiresUserContext": false,
+      "staticOnly": false,
+      "shellBoundary": false,
+      "redactionRequired": true,
+      "runMode": "LIVE_READ_ONLY",
+      "waitFor": [
+        "date",
+        "promotion metrics",
+        "plan entry",
+        "carousel controls"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "tabNames",
+        "filterFieldNames",
+        "tableHeaders",
+        "buttonCategories",
+        "statusCategories",
+        "modalCategories",
+        "fieldNames",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStates": [
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "stopBefore": [
+        "create plan",
+        "launch paid promotion",
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "resultFields": {
+        "status": "pending | passed | stopped | skipped | needs-user-context | static-described | shell-described",
+        "observedState": "S0-S10 category only",
+        "observedAnchors": [],
+        "observedControls": [],
+        "stopReason": "",
+        "notes": "structure-only, no private values"
+      }
+    },
+    {
+      "order": 38,
+      "pageId": "seller.notificationCenter",
+      "routePattern": "#/notification-center",
+      "queue": "D1_HIGH_RISK_LIVE",
+      "surface": "seller",
+      "coverage": "observed-live",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "requiresUserContext": false,
+      "staticOnly": false,
+      "shellBoundary": false,
+      "redactionRequired": true,
+      "runMode": "LIVE_READ_ONLY",
+      "waitFor": [
+        "notification list",
+        "unread status",
+        "detail entry",
+        "mark read/clear unread"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "tabNames",
+        "filterFieldNames",
+        "tableHeaders",
+        "buttonCategories",
+        "statusCategories",
+        "modalCategories",
+        "fieldNames",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S3_NETWORK_OR_API_FAILURE"
+      ],
+      "stopStates": [
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "stopBefore": [
+        "mark read",
+        "clear unread",
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "resultFields": {
+        "status": "pending | passed | stopped | skipped | needs-user-context | static-described | shell-described",
+        "observedState": "S0-S10 category only",
+        "observedAnchors": [],
+        "observedControls": [],
+        "stopReason": "",
+        "notes": "structure-only, no private values"
+      }
+    },
+    {
+      "order": 39,
+      "pageId": "seller.im",
+      "routePattern": "#/im",
+      "queue": "D1_HIGH_RISK_LIVE",
+      "surface": "seller",
+      "coverage": "observed-live",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G2",
+      "requiresUserContext": false,
+      "staticOnly": false,
+      "shellBoundary": false,
+      "redactionRequired": true,
+      "runMode": "LIVE_READ_ONLY",
+      "waitFor": [
+        "session list",
+        "search",
+        "input area",
+        "toolbar",
+        "quick replies",
+        "file",
+        "transfer"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "tabNames",
+        "filterFieldNames",
+        "tableHeaders",
+        "buttonCategories",
+        "statusCategories",
+        "modalCategories",
+        "fieldNames",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStates": [
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "stopBefore": [
+        "read specific conversation",
+        "send",
+        "file upload",
+        "transfer",
+        "upload",
+        "save",
+        "submit",
+        "publish",
+        "overwrite existing content"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "resultFields": {
+        "status": "pending | passed | stopped | skipped | needs-user-context | static-described | shell-described",
+        "observedState": "S0-S10 category only",
+        "observedAnchors": [],
+        "observedControls": [],
+        "stopReason": "",
+        "notes": "structure-only, no private values"
+      }
+    },
+    {
+      "order": 40,
+      "pageId": "seller.imDesktop",
+      "routePattern": "#/im-desktop",
+      "queue": "D1_HIGH_RISK_LIVE",
+      "surface": "seller",
+      "coverage": "observed-live",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "requiresUserContext": false,
+      "staticOnly": false,
+      "shellBoundary": false,
+      "redactionRequired": true,
+      "runMode": "LIVE_READ_ONLY",
+      "waitFor": [
+        "download/open client prompt"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "tabNames",
+        "filterFieldNames",
+        "tableHeaders",
+        "buttonCategories",
+        "statusCategories",
+        "modalCategories",
+        "fieldNames",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S3_NETWORK_OR_API_FAILURE"
+      ],
+      "stopStates": [
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "stopBefore": [
+        "download",
+        "install",
+        "open",
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "resultFields": {
+        "status": "pending | passed | stopped | skipped | needs-user-context | static-described | shell-described",
+        "observedState": "S0-S10 category only",
+        "observedAnchors": [],
+        "observedControls": [],
+        "stopReason": "",
+        "notes": "structure-only, no private values"
+      }
+    },
+    {
+      "order": 41,
+      "pageId": "www.item",
+      "routePattern": "/item?id=...&categoryId=...",
+      "queue": "D4_REQUIRES_USER_CONTEXT",
+      "surface": "www",
+      "coverage": "requires-user-context",
+      "transitionClass": "REQUIRES_USER_CONTEXT",
+      "defaultActionGate": "G1",
+      "requiresUserContext": true,
+      "staticOnly": false,
+      "shellBoundary": false,
+      "redactionRequired": true,
+      "runMode": "WAIT_FOR_USER_CONTEXT",
+      "waitFor": [
+        "image area",
+        "price area",
+        "assurance labels",
+        "seller card",
+        "action buttons",
+        "recommendations"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "requiredParameterType",
+        "riskBoundary",
+        "userConfirmationNeeded",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStates": [
+        "S6_QR_OR_APP_BRIDGE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "stopBefore": [
+        "collect",
+        "chat",
+        "buy now",
+        "downshelf",
+        "delete",
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "required parameter type identified",
+        "user-provided context confirmed",
+        "private parameters redacted",
+        "business action boundary recorded"
+      ],
+      "resultFields": {
+        "status": "pending | passed | stopped | skipped | needs-user-context | static-described | shell-described",
+        "observedState": "S0-S10 category only",
+        "observedAnchors": [],
+        "observedControls": [],
+        "stopReason": "",
+        "notes": "structure-only, no private values"
+      }
+    },
+    {
+      "order": 42,
+      "pageId": "www.personalOther",
+      "routePattern": "/personal?userId=...",
+      "queue": "D4_REQUIRES_USER_CONTEXT",
+      "surface": "www",
+      "coverage": "requires-user-context",
+      "transitionClass": "REQUIRES_USER_CONTEXT",
+      "defaultActionGate": "G1",
+      "requiresUserContext": true,
+      "staticOnly": false,
+      "shellBoundary": false,
+      "redactionRequired": true,
+      "runMode": "WAIT_FOR_USER_CONTEXT",
+      "waitFor": [
+        "public profile block",
+        "credit area",
+        "item list",
+        "follow/contact entries"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "requiredParameterType",
+        "riskBoundary",
+        "userConfirmationNeeded",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStates": [
+        "S6_QR_OR_APP_BRIDGE",
+        "S7_CONFIRM_DIALOG"
+      ],
+      "stopBefore": [
+        "follow",
+        "contact",
+        "purchase",
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "required parameter type identified",
+        "user-provided context confirmed",
+        "private parameters redacted",
+        "business action boundary recorded"
+      ],
+      "resultFields": {
+        "status": "pending | passed | stopped | skipped | needs-user-context | static-described | shell-described",
+        "observedState": "S0-S10 category only",
+        "observedAnchors": [],
+        "observedControls": [],
+        "stopReason": "",
+        "notes": "structure-only, no private values"
+      }
+    },
+    {
+      "order": 43,
+      "pageId": "www.orderDetail",
+      "routePattern": "/order-detail?orderId=...",
+      "queue": "D4_REQUIRES_USER_CONTEXT",
+      "surface": "www",
+      "coverage": "requires-user-context",
+      "transitionClass": "REQUIRES_USER_CONTEXT",
+      "defaultActionGate": "G1",
+      "requiresUserContext": true,
+      "staticOnly": false,
+      "shellBoundary": false,
+      "redactionRequired": true,
+      "runMode": "WAIT_FOR_USER_CONTEXT",
+      "waitFor": [
+        "status nodes",
+        "order field labels",
+        "logistics module",
+        "after-sale entry"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "requiredParameterType",
+        "riskBoundary",
+        "userConfirmationNeeded",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStates": [
+        "S4_LOGIN_EXPIRED",
+        "S6_QR_OR_APP_BRIDGE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "stopBefore": [
+        "any order-state change",
+        "real order value logging",
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "required parameter type identified",
+        "user-provided context confirmed",
+        "private parameters redacted",
+        "business action boundary recorded"
+      ],
+      "resultFields": {
+        "status": "pending | passed | stopped | skipped | needs-user-context | static-described | shell-described",
+        "observedState": "S0-S10 category only",
+        "observedAnchors": [],
+        "observedControls": [],
+        "stopReason": "",
+        "notes": "structure-only, no private values"
+      }
+    },
+    {
+      "order": 44,
+      "pageId": "www.createOrder",
+      "routePattern": "/create-order?itemId=...",
+      "queue": "D4_REQUIRES_USER_CONTEXT",
+      "surface": "www",
+      "coverage": "requires-user-context",
+      "transitionClass": "REQUIRES_USER_CONTEXT",
+      "defaultActionGate": "G1",
+      "requiresUserContext": true,
+      "staticOnly": false,
+      "shellBoundary": false,
+      "redactionRequired": true,
+      "runMode": "WAIT_FOR_USER_CONTEXT",
+      "waitFor": [
+        "sku",
+        "quantity",
+        "address fields",
+        "price-detail block",
+        "payment area",
+        "scan-to-pay fallback"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "requiredParameterType",
+        "riskBoundary",
+        "userConfirmationNeeded",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStates": [
+        "S4_LOGIN_EXPIRED",
+        "S6_QR_OR_APP_BRIDGE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "stopBefore": [
+        "submit order",
+        "pay",
+        "change address",
+        "bind account",
+        "verify identity",
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "required parameter type identified",
+        "user-provided context confirmed",
+        "private parameters redacted",
+        "business action boundary recorded"
+      ],
+      "resultFields": {
+        "status": "pending | passed | stopped | skipped | needs-user-context | static-described | shell-described",
+        "observedState": "S0-S10 category only",
+        "observedAnchors": [],
+        "observedControls": [],
+        "stopReason": "",
+        "notes": "structure-only, no private values"
+      }
+    },
+    {
+      "order": 45,
+      "pageId": "www.imItem",
+      "routePattern": "/im?itemId=...&peerUserId=...",
+      "queue": "D4_REQUIRES_USER_CONTEXT",
+      "surface": "www",
+      "coverage": "requires-user-context",
+      "transitionClass": "REQUIRES_USER_CONTEXT",
+      "defaultActionGate": "G2",
+      "requiresUserContext": true,
+      "staticOnly": false,
+      "shellBoundary": false,
+      "redactionRequired": true,
+      "runMode": "WAIT_FOR_USER_CONTEXT",
+      "waitFor": [
+        "item-linked chat parameters",
+        "input area"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "requiredParameterType",
+        "riskBoundary",
+        "userConfirmationNeeded",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStates": [
+        "S4_LOGIN_EXPIRED",
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "stopBefore": [
+        "read specific conversation",
+        "send",
+        "upload",
+        "save",
+        "submit",
+        "publish",
+        "overwrite existing content"
+      ],
+      "passEvidence": [
+        "required parameter type identified",
+        "user-provided context confirmed",
+        "private parameters redacted",
+        "business action boundary recorded"
+      ],
+      "resultFields": {
+        "status": "pending | passed | stopped | skipped | needs-user-context | static-described | shell-described",
+        "observedState": "S0-S10 category only",
+        "observedAnchors": [],
+        "observedControls": [],
+        "stopReason": "",
+        "notes": "structure-only, no private values"
+      }
+    },
+    {
+      "order": 46,
+      "pageId": "seller.orderDetail",
+      "routePattern": "#/seller-trade/order-manage/order-detail?orderId=...",
+      "queue": "D4_REQUIRES_USER_CONTEXT",
+      "surface": "seller",
+      "coverage": "requires-user-context",
+      "transitionClass": "REQUIRES_USER_CONTEXT",
+      "defaultActionGate": "G1",
+      "requiresUserContext": true,
+      "staticOnly": false,
+      "shellBoundary": false,
+      "redactionRequired": true,
+      "runMode": "WAIT_FOR_USER_CONTEXT",
+      "waitFor": [
+        "status nodes",
+        "logistics",
+        "address-modification area",
+        "trade messages",
+        "operation buttons"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "requiredParameterType",
+        "riskBoundary",
+        "userConfirmationNeeded",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStates": [
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "stopBefore": [
+        "guess order id",
+        "order action",
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "required parameter type identified",
+        "user-provided context confirmed",
+        "private parameters redacted",
+        "business action boundary recorded"
+      ],
+      "resultFields": {
+        "status": "pending | passed | stopped | skipped | needs-user-context | static-described | shell-described",
+        "observedState": "S0-S10 category only",
+        "observedAnchors": [],
+        "observedControls": [],
+        "stopReason": "",
+        "notes": "structure-only, no private values"
+      }
+    },
+    {
+      "order": 47,
+      "pageId": "seller.imItem",
+      "routePattern": "#/im?itemId=...",
+      "queue": "D4_REQUIRES_USER_CONTEXT",
+      "surface": "seller",
+      "coverage": "requires-user-context",
+      "transitionClass": "REQUIRES_USER_CONTEXT",
+      "defaultActionGate": "G2",
+      "requiresUserContext": true,
+      "staticOnly": false,
+      "shellBoundary": false,
+      "redactionRequired": true,
+      "runMode": "WAIT_FOR_USER_CONTEXT",
+      "waitFor": [
+        "item-linked message parameter"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "requiredParameterType",
+        "riskBoundary",
+        "userConfirmationNeeded",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStates": [
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "stopBefore": [
+        "guess parameter",
+        "send",
+        "upload",
+        "save",
+        "submit",
+        "publish",
+        "overwrite existing content"
+      ],
+      "passEvidence": [
+        "required parameter type identified",
+        "user-provided context confirmed",
+        "private parameters redacted",
+        "business action boundary recorded"
+      ],
+      "resultFields": {
+        "status": "pending | passed | stopped | skipped | needs-user-context | static-described | shell-described",
+        "observedState": "S0-S10 category only",
+        "observedAnchors": [],
+        "observedControls": [],
+        "stopReason": "",
+        "notes": "structure-only, no private values"
+      }
+    },
+    {
+      "order": 48,
+      "pageId": "seller.accountCheckUser",
+      "routePattern": "#/account-check?userNick=...",
+      "queue": "D4_REQUIRES_USER_CONTEXT",
+      "surface": "seller",
+      "coverage": "requires-user-context",
+      "transitionClass": "REQUIRES_USER_CONTEXT",
+      "defaultActionGate": "G4",
+      "requiresUserContext": true,
+      "staticOnly": false,
+      "shellBoundary": false,
+      "redactionRequired": true,
+      "runMode": "WAIT_FOR_USER_CONTEXT",
+      "waitFor": [
+        "account-check parameter"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "requiredParameterType",
+        "riskBoundary",
+        "userConfirmationNeeded",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [],
+      "stopStates": [
+        "S4_LOGIN_EXPIRED",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "stopBefore": [
+        "guess real account name",
+        "any proactive action beyond naming the boundary"
+      ],
+      "passEvidence": [
+        "required parameter type identified",
+        "user-provided context confirmed",
+        "private parameters redacted",
+        "business action boundary recorded"
+      ],
+      "resultFields": {
+        "status": "pending | passed | stopped | skipped | needs-user-context | static-described | shell-described",
+        "observedState": "S0-S10 category only",
+        "observedAnchors": [],
+        "observedControls": [],
+        "stopReason": "",
+        "notes": "structure-only, no private values"
+      }
+    },
+    {
+      "order": 49,
+      "pageId": "www.paySuccess",
+      "routePattern": "/pay-success?orderId=...&itemId=...",
+      "queue": "D5_STATIC_ONLY",
+      "surface": "www",
+      "coverage": "static-only",
+      "transitionClass": "STATIC_ONLY",
+      "defaultActionGate": "G1",
+      "requiresUserContext": false,
+      "staticOnly": true,
+      "shellBoundary": false,
+      "redactionRequired": true,
+      "runMode": "STATIC_EVIDENCE_ONLY",
+      "waitFor": [
+        "payment result structure",
+        "order-detail entry",
+        "recommendations"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "staticRoute",
+        "moduleName",
+        "staticApiFamily",
+        "riskBoundary",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStates": [
+        "S4_LOGIN_EXPIRED",
+        "S6_QR_OR_APP_BRIDGE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "stopBefore": [
+        "trigger payment for testing",
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "static module or route signal identified",
+        "API or Page signal mapped to family",
+        "risk boundary recorded",
+        "no live probing attempted"
+      ],
+      "resultFields": {
+        "status": "pending | passed | stopped | skipped | needs-user-context | static-described | shell-described",
+        "observedState": "S0-S10 category only",
+        "observedAnchors": [],
+        "observedControls": [],
+        "stopReason": "",
+        "notes": "structure-only, no private values"
+      }
+    },
+    {
+      "order": 50,
+      "pageId": "www.publishScene",
+      "routePattern": "/publish?scene=xyPcMainPublish",
+      "queue": "D5_STATIC_ONLY",
+      "surface": "www",
+      "coverage": "static-only",
+      "transitionClass": "STATIC_ONLY",
+      "defaultActionGate": "G2",
+      "requiresUserContext": false,
+      "staticOnly": true,
+      "shellBoundary": false,
+      "redactionRequired": true,
+      "runMode": "STATIC_EVIDENCE_ONLY",
+      "waitFor": [
+        "publish scene parameter",
+        "publish form fields"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "staticRoute",
+        "moduleName",
+        "staticApiFamily",
+        "riskBoundary",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S8_FORM_VALIDATION"
+      ],
+      "stopStates": [
+        "S4_LOGIN_EXPIRED",
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "stopBefore": [
+        "save",
+        "publish",
+        "upload",
+        "submit",
+        "send",
+        "overwrite existing content"
+      ],
+      "passEvidence": [
+        "static module or route signal identified",
+        "API or Page signal mapped to family",
+        "risk boundary recorded",
+        "no live probing attempted"
+      ],
+      "resultFields": {
+        "status": "pending | passed | stopped | skipped | needs-user-context | static-described | shell-described",
+        "observedState": "S0-S10 category only",
+        "observedAnchors": [],
+        "observedControls": [],
+        "stopReason": "",
+        "notes": "structure-only, no private values"
+      }
+    },
+    {
+      "order": 51,
+      "pageId": "www.publishEdit",
+      "routePattern": "/publish?scene=xyPcMainPublish&itemId=...",
+      "queue": "D5_STATIC_ONLY",
+      "surface": "www",
+      "coverage": "static-only",
+      "transitionClass": "STATIC_ONLY",
+      "defaultActionGate": "G2",
+      "requiresUserContext": false,
+      "staticOnly": true,
+      "shellBoundary": false,
+      "redactionRequired": true,
+      "runMode": "STATIC_EVIDENCE_ONLY",
+      "waitFor": [
+        "item context parameter",
+        "publish/edit form fields"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "staticRoute",
+        "moduleName",
+        "staticApiFamily",
+        "riskBoundary",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S8_FORM_VALIDATION"
+      ],
+      "stopStates": [
+        "S4_LOGIN_EXPIRED",
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "stopBefore": [
+        "overwrite existing item",
+        "save",
+        "publish",
+        "upload",
+        "submit",
+        "send",
+        "overwrite existing content"
+      ],
+      "passEvidence": [
+        "static module or route signal identified",
+        "API or Page signal mapped to family",
+        "risk boundary recorded",
+        "no live probing attempted"
+      ],
+      "resultFields": {
+        "status": "pending | passed | stopped | skipped | needs-user-context | static-described | shell-described",
+        "observedState": "S0-S10 category only",
+        "observedAnchors": [],
+        "observedControls": [],
+        "stopReason": "",
+        "notes": "structure-only, no private values"
+      }
+    },
+    {
+      "order": 52,
+      "pageId": "www.accountApi",
+      "routePattern": "/account/api",
+      "queue": "D5_STATIC_ONLY",
+      "surface": "www",
+      "coverage": "static-only",
+      "transitionClass": "STATIC_ONLY",
+      "defaultActionGate": "G4",
+      "requiresUserContext": false,
+      "staticOnly": true,
+      "shellBoundary": false,
+      "redactionRequired": true,
+      "runMode": "STATIC_EVIDENCE_ONLY",
+      "waitFor": [
+        "module path"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "staticRoute",
+        "moduleName",
+        "staticApiFamily",
+        "riskBoundary",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S3_NETWORK_OR_API_FAILURE"
+      ],
+      "stopStates": [],
+      "stopBefore": [
+        "direct call",
+        "page navigation",
+        "any proactive action beyond naming the boundary"
+      ],
+      "passEvidence": [
+        "static module or route signal identified",
+        "API or Page signal mapped to family",
+        "risk boundary recorded",
+        "no live probing attempted"
+      ],
+      "resultFields": {
+        "status": "pending | passed | stopped | skipped | needs-user-context | static-described | shell-described",
+        "observedState": "S0-S10 category only",
+        "observedAnchors": [],
+        "observedControls": [],
+        "stopReason": "",
+        "notes": "structure-only, no private values"
+      }
+    },
+    {
+      "order": 53,
+      "pageId": "www.loginRedirect",
+      "routePattern": "/login?spm=...&redirectURL=...",
+      "queue": "D5_STATIC_ONLY",
+      "surface": "www",
+      "coverage": "static-only",
+      "transitionClass": "STATIC_ONLY",
+      "defaultActionGate": "G4",
+      "requiresUserContext": false,
+      "staticOnly": true,
+      "shellBoundary": false,
+      "redactionRequired": true,
+      "runMode": "STATIC_EVIDENCE_ONLY",
+      "waitFor": [
+        "redirect parameter"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "staticRoute",
+        "moduleName",
+        "staticApiFamily",
+        "riskBoundary",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [],
+      "stopStates": [
+        "S4_LOGIN_EXPIRED",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "stopBefore": [
+        "change login parameters",
+        "bypass risk control",
+        "any proactive action beyond naming the boundary"
+      ],
+      "passEvidence": [
+        "static module or route signal identified",
+        "API or Page signal mapped to family",
+        "risk boundary recorded",
+        "no live probing attempted"
+      ],
+      "resultFields": {
+        "status": "pending | passed | stopped | skipped | needs-user-context | static-described | shell-described",
+        "observedState": "S0-S10 category only",
+        "observedAnchors": [],
+        "observedControls": [],
+        "stopReason": "",
+        "notes": "structure-only, no private values"
+      }
+    },
+    {
+      "order": 54,
+      "pageId": "www.findAccount",
+      "routePattern": "/find-account",
+      "queue": "D5_STATIC_ONLY",
+      "surface": "www",
+      "coverage": "static-only",
+      "transitionClass": "STATIC_ONLY",
+      "defaultActionGate": "G4",
+      "requiresUserContext": false,
+      "staticOnly": true,
+      "shellBoundary": false,
+      "redactionRequired": true,
+      "runMode": "STATIC_EVIDENCE_ONLY",
+      "waitFor": [
+        "account recovery placeholder",
+        "redirect behavior"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "staticRoute",
+        "moduleName",
+        "staticApiFamily",
+        "riskBoundary",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [],
+      "stopStates": [
+        "S4_LOGIN_EXPIRED",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "stopBefore": [
+        "recover account",
+        "any proactive action beyond naming the boundary"
+      ],
+      "passEvidence": [
+        "static module or route signal identified",
+        "API or Page signal mapped to family",
+        "risk boundary recorded",
+        "no live probing attempted"
+      ],
+      "resultFields": {
+        "status": "pending | passed | stopped | skipped | needs-user-context | static-described | shell-described",
+        "observedState": "S0-S10 category only",
+        "observedAnchors": [],
+        "observedControls": [],
+        "stopReason": "",
+        "notes": "structure-only, no private values"
+      }
+    },
+    {
+      "order": 55,
+      "pageId": "www.selectAccount",
+      "routePattern": "/select-account",
+      "queue": "D5_STATIC_ONLY",
+      "surface": "www",
+      "coverage": "static-only",
+      "transitionClass": "STATIC_ONLY",
+      "defaultActionGate": "G4",
+      "requiresUserContext": false,
+      "staticOnly": true,
+      "shellBoundary": false,
+      "redactionRequired": true,
+      "runMode": "STATIC_EVIDENCE_ONLY",
+      "waitFor": [
+        "account selection placeholder",
+        "redirect behavior"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "staticRoute",
+        "moduleName",
+        "staticApiFamily",
+        "riskBoundary",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [],
+      "stopStates": [
+        "S4_LOGIN_EXPIRED",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "stopBefore": [
+        "switch account",
+        "any proactive action beyond naming the boundary"
+      ],
+      "passEvidence": [
+        "static module or route signal identified",
+        "API or Page signal mapped to family",
+        "risk boundary recorded",
+        "no live probing attempted"
+      ],
+      "resultFields": {
+        "status": "pending | passed | stopped | skipped | needs-user-context | static-described | shell-described",
+        "observedState": "S0-S10 category only",
+        "observedAnchors": [],
+        "observedControls": [],
+        "stopReason": "",
+        "notes": "structure-only, no private values"
+      }
+    },
+    {
+      "order": 56,
+      "pageId": "www.loginValidation",
+      "routePattern": "/login-validation",
+      "queue": "D5_STATIC_ONLY",
+      "surface": "www",
+      "coverage": "static-only",
+      "transitionClass": "STATIC_ONLY",
+      "defaultActionGate": "G4",
+      "requiresUserContext": false,
+      "staticOnly": true,
+      "shellBoundary": false,
+      "redactionRequired": true,
+      "runMode": "STATIC_EVIDENCE_ONLY",
+      "waitFor": [
+        "login validation placeholder"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "staticRoute",
+        "moduleName",
+        "staticApiFamily",
+        "riskBoundary",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [],
+      "stopStates": [
+        "S4_LOGIN_EXPIRED",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "stopBefore": [
+        "enter verification code",
+        "any proactive action beyond naming the boundary"
+      ],
+      "passEvidence": [
+        "static module or route signal identified",
+        "API or Page signal mapped to family",
+        "risk boundary recorded",
+        "no live probing attempted"
+      ],
+      "resultFields": {
+        "status": "pending | passed | stopped | skipped | needs-user-context | static-described | shell-described",
+        "observedState": "S0-S10 category only",
+        "observedAnchors": [],
+        "observedControls": [],
+        "stopReason": "",
+        "notes": "structure-only, no private values"
+      }
+    },
+    {
+      "order": 57,
+      "pageId": "www.commonVideo",
+      "routePattern": "/common-video",
+      "queue": "D5_STATIC_ONLY",
+      "surface": "www",
+      "coverage": "static-only",
+      "transitionClass": "STATIC_ONLY",
+      "defaultActionGate": "G0",
+      "requiresUserContext": false,
+      "staticOnly": true,
+      "shellBoundary": false,
+      "redactionRequired": false,
+      "runMode": "STATIC_EVIDENCE_ONLY",
+      "waitFor": [
+        "video container",
+        "title/material config",
+        "playback controls"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "staticRoute",
+        "moduleName",
+        "staticApiFamily",
+        "riskBoundary",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStates": [
+        "S6_QR_OR_APP_BRIDGE",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "stopBefore": [
+        "play proactively",
+        "download",
+        "capture video",
+        "state-changing controls",
+        "private values outside public structure"
+      ],
+      "passEvidence": [
+        "static module or route signal identified",
+        "API or Page signal mapped to family",
+        "risk boundary recorded",
+        "no live probing attempted"
+      ],
+      "resultFields": {
+        "status": "pending | passed | stopped | skipped | needs-user-context | static-described | shell-described",
+        "observedState": "S0-S10 category only",
+        "observedAnchors": [],
+        "observedControls": [],
+        "stopReason": "",
+        "notes": "structure-only, no private values"
+      }
+    },
+    {
+      "order": 58,
+      "pageId": "www.commonVideoLayout",
+      "routePattern": "/common-video/layout",
+      "queue": "D5_STATIC_ONLY",
+      "surface": "www",
+      "coverage": "static-only",
+      "transitionClass": "STATIC_ONLY",
+      "defaultActionGate": "G4",
+      "requiresUserContext": false,
+      "staticOnly": true,
+      "shellBoundary": false,
+      "redactionRequired": true,
+      "runMode": "STATIC_EVIDENCE_ONLY",
+      "waitFor": [
+        "layout package path"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "staticRoute",
+        "moduleName",
+        "staticApiFamily",
+        "riskBoundary",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S3_NETWORK_OR_API_FAILURE"
+      ],
+      "stopStates": [],
+      "stopBefore": [
+        "page navigation",
+        "any proactive action beyond naming the boundary"
+      ],
+      "passEvidence": [
+        "static module or route signal identified",
+        "API or Page signal mapped to family",
+        "risk boundary recorded",
+        "no live probing attempted"
+      ],
+      "resultFields": {
+        "status": "pending | passed | stopped | skipped | needs-user-context | static-described | shell-described",
+        "observedState": "S0-S10 category only",
+        "observedAnchors": [],
+        "observedControls": [],
+        "stopReason": "",
+        "notes": "structure-only, no private values"
+      }
+    },
+    {
+      "order": 59,
+      "pageId": "www.upgradeBrowser",
+      "routePattern": "/upgrade-browser",
+      "queue": "D5_STATIC_ONLY",
+      "surface": "www",
+      "coverage": "static-only",
+      "transitionClass": "STATIC_ONLY",
+      "defaultActionGate": "G0",
+      "requiresUserContext": false,
+      "staticOnly": true,
+      "shellBoundary": false,
+      "redactionRequired": false,
+      "runMode": "STATIC_EVIDENCE_ONLY",
+      "waitFor": [
+        "browser recommendation list",
+        "download entry"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "staticRoute",
+        "moduleName",
+        "staticApiFamily",
+        "riskBoundary",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStates": [
+        "S6_QR_OR_APP_BRIDGE",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "stopBefore": [
+        "download",
+        "install",
+        "state-changing controls",
+        "private values outside public structure"
+      ],
+      "passEvidence": [
+        "static module or route signal identified",
+        "API or Page signal mapped to family",
+        "risk boundary recorded",
+        "no live probing attempted"
+      ],
+      "resultFields": {
+        "status": "pending | passed | stopped | skipped | needs-user-context | static-described | shell-described",
+        "observedState": "S0-S10 category only",
+        "observedAnchors": [],
+        "observedControls": [],
+        "stopReason": "",
+        "notes": "structure-only, no private values"
+      }
+    },
+    {
+      "order": 60,
+      "pageId": "www.playground",
+      "routePattern": "/playground",
+      "queue": "D5_STATIC_ONLY",
+      "surface": "www",
+      "coverage": "static-only",
+      "transitionClass": "STATIC_ONLY",
+      "defaultActionGate": "G4",
+      "requiresUserContext": false,
+      "staticOnly": true,
+      "shellBoundary": false,
+      "redactionRequired": true,
+      "runMode": "STATIC_EVIDENCE_ONLY",
+      "waitFor": [
+        "internal test entry",
+        "login/upload/qr/payment test controls"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "staticRoute",
+        "moduleName",
+        "staticApiFamily",
+        "riskBoundary",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [],
+      "stopStates": [
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "stopBefore": [
+        "visit proactively",
+        "trigger test action",
+        "any proactive action beyond naming the boundary"
+      ],
+      "passEvidence": [
+        "static module or route signal identified",
+        "API or Page signal mapped to family",
+        "risk boundary recorded",
+        "no live probing attempted"
+      ],
+      "resultFields": {
+        "status": "pending | passed | stopped | skipped | needs-user-context | static-described | shell-described",
+        "observedState": "S0-S10 category only",
+        "observedAnchors": [],
+        "observedControls": [],
+        "stopReason": "",
+        "notes": "structure-only, no private values"
+      }
+    },
+    {
+      "order": 61,
+      "pageId": "www.yhbCreateOrder",
+      "routePattern": "create-order-yhb package",
+      "queue": "D5_STATIC_ONLY",
+      "surface": "www",
+      "coverage": "static-only",
+      "transitionClass": "STATIC_ONLY",
+      "defaultActionGate": "G1",
+      "requiresUserContext": false,
+      "staticOnly": true,
+      "shellBoundary": false,
+      "redactionRequired": true,
+      "runMode": "STATIC_EVIDENCE_ONLY",
+      "waitFor": [
+        "YHB order render fields",
+        "YHB order create interface"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "staticRoute",
+        "moduleName",
+        "staticApiFamily",
+        "riskBoundary",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStates": [
+        "S4_LOGIN_EXPIRED",
+        "S6_QR_OR_APP_BRIDGE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "stopBefore": [
+        "create YHB order",
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "static module or route signal identified",
+        "API or Page signal mapped to family",
+        "risk boundary recorded",
+        "no live probing attempted"
+      ],
+      "resultFields": {
+        "status": "pending | passed | stopped | skipped | needs-user-context | static-described | shell-described",
+        "observedState": "S0-S10 category only",
+        "observedAnchors": [],
+        "observedControls": [],
+        "stopReason": "",
+        "notes": "structure-only, no private values"
+      }
+    },
+    {
+      "order": 62,
+      "pageId": "www.yhbOrderDetail",
+      "routePattern": "order-detail-yhb package",
+      "queue": "D5_STATIC_ONLY",
+      "surface": "www",
+      "coverage": "static-only",
+      "transitionClass": "STATIC_ONLY",
+      "defaultActionGate": "G1",
+      "requiresUserContext": false,
+      "staticOnly": true,
+      "shellBoundary": false,
+      "redactionRequired": true,
+      "runMode": "STATIC_EVIDENCE_ONLY",
+      "waitFor": [
+        "report fields",
+        "dispute fields",
+        "review-related fields"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "staticRoute",
+        "moduleName",
+        "staticApiFamily",
+        "riskBoundary",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStates": [
+        "S4_LOGIN_EXPIRED",
+        "S6_QR_OR_APP_BRIDGE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "stopBefore": [
+        "after-sale action",
+        "review action",
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "static module or route signal identified",
+        "API or Page signal mapped to family",
+        "risk boundary recorded",
+        "no live probing attempted"
+      ],
+      "resultFields": {
+        "status": "pending | passed | stopped | skipped | needs-user-context | static-described | shell-described",
+        "observedState": "S0-S10 category only",
+        "observedAnchors": [],
+        "observedControls": [],
+        "stopReason": "",
+        "notes": "structure-only, no private values"
+      }
+    },
+    {
+      "order": 63,
+      "pageId": "seller.notificationApi",
+      "routePattern": "#/notification-center/api*",
+      "queue": "D5_STATIC_ONLY",
+      "surface": "seller",
+      "coverage": "static-only",
+      "transitionClass": "STATIC_ONLY",
+      "defaultActionGate": "G4",
+      "requiresUserContext": false,
+      "staticOnly": true,
+      "shellBoundary": false,
+      "redactionRequired": true,
+      "runMode": "STATIC_EVIDENCE_ONLY",
+      "waitFor": [
+        "internal API/interface module"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "staticRoute",
+        "moduleName",
+        "staticApiFamily",
+        "riskBoundary",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S3_NETWORK_OR_API_FAILURE"
+      ],
+      "stopStates": [],
+      "stopBefore": [
+        "direct call",
+        "any proactive action beyond naming the boundary"
+      ],
+      "passEvidence": [
+        "static module or route signal identified",
+        "API or Page signal mapped to family",
+        "risk boundary recorded",
+        "no live probing attempted"
+      ],
+      "resultFields": {
+        "status": "pending | passed | stopped | skipped | needs-user-context | static-described | shell-described",
+        "observedState": "S0-S10 category only",
+        "observedAnchors": [],
+        "observedControls": [],
+        "stopReason": "",
+        "notes": "structure-only, no private values"
+      }
+    },
+    {
+      "order": 64,
+      "pageId": "seller.playground",
+      "routePattern": "#/playground",
+      "queue": "D5_STATIC_ONLY",
+      "surface": "seller",
+      "coverage": "static-only",
+      "transitionClass": "STATIC_ONLY",
+      "defaultActionGate": "G4",
+      "requiresUserContext": false,
+      "staticOnly": true,
+      "shellBoundary": false,
+      "redactionRequired": true,
+      "runMode": "STATIC_EVIDENCE_ONLY",
+      "waitFor": [
+        "test entry"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "staticRoute",
+        "moduleName",
+        "staticApiFamily",
+        "riskBoundary",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [],
+      "stopStates": [
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "stopBefore": [
+        "visit proactively",
+        "trigger test action",
+        "any proactive action beyond naming the boundary"
+      ],
+      "passEvidence": [
+        "static module or route signal identified",
+        "API or Page signal mapped to family",
+        "risk boundary recorded",
+        "no live probing attempted"
+      ],
+      "resultFields": {
+        "status": "pending | passed | stopped | skipped | needs-user-context | static-described | shell-described",
+        "observedState": "S0-S10 category only",
+        "observedAnchors": [],
+        "observedControls": [],
+        "stopReason": "",
+        "notes": "structure-only, no private values"
+      }
+    },
+    {
+      "order": 65,
+      "pageId": "seller.login",
+      "routePattern": "#/login",
+      "queue": "D6_SHELL_BOUNDARY",
+      "surface": "seller",
+      "coverage": "shell-boundary",
+      "transitionClass": "SHELL_ONLY",
+      "defaultActionGate": "G4",
+      "requiresUserContext": false,
+      "staticOnly": false,
+      "shellBoundary": true,
+      "redactionRequired": true,
+      "runMode": "SHELL_BOUNDARY_ONLY",
+      "waitFor": [
+        "login",
+        "scan",
+        "verification entry"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "containerType",
+        "embeddedTargetShape",
+        "permissionBoundary",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [],
+      "stopStates": [
+        "S4_LOGIN_EXPIRED",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "stopBefore": [
+        "scan",
+        "enter verification code",
+        "any proactive action beyond naming the boundary"
+      ],
+      "passEvidence": [
+        "container type identified",
+        "embedded target shape described",
+        "login or permission boundary recorded",
+        "no embedded action triggered"
+      ],
+      "resultFields": {
+        "status": "pending | passed | stopped | skipped | needs-user-context | static-described | shell-described",
+        "observedState": "S0-S10 category only",
+        "observedAnchors": [],
+        "observedControls": [],
+        "stopReason": "",
+        "notes": "structure-only, no private values"
+      }
+    },
+    {
+      "order": 66,
+      "pageId": "seller.iframe",
+      "routePattern": "#/iframe?url=...",
+      "queue": "D6_SHELL_BOUNDARY",
+      "surface": "seller",
+      "coverage": "shell-boundary",
+      "transitionClass": "SHELL_ONLY",
+      "defaultActionGate": "G1",
+      "requiresUserContext": false,
+      "staticOnly": false,
+      "shellBoundary": true,
+      "redactionRequired": true,
+      "runMode": "SHELL_BOUNDARY_ONLY",
+      "waitFor": [
+        "iframe source",
+        "loading/failure state"
+      ],
+      "recordableEvidence": [
+        "routeShape",
+        "pageFamily",
+        "layer",
+        "readiness",
+        "coverageStatus",
+        "containerType",
+        "embeddedTargetShape",
+        "permissionBoundary",
+        "tabNames",
+        "fieldNames",
+        "tableHeaders",
+        "buttonNames",
+        "statusCategory",
+        "stateCategory",
+        "stopPoints"
+      ],
+      "acceptableStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S3_NETWORK_OR_API_FAILURE"
+      ],
+      "stopStates": [
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "stopBefore": [
+        "operate external page without separate review",
+        "private value logging",
+        "edit/save/send/export/download/submit controls"
+      ],
+      "passEvidence": [
+        "container type identified",
+        "embedded target shape described",
+        "login or permission boundary recorded",
+        "no embedded action triggered"
+      ],
+      "resultFields": {
+        "status": "pending | passed | stopped | skipped | needs-user-context | static-described | shell-described",
+        "observedState": "S0-S10 category only",
+        "observedAnchors": [],
+        "observedControls": [],
+        "stopReason": "",
+        "notes": "structure-only, no private values"
+      }
+    }
+  ]
+}

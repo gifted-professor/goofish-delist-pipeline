@@ -1,0 +1,157 @@
+{
+  "schema": "goofish-page-deepening-queue/v1",
+  "date": "2026-06-22",
+  "purpose": "Next-step queue for deeper read-only Goofish/Xianyu page familiarization.",
+  "sources": {
+    "manifest": "goofish-page-manifest.json",
+    "coverageStatus": "goofish-live-coverage-status.json",
+    "coverageGapRegister": "goofish-coverage-gap-register.md",
+    "actionGateMatrix": "goofish-action-gate-matrix.md",
+    "fieldInventory": "goofish-page-field-inventory.md"
+  },
+  "privacy": {
+    "recordOnlyStructure": true,
+    "recordRealAccount": false,
+    "recordRealOrder": false,
+    "recordRealAddress": false,
+    "recordRealChat": false,
+    "recordRealItemTitle": false,
+    "recordRealAmount": false,
+    "recordBusinessMetricValue": false,
+    "recordLoginMaterial": false
+  },
+  "queueTotals": {
+    "pages": 66,
+    "d1HighRiskLive": 18,
+    "d2FormAndShellLive": 14,
+    "d3LowRiskLive": 8,
+    "d4RequiresUserContext": 8,
+    "d5StaticOnly": 16,
+    "d6ShellBoundary": 2
+  },
+  "queueDefinitions": {
+    "D1_HIGH_RISK_LIVE": "Live pages with dense transaction, finance, permission, security, message, or paid-promotion impact. Observe headers, tabs, button categories, and modal states only.",
+    "D2_FORM_AND_SHELL_LIVE": "Live forms, empty-state pages, draft pages, and workbench shells. Observe labels, validation hints, upload zones, empty states, and shell boundaries only.",
+    "D3_LOW_RISK_LIVE": "Live public or low-risk pages. Observe navigation, cards, filters, and content containers without item identity values.",
+    "D4_REQUIRES_USER_CONTEXT": "Deep parameter pages requiring a user-provided URL or business context. Never guess parameters.",
+    "D5_STATIC_ONLY": "Static or internal-module evidence. Keep as static description; do not force-open.",
+    "D6_SHELL_BOUNDARY": "Login or iframe container boundary. Identify the shell only."
+  },
+  "defaultObservationTargets": {
+    "D1_HIGH_RISK_LIVE": ["tabNames", "filterFieldNames", "tableHeaders", "buttonCategories", "statusCategories", "modalCategories"],
+    "D2_FORM_AND_SHELL_LIVE": ["fieldNames", "inputTypes", "validationHintCategories", "uploadZones", "emptyStateCategories", "shellAnchors"],
+    "D3_LOW_RISK_LIVE": ["navigationEntries", "filterControls", "cardStructure", "contentBlocks", "routeShapes"],
+    "D4_REQUIRES_USER_CONTEXT": ["routeShape", "requiredParameterType", "riskBoundary", "userConfirmationNeeded"],
+    "D5_STATIC_ONLY": ["staticRoute", "moduleName", "staticApiFamily", "riskBoundary"],
+    "D6_SHELL_BOUNDARY": ["containerType", "embeddedTargetShape", "permissionBoundary"]
+  },
+  "globalStopBefore": [
+    "submit",
+    "send",
+    "pay",
+    "purchase",
+    "confirmReceipt",
+    "refund",
+    "ship",
+    "export",
+    "download",
+    "upload",
+    "save",
+    "publish",
+    "delete",
+    "switchAccount",
+    "verifyIdentity",
+    "changePermission",
+    "openPrivateConversation",
+    "openDeepOrder",
+    "install"
+  ],
+  "buckets": {
+    "D1_HIGH_RISK_LIVE": [
+      "www.bought",
+      "www.account",
+      "seller.orderManage",
+      "seller.refundManage",
+      "seller.evaluationManage",
+      "seller.complaintManage",
+      "seller.refundAddress",
+      "seller.incomeBill",
+      "seller.expenseBill",
+      "seller.invoiceApply",
+      "seller.basicInfo",
+      "seller.subAccount",
+      "seller.csDispatch",
+      "seller.securityCenter",
+      "seller.adHome",
+      "seller.notificationCenter",
+      "seller.im",
+      "seller.imDesktop"
+    ],
+    "D2_FORM_AND_SHELL_LIVE": [
+      "www.publish",
+      "www.feedback",
+      "www.im",
+      "www.login",
+      "seller.customerServiceData",
+      "seller.itemPublish",
+      "seller.goodsManage",
+      "seller.postTemplate",
+      "seller.postTemplateCreate",
+      "seller.download",
+      "seller.selectSite",
+      "seller.accountCheck",
+      "seller.noPermission",
+      "seller.commodityData"
+    ],
+    "D3_LOW_RISK_LIVE": [
+      "www.home",
+      "www.search",
+      "www.machFeeds",
+      "www.personalSelf",
+      "www.collection",
+      "www.changelog",
+      "seller.dataOverview",
+      "seller.fanData"
+    ],
+    "D4_REQUIRES_USER_CONTEXT": [
+      "www.item",
+      "www.personalOther",
+      "www.orderDetail",
+      "www.createOrder",
+      "www.imItem",
+      "seller.orderDetail",
+      "seller.imItem",
+      "seller.accountCheckUser"
+    ],
+    "D5_STATIC_ONLY": [
+      "www.paySuccess",
+      "www.publishScene",
+      "www.publishEdit",
+      "www.accountApi",
+      "www.loginRedirect",
+      "www.findAccount",
+      "www.selectAccount",
+      "www.loginValidation",
+      "www.commonVideo",
+      "www.commonVideoLayout",
+      "www.upgradeBrowser",
+      "www.playground",
+      "www.yhbCreateOrder",
+      "www.yhbOrderDetail",
+      "seller.notificationApi",
+      "seller.playground"
+    ],
+    "D6_SHELL_BOUNDARY": [
+      "seller.login",
+      "seller.iframe"
+    ]
+  },
+  "nextActionByBucket": {
+    "D1_HIGH_RISK_LIVE": "Deepen only by reading field names, table headers, status labels, button categories, and modal categories. Do not open rows or execute actions.",
+    "D2_FORM_AND_SHELL_LIVE": "Deepen by reading form labels, input types, validation categories, empty states, and shell anchors. Do not upload, save, publish, submit, or download.",
+    "D3_LOW_RISK_LIVE": "Deepen by reading navigation, filter controls, public card structure, and route shape. Do not collect item identity values.",
+    "D4_REQUIRES_USER_CONTEXT": "Wait for user-provided URL or explicit business context; then do one read-only pass with parameter redaction.",
+    "D5_STATIC_ONLY": "Use static assets and API crosswalk only; do not force a live route.",
+    "D6_SHELL_BOUNDARY": "Identify shell/container type and stop at embedded or login boundary."
+  }
+}

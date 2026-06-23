@@ -1,0 +1,4972 @@
+{
+  "schema": "goofish-observation-result-ledger/v1",
+  "date": "2026-06-22",
+  "purpose": "Standard category-only result ledger for each Goofish/Xianyu page after a browser/profile observation run.",
+  "sources": {
+    "pageManifest": "goofish-page-manifest.json",
+    "pageOntology": "goofish-page-ontology.json",
+    "routeContextCatalog": "goofish-route-context-catalog.json",
+    "safeDomObservationSchema": "goofish-safe-dom-observation-schema.json",
+    "probeBatchMatrix": "goofish-probe-batch-matrix.json",
+    "pageChangeSentinel": "goofish-page-change-sentinel.json",
+    "visibleLabelLexicon": "goofish-visible-label-lexicon.json",
+    "probePolicy": "goofish-probe-policy.json"
+  },
+  "privacy": {
+    "storeRealAccountData": false,
+    "storeRealOrderData": false,
+    "storeRealAddressData": false,
+    "storeRealChatData": false,
+    "storeRealItemIdentity": false,
+    "storeRealAmountOrMetric": false,
+    "storeMediaOrQrContent": false,
+    "storeLoginMaterial": false,
+    "storeOnlyRouteShapesAndCategories": true
+  },
+  "totals": {
+    "pages": 66,
+    "bySurface": {
+      "www": 31,
+      "seller": 35
+    },
+    "byBatch": {
+      "B1_LOW_RISK_LIVE_STRUCTURE": 8,
+      "B4_USER_CONTEXT_REQUIRED_PASS": 8,
+      "B3_HIGH_RISK_LIVE_REDACTED_PASS": 18,
+      "B5_STATIC_EVIDENCE_PASS": 16,
+      "B2_FORM_AND_SHELL_LIVE_PASS": 14,
+      "B6_SHELL_BOUNDARY_PASS": 2
+    },
+    "byEntryMode": {
+      "DIRECT_LIVE_READ_ONLY": 39,
+      "USER_CONTEXT_REQUIRED": 8,
+      "STATIC_EVIDENCE_ONLY": 14,
+      "INTERNAL_OR_MODULE_ONLY": 2,
+      "LIVE_ENTRY_BOUNDARY_READ": 1,
+      "SHELL_BOUNDARY_ONLY": 2
+    },
+    "byRunMode": {
+      "LIVE_READ_ONLY": 40,
+      "WAIT_FOR_USER_CONTEXT": 8,
+      "STATIC_EVIDENCE_ONLY": 16,
+      "SHELL_BOUNDARY_ONLY": 2
+    },
+    "byExpectedFirstResultStatus": {
+      "pending-read-only-observation": 40,
+      "needs-user-context": 8,
+      "static-described": 16,
+      "shell-described": 2
+    },
+    "redactionRequiredPages": 60,
+    "monitorTiers": {
+      "S1_STRUCTURE_MONITOR": 4,
+      "S3_CONTEXT_GATED": 8,
+      "S2_REDACTED_MONITOR": 16,
+      "S3_HIGH_RISK_READ_ONLY": 19,
+      "S4_STATIC_OR_MODULE": 16,
+      "S4_BOUNDARY_ONLY": 3
+    },
+    "labelGroupBucketsReferenced": 12
+  },
+  "resultStatusEnums": {
+    "pending-read-only-observation": "Live page can be observed only after the profile preflight passes; no page data has been filled yet.",
+    "passed-read-only": "Route, anchors, state category, controls, and privacy checks all matched the safe observation plan.",
+    "stopped-state": "A stop state such as login, permission, QR/app bridge, confirmation, file/export, or high-risk business state appeared.",
+    "stopped-action": "A G3/G4 action, C3/C4 control, submit/send/save/export/upload/payment/shipment/refund/identity action, or external action boundary appeared.",
+    "needs-user-context": "The page needs a user-provided URL or business context; do not guess identifiers or parameters.",
+    "static-described": "The page is static/module evidence only; describe from known route/API/module signals without live navigation.",
+    "shell-described": "The page is a shell/container boundary; identify the boundary and stop before embedded or external actions.",
+    "unknown-triaged": "The URL/hash did not match a known page and was reduced to route shape, inferred family, state category, anchors, and stop reason.",
+    "privacy-rejected": "The observation attempted to persist private account, order, address, chat, item, amount, business metric, media, QR, or login material and must be discarded."
+  },
+  "stopReasonCategories": {
+    "none": "No stop reason after read-only observation passes.",
+    "state-stop": "A stop state appeared and the run stopped before interaction.",
+    "action-stop": "A stop action or risky control appeared and the run stopped before interaction.",
+    "privacy-stop": "Private content would have been persisted; discard the observation record.",
+    "context-stop": "The page needs a user-supplied route/context and cannot be guessed.",
+    "static-only": "Static/module evidence only; no live page run.",
+    "shell-boundary": "Shell/container boundary only; do not enter embedded or external target.",
+    "unknown-route": "Unknown URL/hash; classify and stop until reviewed."
+  },
+  "changeDecisionEnums": {
+    "same-baseline": "Route, anchors, states, and controls match the sentinel baseline.",
+    "allowed-drift": "Only wording/order/count/layout drift occurred and privacy checks passed.",
+    "review-required": "Expected anchors are missing or route/family classification is uncertain.",
+    "stop-required": "Private parameter, C3/C4 control, high-risk state, external target, or unknown route appeared."
+  },
+  "recordTemplate": {
+    "runId": "opaque-run-label-only",
+    "accountSlot": "account-01/account-02 style placeholder only",
+    "browserProfileAlias": "profile-alias-only",
+    "batchId": "B0-B7",
+    "pageId": "known page id or UNKNOWN_PAGE",
+    "routeShape": "path/hash shape with parameter names only",
+    "entryMode": "DIRECT_LIVE_READ_ONLY / USER_CONTEXT_REQUIRED / STATIC_EVIDENCE_ONLY / SHELL_BOUNDARY_ONLY / other catalog enum",
+    "runMode": "LIVE_READ_ONLY / WAIT_FOR_USER_CONTEXT / STATIC_EVIDENCE_ONLY / SHELL_BOUNDARY_ONLY / UNKNOWN_STOP",
+    "resultStatus": [
+      "pending-read-only-observation",
+      "passed-read-only",
+      "stopped-state",
+      "stopped-action",
+      "needs-user-context",
+      "static-described",
+      "shell-described",
+      "unknown-triaged",
+      "privacy-rejected"
+    ],
+    "stateCategory": "S0-S10 category only",
+    "anchorsObserved": "anchor names only; no row/card/private text",
+    "labelMatches": "lexicon group ids only; no full private text snippets",
+    "controlCategories": "C0-C4 categories only",
+    "fieldRiskSummary": "F0-F4 categories only",
+    "actionGateSummary": "G0-G4 categories only",
+    "stopReasonCategory": "none / state-stop / action-stop / privacy-stop / context-stop / static-only / shell-boundary / unknown-route",
+    "changeDecision": "same-baseline / allowed-drift / review-required / stop-required",
+    "privacyCheckPassed": "true only after blacklist and redaction checks pass"
+  },
+  "batchRollupTemplate": [
+    {
+      "batchId": "B0_SESSION_PREFLIGHT",
+      "order": 0,
+      "runMode": "PREFLIGHT_ONLY",
+      "plannedPages": 0,
+      "allowedResultStatuses": [
+        "passed-read-only",
+        "stopped-state",
+        "privacy-rejected"
+      ],
+      "rollupFields": [
+        "pagesAttempted",
+        "pagesPassedReadOnly",
+        "pagesStoppedByState",
+        "pagesStoppedByAction",
+        "pagesNeedUserContext",
+        "pagesStaticDescribed",
+        "pagesShellDescribed",
+        "pagesPrivacyRejected"
+      ],
+      "outputRule": "counts and category names only; no private page contents"
+    },
+    {
+      "batchId": "B1_LOW_RISK_LIVE_STRUCTURE",
+      "order": 1,
+      "runMode": "LIVE_READ_ONLY",
+      "plannedPages": 8,
+      "allowedResultStatuses": [
+        "pending-read-only-observation",
+        "passed-read-only",
+        "stopped-state",
+        "stopped-action",
+        "privacy-rejected"
+      ],
+      "rollupFields": [
+        "pagesAttempted",
+        "pagesPassedReadOnly",
+        "pagesStoppedByState",
+        "pagesStoppedByAction",
+        "pagesNeedUserContext",
+        "pagesStaticDescribed",
+        "pagesShellDescribed",
+        "pagesPrivacyRejected"
+      ],
+      "outputRule": "counts and category names only; no private page contents"
+    },
+    {
+      "batchId": "B2_FORM_AND_SHELL_LIVE_PASS",
+      "order": 2,
+      "runMode": "LIVE_READ_ONLY",
+      "plannedPages": 14,
+      "allowedResultStatuses": [
+        "pending-read-only-observation",
+        "passed-read-only",
+        "stopped-state",
+        "stopped-action",
+        "privacy-rejected"
+      ],
+      "rollupFields": [
+        "pagesAttempted",
+        "pagesPassedReadOnly",
+        "pagesStoppedByState",
+        "pagesStoppedByAction",
+        "pagesNeedUserContext",
+        "pagesStaticDescribed",
+        "pagesShellDescribed",
+        "pagesPrivacyRejected"
+      ],
+      "outputRule": "counts and category names only; no private page contents"
+    },
+    {
+      "batchId": "B3_HIGH_RISK_LIVE_REDACTED_PASS",
+      "order": 3,
+      "runMode": "LIVE_READ_ONLY",
+      "plannedPages": 18,
+      "allowedResultStatuses": [
+        "pending-read-only-observation",
+        "passed-read-only",
+        "stopped-state",
+        "stopped-action",
+        "privacy-rejected"
+      ],
+      "rollupFields": [
+        "pagesAttempted",
+        "pagesPassedReadOnly",
+        "pagesStoppedByState",
+        "pagesStoppedByAction",
+        "pagesNeedUserContext",
+        "pagesStaticDescribed",
+        "pagesShellDescribed",
+        "pagesPrivacyRejected"
+      ],
+      "outputRule": "counts and category names only; no private page contents"
+    },
+    {
+      "batchId": "B4_USER_CONTEXT_REQUIRED_PASS",
+      "order": 4,
+      "runMode": "WAIT_FOR_USER_CONTEXT",
+      "plannedPages": 8,
+      "allowedResultStatuses": [
+        "needs-user-context",
+        "passed-read-only",
+        "stopped-state",
+        "stopped-action",
+        "privacy-rejected"
+      ],
+      "rollupFields": [
+        "pagesAttempted",
+        "pagesPassedReadOnly",
+        "pagesStoppedByState",
+        "pagesStoppedByAction",
+        "pagesNeedUserContext",
+        "pagesStaticDescribed",
+        "pagesShellDescribed",
+        "pagesPrivacyRejected"
+      ],
+      "outputRule": "counts and category names only; no private page contents"
+    },
+    {
+      "batchId": "B5_STATIC_EVIDENCE_PASS",
+      "order": 5,
+      "runMode": "STATIC_EVIDENCE_ONLY",
+      "plannedPages": 16,
+      "allowedResultStatuses": [
+        "static-described",
+        "passed-read-only",
+        "stopped-state",
+        "stopped-action",
+        "privacy-rejected"
+      ],
+      "rollupFields": [
+        "pagesAttempted",
+        "pagesPassedReadOnly",
+        "pagesStoppedByState",
+        "pagesStoppedByAction",
+        "pagesNeedUserContext",
+        "pagesStaticDescribed",
+        "pagesShellDescribed",
+        "pagesPrivacyRejected"
+      ],
+      "outputRule": "counts and category names only; no private page contents"
+    },
+    {
+      "batchId": "B6_SHELL_BOUNDARY_PASS",
+      "order": 6,
+      "runMode": "SHELL_BOUNDARY_ONLY",
+      "plannedPages": 2,
+      "allowedResultStatuses": [
+        "shell-described",
+        "passed-read-only",
+        "stopped-state",
+        "stopped-action",
+        "privacy-rejected"
+      ],
+      "rollupFields": [
+        "pagesAttempted",
+        "pagesPassedReadOnly",
+        "pagesStoppedByState",
+        "pagesStoppedByAction",
+        "pagesNeedUserContext",
+        "pagesStaticDescribed",
+        "pagesShellDescribed",
+        "pagesPrivacyRejected"
+      ],
+      "outputRule": "counts and category names only; no private page contents"
+    },
+    {
+      "batchId": "B7_UNKNOWN_PAGE_TRIAGE",
+      "order": 7,
+      "runMode": "UNKNOWN_STOP",
+      "plannedPages": 0,
+      "allowedResultStatuses": [
+        "passed-read-only",
+        "stopped-state",
+        "stopped-action",
+        "privacy-rejected"
+      ],
+      "rollupFields": [
+        "pagesAttempted",
+        "pagesPassedReadOnly",
+        "pagesStoppedByState",
+        "pagesStoppedByAction",
+        "pagesNeedUserContext",
+        "pagesStaticDescribed",
+        "pagesShellDescribed",
+        "pagesPrivacyRejected"
+      ],
+      "outputRule": "counts and category names only; no private page contents"
+    }
+  ],
+  "privacyRejectionRules": [
+    {
+      "id": "private-content-present",
+      "trigger": "private account/order/address/chat/item/amount/business/media/QR/login material would be persisted",
+      "action": "discard record and keep only stop reason category"
+    },
+    {
+      "id": "parameter-content-present",
+      "trigger": "concrete order/user/item/chat/address/payment/redirect parameter content appears",
+      "action": "keep parameter name and risk category only"
+    },
+    {
+      "id": "login-material-present",
+      "trigger": "password, verification code, cookie, token, localStorage, sessionStorage, or QR content appears",
+      "action": "discard immediately"
+    },
+    {
+      "id": "row-or-card-content-present",
+      "trigger": "table row text, order card body, chat body, item title, amount, address, or metric number is about to be saved",
+      "action": "replace with field names and category labels only"
+    },
+    {
+      "id": "external-file-content-present",
+      "trigger": "download/export/upload/file picker/external app bridge is reached",
+      "action": "stop before action and record file/external category only"
+    }
+  ],
+  "qualityGates": [
+    "Every row pageId must exist in goofish-page-manifest.json.",
+    "Every known page row must have batchId, entryMode, runMode, result status, output contract, and privacyCheckRequired.",
+    "Rows may contain route shapes and parameter names only, never concrete parameter content.",
+    "Label matches must use lexicon group ids, not private snippets from the page.",
+    "Any unknown visible label that maps to UNKNOWN_STOP must set resultStatus to stopped-action or unknown-triaged until reviewed.",
+    "Any S4/S5/S6/S7/S9/S10 state sets stopReasonCategory before further interaction.",
+    "Any C3/C4 control or G3/G4 action sets stopReasonCategory before action.",
+    "A record with privacyCheckPassed=false cannot be promoted into coverage totals."
+  ],
+  "rows": [
+    {
+      "pageId": "www.home",
+      "surface": "www",
+      "family": "public-discovery",
+      "layer": "M0",
+      "routePattern": "/",
+      "routeShape": "https://www.goofish.com/",
+      "batchId": "B1_LOW_RISK_LIVE_STRUCTURE",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "runMode": "LIVE_READ_ONLY",
+      "expectedFirstResultStatus": "pending-read-only-observation",
+      "defaultActionGate": "G0",
+      "readiness": "R0",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D3_LOW_RISK_LIVE",
+      "transitionClass": "SAFE_READ",
+      "monitorTier": "S1_STRUCTURE_MONITOR",
+      "baselineSignature": "49845adf",
+      "redactionRequired": false,
+      "waitForAnchors": [
+        "search box",
+        "channel entries",
+        "recommended item cards",
+        "sidebar tools"
+      ],
+      "acceptableStateCategories": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S3_NETWORK_OR_API_FAILURE"
+      ],
+      "stopStateCategories": [
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "readableControlCategories": [
+        "C0_DISPLAY_NAV",
+        "C1_FILTER_READ"
+      ],
+      "stopControlCategories": [
+        "C4_BUSINESS_COMMIT"
+      ],
+      "labelGroupBuckets": [
+        "navigation-display",
+        "public-search-filter",
+        "read-only-detail",
+        "state-loading-empty-error"
+      ],
+      "allowedOutputContract": [
+        "routeShape",
+        "stateCategory",
+        "anchorNames",
+        "buttonNames",
+        "tabNames",
+        "tableHeaders",
+        "controlCategories",
+        "stopReasonCategory",
+        "publicStructureOnly"
+      ],
+      "fieldRiskSummary": "public-structure-or-labels-only",
+      "actionGateSummary": "default G0; stop on C3/C4 or G3/G4 escalation",
+      "defaultStopReasonCategory": "stop-if-state-or-action-escalates",
+      "passEvidenceRequired": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "changeDecisionRule": "compare-baseline-signature-and-watch-signals-before-updating-page-understanding",
+      "privacyCheckRequired": true
+    },
+    {
+      "pageId": "www.search",
+      "surface": "www",
+      "family": "public-discovery",
+      "layer": "M0",
+      "routePattern": "/search?q=...",
+      "routeShape": "https://www.goofish.com/search?q=...",
+      "batchId": "B1_LOW_RISK_LIVE_STRUCTURE",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "runMode": "LIVE_READ_ONLY",
+      "expectedFirstResultStatus": "pending-read-only-observation",
+      "defaultActionGate": "G0",
+      "readiness": "R0",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D3_LOW_RISK_LIVE",
+      "transitionClass": "SAFE_READ",
+      "monitorTier": "S1_STRUCTURE_MONITOR",
+      "baselineSignature": "8eee1cfa",
+      "redactionRequired": false,
+      "waitForAnchors": [
+        "query box",
+        "sort controls",
+        "price inputs",
+        "filter tags",
+        "item cards",
+        "pagination"
+      ],
+      "acceptableStateCategories": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S3_NETWORK_OR_API_FAILURE"
+      ],
+      "stopStateCategories": [
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "readableControlCategories": [
+        "C0_DISPLAY_NAV",
+        "C1_FILTER_READ"
+      ],
+      "stopControlCategories": [
+        "C4_BUSINESS_COMMIT"
+      ],
+      "labelGroupBuckets": [
+        "navigation-display",
+        "public-search-filter",
+        "read-only-detail",
+        "state-loading-empty-error"
+      ],
+      "allowedOutputContract": [
+        "routeShape",
+        "stateCategory",
+        "anchorNames",
+        "buttonNames",
+        "tabNames",
+        "tableHeaders",
+        "controlCategories",
+        "stopReasonCategory",
+        "publicStructureOnly"
+      ],
+      "fieldRiskSummary": "public-structure-or-labels-only",
+      "actionGateSummary": "default G0; stop on C3/C4 or G3/G4 escalation",
+      "defaultStopReasonCategory": "stop-if-state-or-action-escalates",
+      "passEvidenceRequired": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "changeDecisionRule": "compare-baseline-signature-and-watch-signals-before-updating-page-understanding",
+      "privacyCheckRequired": true
+    },
+    {
+      "pageId": "www.machFeeds",
+      "surface": "www",
+      "family": "public-discovery",
+      "layer": "M0",
+      "routePattern": "/mach-feeds?machId=...&publishTimes=...",
+      "routeShape": "https://www.goofish.com/mach-feeds?machId=...&publishTimes=...",
+      "batchId": "B1_LOW_RISK_LIVE_STRUCTURE",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "runMode": "LIVE_READ_ONLY",
+      "expectedFirstResultStatus": "pending-read-only-observation",
+      "defaultActionGate": "G0",
+      "readiness": "R0",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D3_LOW_RISK_LIVE",
+      "transitionClass": "SAFE_READ",
+      "monitorTier": "S1_STRUCTURE_MONITOR",
+      "baselineSignature": "2d43c3a9",
+      "redactionRequired": false,
+      "waitForAnchors": [
+        "channel title",
+        "waterfall feed",
+        "item-card links"
+      ],
+      "acceptableStateCategories": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S3_NETWORK_OR_API_FAILURE"
+      ],
+      "stopStateCategories": [
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "readableControlCategories": [
+        "C0_DISPLAY_NAV",
+        "C1_FILTER_READ"
+      ],
+      "stopControlCategories": [
+        "C4_BUSINESS_COMMIT"
+      ],
+      "labelGroupBuckets": [
+        "navigation-display",
+        "public-search-filter",
+        "read-only-detail",
+        "state-loading-empty-error"
+      ],
+      "allowedOutputContract": [
+        "routeShape",
+        "stateCategory",
+        "anchorNames",
+        "buttonNames",
+        "tabNames",
+        "tableHeaders",
+        "controlCategories",
+        "stopReasonCategory",
+        "publicStructureOnly"
+      ],
+      "fieldRiskSummary": "public-structure-or-labels-only",
+      "actionGateSummary": "default G0; stop on C3/C4 or G3/G4 escalation",
+      "defaultStopReasonCategory": "stop-if-state-or-action-escalates",
+      "passEvidenceRequired": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "changeDecisionRule": "compare-baseline-signature-and-watch-signals-before-updating-page-understanding",
+      "privacyCheckRequired": true
+    },
+    {
+      "pageId": "www.item",
+      "surface": "www",
+      "family": "item-detail",
+      "layer": "M0/M3",
+      "routePattern": "/item?id=...&categoryId=...",
+      "routeShape": "https://www.goofish.com/item?id=...&categoryId=...",
+      "batchId": "B4_USER_CONTEXT_REQUIRED_PASS",
+      "entryMode": "USER_CONTEXT_REQUIRED",
+      "runMode": "WAIT_FOR_USER_CONTEXT",
+      "expectedFirstResultStatus": "needs-user-context",
+      "defaultActionGate": "G1",
+      "readiness": "R0/R3",
+      "liveCoverage": "requires-user-context",
+      "deepeningQueue": "D4_REQUIRES_USER_CONTEXT",
+      "transitionClass": "REQUIRES_USER_CONTEXT",
+      "monitorTier": "S3_CONTEXT_GATED",
+      "baselineSignature": "031d0ad3",
+      "redactionRequired": true,
+      "waitForAnchors": [
+        "image area",
+        "price area",
+        "assurance labels",
+        "seller card",
+        "action buttons",
+        "recommendations"
+      ],
+      "acceptableStateCategories": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStateCategories": [
+        "S6_QR_OR_APP_BRIDGE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "readableControlCategories": [
+        "C0_DISPLAY_NAV",
+        "C2_DRAFT_INPUT"
+      ],
+      "stopControlCategories": [
+        "C4_BUSINESS_COMMIT"
+      ],
+      "labelGroupBuckets": [
+        "read-only-detail",
+        "business-commit",
+        "high-risk-trade-finance",
+        "file-external-bridge",
+        "state-loading-empty-error"
+      ],
+      "allowedOutputContract": [
+        "routeShape",
+        "stateCategory",
+        "anchorNames",
+        "buttonNames",
+        "tabNames",
+        "tableHeaders",
+        "controlCategories",
+        "stopReasonCategory",
+        "fieldNamesOnly",
+        "statusCategoriesOnly",
+        "privacyCheckPassed"
+      ],
+      "fieldRiskSummary": "category-only-redacted-fields",
+      "actionGateSummary": "default G1; stop on C3/C4 or G3/G4 escalation",
+      "defaultStopReasonCategory": "context-stop-until-user-supplies-route",
+      "passEvidenceRequired": [
+        "required parameter type identified",
+        "user-provided context confirmed",
+        "private parameters redacted",
+        "business action boundary recorded"
+      ],
+      "changeDecisionRule": "compare-baseline-signature-and-watch-signals-before-updating-page-understanding",
+      "privacyCheckRequired": true
+    },
+    {
+      "pageId": "www.personalOther",
+      "surface": "www",
+      "family": "public-profile",
+      "layer": "M0/M1",
+      "routePattern": "/personal?userId=...",
+      "routeShape": "https://www.goofish.com/personal?userId=...",
+      "batchId": "B4_USER_CONTEXT_REQUIRED_PASS",
+      "entryMode": "USER_CONTEXT_REQUIRED",
+      "runMode": "WAIT_FOR_USER_CONTEXT",
+      "expectedFirstResultStatus": "needs-user-context",
+      "defaultActionGate": "G1",
+      "readiness": "R0/R3",
+      "liveCoverage": "requires-user-context",
+      "deepeningQueue": "D4_REQUIRES_USER_CONTEXT",
+      "transitionClass": "REQUIRES_USER_CONTEXT",
+      "monitorTier": "S3_CONTEXT_GATED",
+      "baselineSignature": "3cf54d65",
+      "redactionRequired": true,
+      "waitForAnchors": [
+        "public profile block",
+        "credit area",
+        "item list",
+        "follow/contact entries"
+      ],
+      "acceptableStateCategories": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStateCategories": [
+        "S6_QR_OR_APP_BRIDGE",
+        "S7_CONFIRM_DIALOG"
+      ],
+      "readableControlCategories": [
+        "C0_DISPLAY_NAV"
+      ],
+      "stopControlCategories": [
+        "C4_BUSINESS_COMMIT"
+      ],
+      "labelGroupBuckets": [
+        "read-only-detail",
+        "business-commit",
+        "state-loading-empty-error"
+      ],
+      "allowedOutputContract": [
+        "routeShape",
+        "stateCategory",
+        "anchorNames",
+        "buttonNames",
+        "tabNames",
+        "tableHeaders",
+        "controlCategories",
+        "stopReasonCategory",
+        "fieldNamesOnly",
+        "statusCategoriesOnly",
+        "privacyCheckPassed"
+      ],
+      "fieldRiskSummary": "category-only-redacted-fields",
+      "actionGateSummary": "default G1; stop on C3/C4 or G3/G4 escalation",
+      "defaultStopReasonCategory": "context-stop-until-user-supplies-route",
+      "passEvidenceRequired": [
+        "required parameter type identified",
+        "user-provided context confirmed",
+        "private parameters redacted",
+        "business action boundary recorded"
+      ],
+      "changeDecisionRule": "compare-baseline-signature-and-watch-signals-before-updating-page-understanding",
+      "privacyCheckRequired": true
+    },
+    {
+      "pageId": "www.personalSelf",
+      "surface": "www",
+      "family": "buyer-account",
+      "layer": "M1/M2",
+      "routePattern": "/personal",
+      "routeShape": "https://www.goofish.com/personal",
+      "batchId": "B1_LOW_RISK_LIVE_STRUCTURE",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "runMode": "LIVE_READ_ONLY",
+      "expectedFirstResultStatus": "pending-read-only-observation",
+      "defaultActionGate": "G1",
+      "readiness": "R1/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D3_LOW_RISK_LIVE",
+      "transitionClass": "SAFE_READ",
+      "monitorTier": "S2_REDACTED_MONITOR",
+      "baselineSignature": "93b286a1",
+      "redactionRequired": true,
+      "waitForAnchors": [
+        "left navigation",
+        "home tab",
+        "item/credit/manage tabs",
+        "filters"
+      ],
+      "acceptableStateCategories": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStateCategories": [
+        "S4_LOGIN_EXPIRED",
+        "S6_QR_OR_APP_BRIDGE",
+        "S7_CONFIRM_DIALOG"
+      ],
+      "readableControlCategories": [
+        "C0_DISPLAY_NAV",
+        "C1_FILTER_READ"
+      ],
+      "stopControlCategories": [
+        "C4_BUSINESS_COMMIT"
+      ],
+      "labelGroupBuckets": [
+        "read-only-detail",
+        "account-login-gate",
+        "business-commit",
+        "state-loading-empty-error"
+      ],
+      "allowedOutputContract": [
+        "routeShape",
+        "stateCategory",
+        "anchorNames",
+        "buttonNames",
+        "tabNames",
+        "tableHeaders",
+        "controlCategories",
+        "stopReasonCategory",
+        "fieldNamesOnly",
+        "statusCategoriesOnly",
+        "privacyCheckPassed"
+      ],
+      "fieldRiskSummary": "category-only-redacted-fields",
+      "actionGateSummary": "default G1; stop on C3/C4 or G3/G4 escalation",
+      "defaultStopReasonCategory": "stop-if-state-or-action-escalates",
+      "passEvidenceRequired": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "changeDecisionRule": "compare-baseline-signature-and-watch-signals-before-updating-page-understanding",
+      "privacyCheckRequired": true
+    },
+    {
+      "pageId": "www.collection",
+      "surface": "www",
+      "family": "buyer-account",
+      "layer": "M1/M3",
+      "routePattern": "/collection",
+      "routeShape": "https://www.goofish.com/collection",
+      "batchId": "B1_LOW_RISK_LIVE_STRUCTURE",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "runMode": "LIVE_READ_ONLY",
+      "expectedFirstResultStatus": "pending-read-only-observation",
+      "defaultActionGate": "G1",
+      "readiness": "R1/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D3_LOW_RISK_LIVE",
+      "transitionClass": "SAFE_READ",
+      "monitorTier": "S2_REDACTED_MONITOR",
+      "baselineSignature": "7efc9bb1",
+      "redactionRequired": true,
+      "waitForAnchors": [
+        "collection tab",
+        "item cards",
+        "uncollect button",
+        "want button"
+      ],
+      "acceptableStateCategories": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStateCategories": [
+        "S4_LOGIN_EXPIRED",
+        "S6_QR_OR_APP_BRIDGE",
+        "S7_CONFIRM_DIALOG"
+      ],
+      "readableControlCategories": [
+        "C0_DISPLAY_NAV",
+        "C1_FILTER_READ"
+      ],
+      "stopControlCategories": [],
+      "labelGroupBuckets": [
+        "read-only-detail",
+        "account-login-gate",
+        "business-commit",
+        "state-loading-empty-error"
+      ],
+      "allowedOutputContract": [
+        "routeShape",
+        "stateCategory",
+        "anchorNames",
+        "buttonNames",
+        "tabNames",
+        "tableHeaders",
+        "controlCategories",
+        "stopReasonCategory",
+        "fieldNamesOnly",
+        "statusCategoriesOnly",
+        "privacyCheckPassed"
+      ],
+      "fieldRiskSummary": "category-only-redacted-fields",
+      "actionGateSummary": "default G1; stop on C3/C4 or G3/G4 escalation",
+      "defaultStopReasonCategory": "stop-if-state-or-action-escalates",
+      "passEvidenceRequired": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "changeDecisionRule": "compare-baseline-signature-and-watch-signals-before-updating-page-understanding",
+      "privacyCheckRequired": true
+    },
+    {
+      "pageId": "www.bought",
+      "surface": "www",
+      "family": "buyer-trade",
+      "layer": "M1/M3",
+      "routePattern": "/bought",
+      "routeShape": "https://www.goofish.com/bought",
+      "batchId": "B3_HIGH_RISK_LIVE_REDACTED_PASS",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "runMode": "LIVE_READ_ONLY",
+      "expectedFirstResultStatus": "pending-read-only-observation",
+      "defaultActionGate": "G1",
+      "readiness": "R1/R4",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "monitorTier": "S3_HIGH_RISK_READ_ONLY",
+      "baselineSignature": "6952b4fd",
+      "redactionRequired": true,
+      "waitForAnchors": [
+        "order tabs",
+        "order cards",
+        "more menu",
+        "logistics record",
+        "snapshot entry"
+      ],
+      "acceptableStateCategories": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStateCategories": [
+        "S4_LOGIN_EXPIRED",
+        "S6_QR_OR_APP_BRIDGE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "readableControlCategories": [
+        "C0_DISPLAY_NAV"
+      ],
+      "stopControlCategories": [
+        "C4_BUSINESS_COMMIT"
+      ],
+      "labelGroupBuckets": [
+        "read-only-detail",
+        "high-risk-trade-finance",
+        "confirm-modal",
+        "state-loading-empty-error"
+      ],
+      "allowedOutputContract": [
+        "routeShape",
+        "stateCategory",
+        "anchorNames",
+        "buttonNames",
+        "tabNames",
+        "tableHeaders",
+        "controlCategories",
+        "stopReasonCategory",
+        "fieldNamesOnly",
+        "statusCategoriesOnly",
+        "privacyCheckPassed"
+      ],
+      "fieldRiskSummary": "category-only-redacted-fields",
+      "actionGateSummary": "default G1; stop on C3/C4 or G3/G4 escalation",
+      "defaultStopReasonCategory": "stop-if-state-or-action-escalates",
+      "passEvidenceRequired": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "changeDecisionRule": "compare-baseline-signature-and-watch-signals-before-updating-page-understanding",
+      "privacyCheckRequired": true
+    },
+    {
+      "pageId": "www.orderDetail",
+      "surface": "www",
+      "family": "buyer-trade",
+      "layer": "M3",
+      "routePattern": "/order-detail?orderId=...",
+      "routeShape": "https://www.goofish.com/order-detail?orderId=...",
+      "batchId": "B4_USER_CONTEXT_REQUIRED_PASS",
+      "entryMode": "USER_CONTEXT_REQUIRED",
+      "runMode": "WAIT_FOR_USER_CONTEXT",
+      "expectedFirstResultStatus": "needs-user-context",
+      "defaultActionGate": "G1",
+      "readiness": "R1/R4",
+      "liveCoverage": "requires-user-context",
+      "deepeningQueue": "D4_REQUIRES_USER_CONTEXT",
+      "transitionClass": "REQUIRES_USER_CONTEXT",
+      "monitorTier": "S3_CONTEXT_GATED",
+      "baselineSignature": "f77e3475",
+      "redactionRequired": true,
+      "waitForAnchors": [
+        "status nodes",
+        "order field labels",
+        "logistics module",
+        "after-sale entry"
+      ],
+      "acceptableStateCategories": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStateCategories": [
+        "S4_LOGIN_EXPIRED",
+        "S6_QR_OR_APP_BRIDGE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "readableControlCategories": [
+        "C0_DISPLAY_NAV"
+      ],
+      "stopControlCategories": [],
+      "labelGroupBuckets": [
+        "read-only-detail",
+        "high-risk-trade-finance",
+        "confirm-modal",
+        "state-loading-empty-error"
+      ],
+      "allowedOutputContract": [
+        "routeShape",
+        "stateCategory",
+        "anchorNames",
+        "buttonNames",
+        "tabNames",
+        "tableHeaders",
+        "controlCategories",
+        "stopReasonCategory",
+        "fieldNamesOnly",
+        "statusCategoriesOnly",
+        "privacyCheckPassed"
+      ],
+      "fieldRiskSummary": "category-only-redacted-fields",
+      "actionGateSummary": "default G1; stop on C3/C4 or G3/G4 escalation",
+      "defaultStopReasonCategory": "context-stop-until-user-supplies-route",
+      "passEvidenceRequired": [
+        "required parameter type identified",
+        "user-provided context confirmed",
+        "private parameters redacted",
+        "business action boundary recorded"
+      ],
+      "changeDecisionRule": "compare-baseline-signature-and-watch-signals-before-updating-page-understanding",
+      "privacyCheckRequired": true
+    },
+    {
+      "pageId": "www.createOrder",
+      "surface": "www",
+      "family": "buyer-trade",
+      "layer": "M3/M5",
+      "routePattern": "/create-order?itemId=...",
+      "routeShape": "https://www.goofish.com/create-order?itemId=...",
+      "batchId": "B4_USER_CONTEXT_REQUIRED_PASS",
+      "entryMode": "USER_CONTEXT_REQUIRED",
+      "runMode": "WAIT_FOR_USER_CONTEXT",
+      "expectedFirstResultStatus": "needs-user-context",
+      "defaultActionGate": "G1",
+      "readiness": "R4",
+      "liveCoverage": "requires-user-context",
+      "deepeningQueue": "D4_REQUIRES_USER_CONTEXT",
+      "transitionClass": "REQUIRES_USER_CONTEXT",
+      "monitorTier": "S3_CONTEXT_GATED",
+      "baselineSignature": "211fe901",
+      "redactionRequired": true,
+      "waitForAnchors": [
+        "sku",
+        "quantity",
+        "address fields",
+        "price-detail block",
+        "payment area",
+        "scan-to-pay fallback"
+      ],
+      "acceptableStateCategories": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStateCategories": [
+        "S4_LOGIN_EXPIRED",
+        "S6_QR_OR_APP_BRIDGE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "readableControlCategories": [
+        "C0_DISPLAY_NAV"
+      ],
+      "stopControlCategories": [
+        "C4_BUSINESS_COMMIT"
+      ],
+      "labelGroupBuckets": [
+        "read-only-detail",
+        "high-risk-trade-finance",
+        "confirm-modal",
+        "state-loading-empty-error"
+      ],
+      "allowedOutputContract": [
+        "routeShape",
+        "stateCategory",
+        "anchorNames",
+        "buttonNames",
+        "tabNames",
+        "tableHeaders",
+        "controlCategories",
+        "stopReasonCategory",
+        "fieldNamesOnly",
+        "statusCategoriesOnly",
+        "privacyCheckPassed"
+      ],
+      "fieldRiskSummary": "category-only-redacted-fields",
+      "actionGateSummary": "default G1; stop on C3/C4 or G3/G4 escalation",
+      "defaultStopReasonCategory": "context-stop-until-user-supplies-route",
+      "passEvidenceRequired": [
+        "required parameter type identified",
+        "user-provided context confirmed",
+        "private parameters redacted",
+        "business action boundary recorded"
+      ],
+      "changeDecisionRule": "compare-baseline-signature-and-watch-signals-before-updating-page-understanding",
+      "privacyCheckRequired": true
+    },
+    {
+      "pageId": "www.paySuccess",
+      "surface": "www",
+      "family": "buyer-trade",
+      "layer": "M3",
+      "routePattern": "/pay-success?orderId=...&itemId=...",
+      "routeShape": "https://www.goofish.com/pay-success?orderId=...&itemId=...",
+      "batchId": "B5_STATIC_EVIDENCE_PASS",
+      "entryMode": "STATIC_EVIDENCE_ONLY",
+      "runMode": "STATIC_EVIDENCE_ONLY",
+      "expectedFirstResultStatus": "static-described",
+      "defaultActionGate": "G1",
+      "readiness": "R4",
+      "liveCoverage": "static-only",
+      "deepeningQueue": "D5_STATIC_ONLY",
+      "transitionClass": "STATIC_ONLY",
+      "monitorTier": "S4_STATIC_OR_MODULE",
+      "baselineSignature": "ed2d59bb",
+      "redactionRequired": true,
+      "waitForAnchors": [
+        "payment result structure",
+        "order-detail entry",
+        "recommendations"
+      ],
+      "acceptableStateCategories": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStateCategories": [
+        "S4_LOGIN_EXPIRED",
+        "S6_QR_OR_APP_BRIDGE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "readableControlCategories": [
+        "C0_DISPLAY_NAV"
+      ],
+      "stopControlCategories": [
+        "C4_BUSINESS_COMMIT"
+      ],
+      "labelGroupBuckets": [
+        "read-only-detail",
+        "high-risk-trade-finance",
+        "confirm-modal",
+        "state-loading-empty-error"
+      ],
+      "allowedOutputContract": [
+        "routeShape",
+        "stateCategory",
+        "anchorNames",
+        "buttonNames",
+        "tabNames",
+        "tableHeaders",
+        "controlCategories",
+        "stopReasonCategory",
+        "fieldNamesOnly",
+        "statusCategoriesOnly",
+        "privacyCheckPassed"
+      ],
+      "fieldRiskSummary": "category-only-redacted-fields",
+      "actionGateSummary": "default G1; stop on C3/C4 or G3/G4 escalation",
+      "defaultStopReasonCategory": "static-only",
+      "passEvidenceRequired": [
+        "static module or route signal identified",
+        "API or Page signal mapped to family",
+        "risk boundary recorded",
+        "no live probing attempted"
+      ],
+      "changeDecisionRule": "compare-baseline-signature-and-watch-signals-before-updating-page-understanding",
+      "privacyCheckRequired": true
+    },
+    {
+      "pageId": "www.publish",
+      "surface": "www",
+      "family": "draft-input",
+      "layer": "M2/M3",
+      "routePattern": "/publish",
+      "routeShape": "https://www.goofish.com/publish",
+      "batchId": "B2_FORM_AND_SHELL_LIVE_PASS",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "runMode": "LIVE_READ_ONLY",
+      "expectedFirstResultStatus": "pending-read-only-observation",
+      "defaultActionGate": "G2",
+      "readiness": "R2/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D2_FORM_AND_SHELL_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "monitorTier": "S3_HIGH_RISK_READ_ONLY",
+      "baselineSignature": "a63a3f30",
+      "redactionRequired": true,
+      "waitForAnchors": [
+        "image/video uploader",
+        "description",
+        "category",
+        "properties",
+        "sku",
+        "price",
+        "location",
+        "shipping settings"
+      ],
+      "acceptableStateCategories": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S8_FORM_VALIDATION"
+      ],
+      "stopStateCategories": [
+        "S4_LOGIN_EXPIRED",
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "readableControlCategories": [
+        "C0_DISPLAY_NAV",
+        "C2_DRAFT_INPUT"
+      ],
+      "stopControlCategories": [
+        "C3_FILE_EXTERNAL",
+        "C4_BUSINESS_COMMIT"
+      ],
+      "labelGroupBuckets": [
+        "draft-input",
+        "file-external-bridge",
+        "confirm-modal",
+        "business-commit",
+        "state-loading-empty-error"
+      ],
+      "allowedOutputContract": [
+        "routeShape",
+        "stateCategory",
+        "anchorNames",
+        "buttonNames",
+        "tabNames",
+        "tableHeaders",
+        "controlCategories",
+        "stopReasonCategory",
+        "fieldNamesOnly",
+        "statusCategoriesOnly",
+        "privacyCheckPassed"
+      ],
+      "fieldRiskSummary": "category-only-redacted-fields",
+      "actionGateSummary": "default G2; stop on C3/C4 or G3/G4 escalation",
+      "defaultStopReasonCategory": "stop-if-state-or-action-escalates",
+      "passEvidenceRequired": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "changeDecisionRule": "compare-baseline-signature-and-watch-signals-before-updating-page-understanding",
+      "privacyCheckRequired": true
+    },
+    {
+      "pageId": "www.publishScene",
+      "surface": "www",
+      "family": "draft-input",
+      "layer": "M2/M3",
+      "routePattern": "/publish?scene=xyPcMainPublish",
+      "routeShape": "https://www.goofish.com/publish?scene=xyPcMainPublish",
+      "batchId": "B5_STATIC_EVIDENCE_PASS",
+      "entryMode": "STATIC_EVIDENCE_ONLY",
+      "runMode": "STATIC_EVIDENCE_ONLY",
+      "expectedFirstResultStatus": "static-described",
+      "defaultActionGate": "G2",
+      "readiness": "R2/R3",
+      "liveCoverage": "static-only",
+      "deepeningQueue": "D5_STATIC_ONLY",
+      "transitionClass": "STATIC_ONLY",
+      "monitorTier": "S4_STATIC_OR_MODULE",
+      "baselineSignature": "7028efb2",
+      "redactionRequired": true,
+      "waitForAnchors": [
+        "publish scene parameter",
+        "publish form fields"
+      ],
+      "acceptableStateCategories": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S8_FORM_VALIDATION"
+      ],
+      "stopStateCategories": [
+        "S4_LOGIN_EXPIRED",
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "readableControlCategories": [
+        "C0_DISPLAY_NAV",
+        "C2_DRAFT_INPUT"
+      ],
+      "stopControlCategories": [
+        "C3_FILE_EXTERNAL",
+        "C4_BUSINESS_COMMIT"
+      ],
+      "labelGroupBuckets": [
+        "draft-input",
+        "file-external-bridge",
+        "confirm-modal",
+        "business-commit",
+        "state-loading-empty-error"
+      ],
+      "allowedOutputContract": [
+        "routeShape",
+        "stateCategory",
+        "anchorNames",
+        "buttonNames",
+        "tabNames",
+        "tableHeaders",
+        "controlCategories",
+        "stopReasonCategory",
+        "fieldNamesOnly",
+        "statusCategoriesOnly",
+        "privacyCheckPassed"
+      ],
+      "fieldRiskSummary": "category-only-redacted-fields",
+      "actionGateSummary": "default G2; stop on C3/C4 or G3/G4 escalation",
+      "defaultStopReasonCategory": "static-only",
+      "passEvidenceRequired": [
+        "static module or route signal identified",
+        "API or Page signal mapped to family",
+        "risk boundary recorded",
+        "no live probing attempted"
+      ],
+      "changeDecisionRule": "compare-baseline-signature-and-watch-signals-before-updating-page-understanding",
+      "privacyCheckRequired": true
+    },
+    {
+      "pageId": "www.publishEdit",
+      "surface": "www",
+      "family": "draft-input",
+      "layer": "M2/M3",
+      "routePattern": "/publish?scene=xyPcMainPublish&itemId=...",
+      "routeShape": "https://www.goofish.com/publish?scene=xyPcMainPublish&itemId=...",
+      "batchId": "B5_STATIC_EVIDENCE_PASS",
+      "entryMode": "STATIC_EVIDENCE_ONLY",
+      "runMode": "STATIC_EVIDENCE_ONLY",
+      "expectedFirstResultStatus": "static-described",
+      "defaultActionGate": "G2",
+      "readiness": "R3/R4",
+      "liveCoverage": "static-only",
+      "deepeningQueue": "D5_STATIC_ONLY",
+      "transitionClass": "STATIC_ONLY",
+      "monitorTier": "S4_STATIC_OR_MODULE",
+      "baselineSignature": "41fbbea1",
+      "redactionRequired": true,
+      "waitForAnchors": [
+        "item context parameter",
+        "publish/edit form fields"
+      ],
+      "acceptableStateCategories": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S8_FORM_VALIDATION"
+      ],
+      "stopStateCategories": [
+        "S4_LOGIN_EXPIRED",
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "readableControlCategories": [
+        "C0_DISPLAY_NAV",
+        "C2_DRAFT_INPUT"
+      ],
+      "stopControlCategories": [
+        "C3_FILE_EXTERNAL",
+        "C4_BUSINESS_COMMIT"
+      ],
+      "labelGroupBuckets": [
+        "draft-input",
+        "file-external-bridge",
+        "confirm-modal",
+        "business-commit",
+        "state-loading-empty-error"
+      ],
+      "allowedOutputContract": [
+        "routeShape",
+        "stateCategory",
+        "anchorNames",
+        "buttonNames",
+        "tabNames",
+        "tableHeaders",
+        "controlCategories",
+        "stopReasonCategory",
+        "fieldNamesOnly",
+        "statusCategoriesOnly",
+        "privacyCheckPassed"
+      ],
+      "fieldRiskSummary": "category-only-redacted-fields",
+      "actionGateSummary": "default G2; stop on C3/C4 or G3/G4 escalation",
+      "defaultStopReasonCategory": "static-only",
+      "passEvidenceRequired": [
+        "static module or route signal identified",
+        "API or Page signal mapped to family",
+        "risk boundary recorded",
+        "no live probing attempted"
+      ],
+      "changeDecisionRule": "compare-baseline-signature-and-watch-signals-before-updating-page-understanding",
+      "privacyCheckRequired": true
+    },
+    {
+      "pageId": "www.im",
+      "surface": "www",
+      "family": "message",
+      "layer": "M1/M2/M3",
+      "routePattern": "/im",
+      "routeShape": "https://www.goofish.com/im",
+      "batchId": "B2_FORM_AND_SHELL_LIVE_PASS",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "runMode": "LIVE_READ_ONLY",
+      "expectedFirstResultStatus": "pending-read-only-observation",
+      "defaultActionGate": "G2",
+      "readiness": "R1/R2/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D2_FORM_AND_SHELL_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "monitorTier": "S2_REDACTED_MONITOR",
+      "baselineSignature": "0356540d",
+      "redactionRequired": true,
+      "waitForAnchors": [
+        "empty state",
+        "session list",
+        "input area",
+        "toolbar",
+        "item/order card tools",
+        "file tool"
+      ],
+      "acceptableStateCategories": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStateCategories": [
+        "S4_LOGIN_EXPIRED",
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "readableControlCategories": [
+        "C0_DISPLAY_NAV",
+        "C2_DRAFT_INPUT"
+      ],
+      "stopControlCategories": [
+        "C3_FILE_EXTERNAL"
+      ],
+      "labelGroupBuckets": [
+        "draft-input",
+        "business-commit",
+        "file-external-bridge",
+        "state-loading-empty-error"
+      ],
+      "allowedOutputContract": [
+        "routeShape",
+        "stateCategory",
+        "anchorNames",
+        "buttonNames",
+        "tabNames",
+        "tableHeaders",
+        "controlCategories",
+        "stopReasonCategory",
+        "fieldNamesOnly",
+        "statusCategoriesOnly",
+        "privacyCheckPassed"
+      ],
+      "fieldRiskSummary": "category-only-redacted-fields",
+      "actionGateSummary": "default G2; stop on C3/C4 or G3/G4 escalation",
+      "defaultStopReasonCategory": "stop-if-state-or-action-escalates",
+      "passEvidenceRequired": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "changeDecisionRule": "compare-baseline-signature-and-watch-signals-before-updating-page-understanding",
+      "privacyCheckRequired": true
+    },
+    {
+      "pageId": "www.imItem",
+      "surface": "www",
+      "family": "message",
+      "layer": "M1/M3",
+      "routePattern": "/im?itemId=...&peerUserId=...",
+      "routeShape": "https://www.goofish.com/im?itemId=...&peerUserId=...",
+      "batchId": "B4_USER_CONTEXT_REQUIRED_PASS",
+      "entryMode": "USER_CONTEXT_REQUIRED",
+      "runMode": "WAIT_FOR_USER_CONTEXT",
+      "expectedFirstResultStatus": "needs-user-context",
+      "defaultActionGate": "G2",
+      "readiness": "R3/R4",
+      "liveCoverage": "requires-user-context",
+      "deepeningQueue": "D4_REQUIRES_USER_CONTEXT",
+      "transitionClass": "REQUIRES_USER_CONTEXT",
+      "monitorTier": "S3_CONTEXT_GATED",
+      "baselineSignature": "70af8534",
+      "redactionRequired": true,
+      "waitForAnchors": [
+        "item-linked chat parameters",
+        "input area"
+      ],
+      "acceptableStateCategories": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStateCategories": [
+        "S4_LOGIN_EXPIRED",
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "readableControlCategories": [
+        "C0_DISPLAY_NAV",
+        "C2_DRAFT_INPUT"
+      ],
+      "stopControlCategories": [
+        "C3_FILE_EXTERNAL"
+      ],
+      "labelGroupBuckets": [
+        "draft-input",
+        "business-commit",
+        "file-external-bridge",
+        "state-loading-empty-error"
+      ],
+      "allowedOutputContract": [
+        "routeShape",
+        "stateCategory",
+        "anchorNames",
+        "buttonNames",
+        "tabNames",
+        "tableHeaders",
+        "controlCategories",
+        "stopReasonCategory",
+        "fieldNamesOnly",
+        "statusCategoriesOnly",
+        "privacyCheckPassed"
+      ],
+      "fieldRiskSummary": "category-only-redacted-fields",
+      "actionGateSummary": "default G2; stop on C3/C4 or G3/G4 escalation",
+      "defaultStopReasonCategory": "context-stop-until-user-supplies-route",
+      "passEvidenceRequired": [
+        "required parameter type identified",
+        "user-provided context confirmed",
+        "private parameters redacted",
+        "business action boundary recorded"
+      ],
+      "changeDecisionRule": "compare-baseline-signature-and-watch-signals-before-updating-page-understanding",
+      "privacyCheckRequired": true
+    },
+    {
+      "pageId": "www.account",
+      "surface": "www",
+      "family": "identity",
+      "layer": "M1/M5",
+      "routePattern": "/account",
+      "routeShape": "https://www.goofish.com/account",
+      "batchId": "B3_HIGH_RISK_LIVE_REDACTED_PASS",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "runMode": "LIVE_READ_ONLY",
+      "expectedFirstResultStatus": "pending-read-only-observation",
+      "defaultActionGate": "G4",
+      "readiness": "R1/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "monitorTier": "S3_HIGH_RISK_READ_ONLY",
+      "baselineSignature": "dee07e78",
+      "redactionRequired": true,
+      "waitForAnchors": [
+        "basic info module",
+        "stay signed in",
+        "notice switch",
+        "verification entry",
+        "security center"
+      ],
+      "acceptableStateCategories": [],
+      "stopStateCategories": [
+        "S4_LOGIN_EXPIRED",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "readableControlCategories": [
+        "C0_DISPLAY_NAV"
+      ],
+      "stopControlCategories": [
+        "C4_BUSINESS_COMMIT"
+      ],
+      "labelGroupBuckets": [
+        "account-login-gate",
+        "confirm-modal"
+      ],
+      "allowedOutputContract": [
+        "routeShape",
+        "stateCategory",
+        "anchorNames",
+        "buttonNames",
+        "tabNames",
+        "tableHeaders",
+        "controlCategories",
+        "stopReasonCategory",
+        "fieldNamesOnly",
+        "statusCategoriesOnly",
+        "privacyCheckPassed"
+      ],
+      "fieldRiskSummary": "category-only-redacted-fields",
+      "actionGateSummary": "default G4; stop on C3/C4 or G3/G4 escalation",
+      "defaultStopReasonCategory": "stop-if-state-or-action-escalates",
+      "passEvidenceRequired": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "changeDecisionRule": "compare-baseline-signature-and-watch-signals-before-updating-page-understanding",
+      "privacyCheckRequired": true
+    },
+    {
+      "pageId": "www.accountApi",
+      "surface": "www",
+      "family": "internal-module",
+      "layer": "M6",
+      "routePattern": "/account/api",
+      "routeShape": "https://www.goofish.com/account/api",
+      "batchId": "B5_STATIC_EVIDENCE_PASS",
+      "entryMode": "INTERNAL_OR_MODULE_ONLY",
+      "runMode": "STATIC_EVIDENCE_ONLY",
+      "expectedFirstResultStatus": "static-described",
+      "defaultActionGate": "G4",
+      "readiness": "R5",
+      "liveCoverage": "static-only",
+      "deepeningQueue": "D5_STATIC_ONLY",
+      "transitionClass": "STATIC_ONLY",
+      "monitorTier": "S4_STATIC_OR_MODULE",
+      "baselineSignature": "1ff5e416",
+      "redactionRequired": true,
+      "waitForAnchors": [
+        "module path"
+      ],
+      "acceptableStateCategories": [
+        "S3_NETWORK_OR_API_FAILURE"
+      ],
+      "stopStateCategories": [],
+      "readableControlCategories": [
+        "C0_DISPLAY_NAV"
+      ],
+      "stopControlCategories": [
+        "C4_BUSINESS_COMMIT"
+      ],
+      "labelGroupBuckets": [
+        "unknown-label"
+      ],
+      "allowedOutputContract": [
+        "routeShape",
+        "stateCategory",
+        "anchorNames",
+        "buttonNames",
+        "tabNames",
+        "tableHeaders",
+        "controlCategories",
+        "stopReasonCategory",
+        "fieldNamesOnly",
+        "statusCategoriesOnly",
+        "privacyCheckPassed"
+      ],
+      "fieldRiskSummary": "category-only-redacted-fields",
+      "actionGateSummary": "default G4; stop on C3/C4 or G3/G4 escalation",
+      "defaultStopReasonCategory": "static-only",
+      "passEvidenceRequired": [
+        "static module or route signal identified",
+        "API or Page signal mapped to family",
+        "risk boundary recorded",
+        "no live probing attempted"
+      ],
+      "changeDecisionRule": "compare-baseline-signature-and-watch-signals-before-updating-page-understanding",
+      "privacyCheckRequired": true
+    },
+    {
+      "pageId": "www.feedback",
+      "surface": "www",
+      "family": "draft-input",
+      "layer": "M2/M3",
+      "routePattern": "/feedback?from=...",
+      "routeShape": "https://www.goofish.com/feedback?from=...",
+      "batchId": "B2_FORM_AND_SHELL_LIVE_PASS",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "runMode": "LIVE_READ_ONLY",
+      "expectedFirstResultStatus": "pending-read-only-observation",
+      "defaultActionGate": "G2",
+      "readiness": "R2/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D2_FORM_AND_SHELL_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "monitorTier": "S3_HIGH_RISK_READ_ONLY",
+      "baselineSignature": "1d4de971",
+      "redactionRequired": true,
+      "waitForAnchors": [
+        "feedback type",
+        "source page option",
+        "text area",
+        "screenshot upload",
+        "submit"
+      ],
+      "acceptableStateCategories": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S8_FORM_VALIDATION"
+      ],
+      "stopStateCategories": [
+        "S4_LOGIN_EXPIRED",
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "readableControlCategories": [
+        "C0_DISPLAY_NAV",
+        "C2_DRAFT_INPUT"
+      ],
+      "stopControlCategories": [
+        "C3_FILE_EXTERNAL",
+        "C4_BUSINESS_COMMIT"
+      ],
+      "labelGroupBuckets": [
+        "draft-input",
+        "file-external-bridge",
+        "confirm-modal",
+        "business-commit",
+        "state-loading-empty-error"
+      ],
+      "allowedOutputContract": [
+        "routeShape",
+        "stateCategory",
+        "anchorNames",
+        "buttonNames",
+        "tabNames",
+        "tableHeaders",
+        "controlCategories",
+        "stopReasonCategory",
+        "fieldNamesOnly",
+        "statusCategoriesOnly",
+        "privacyCheckPassed"
+      ],
+      "fieldRiskSummary": "category-only-redacted-fields",
+      "actionGateSummary": "default G2; stop on C3/C4 or G3/G4 escalation",
+      "defaultStopReasonCategory": "stop-if-state-or-action-escalates",
+      "passEvidenceRequired": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "changeDecisionRule": "compare-baseline-signature-and-watch-signals-before-updating-page-understanding",
+      "privacyCheckRequired": true
+    },
+    {
+      "pageId": "www.changelog",
+      "surface": "www",
+      "family": "public-content",
+      "layer": "M0",
+      "routePattern": "/changelog",
+      "routeShape": "https://www.goofish.com/changelog",
+      "batchId": "B1_LOW_RISK_LIVE_STRUCTURE",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "runMode": "LIVE_READ_ONLY",
+      "expectedFirstResultStatus": "pending-read-only-observation",
+      "defaultActionGate": "G0",
+      "readiness": "R0",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D3_LOW_RISK_LIVE",
+      "transitionClass": "SAFE_READ",
+      "monitorTier": "S1_STRUCTURE_MONITOR",
+      "baselineSignature": "68d57e48",
+      "redactionRequired": false,
+      "waitForAnchors": [
+        "update-log title",
+        "feature entries"
+      ],
+      "acceptableStateCategories": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStateCategories": [
+        "S6_QR_OR_APP_BRIDGE",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "readableControlCategories": [
+        "C0_DISPLAY_NAV",
+        "C1_FILTER_READ"
+      ],
+      "stopControlCategories": [
+        "C3_FILE_EXTERNAL"
+      ],
+      "labelGroupBuckets": [
+        "navigation-display",
+        "file-external-bridge",
+        "state-loading-empty-error"
+      ],
+      "allowedOutputContract": [
+        "routeShape",
+        "stateCategory",
+        "anchorNames",
+        "buttonNames",
+        "tabNames",
+        "tableHeaders",
+        "controlCategories",
+        "stopReasonCategory",
+        "publicStructureOnly"
+      ],
+      "fieldRiskSummary": "public-structure-or-labels-only",
+      "actionGateSummary": "default G0; stop on C3/C4 or G3/G4 escalation",
+      "defaultStopReasonCategory": "stop-if-state-or-action-escalates",
+      "passEvidenceRequired": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "changeDecisionRule": "compare-baseline-signature-and-watch-signals-before-updating-page-understanding",
+      "privacyCheckRequired": true
+    },
+    {
+      "pageId": "www.login",
+      "surface": "www",
+      "family": "identity",
+      "layer": "M5",
+      "routePattern": "/login",
+      "routeShape": "https://www.goofish.com/login",
+      "batchId": "B2_FORM_AND_SHELL_LIVE_PASS",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "runMode": "LIVE_READ_ONLY",
+      "expectedFirstResultStatus": "pending-read-only-observation",
+      "defaultActionGate": "G4",
+      "readiness": "R5",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D2_FORM_AND_SHELL_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "monitorTier": "S3_HIGH_RISK_READ_ONLY",
+      "baselineSignature": "fdb77aed",
+      "redactionRequired": true,
+      "waitForAnchors": [
+        "login method",
+        "scan container",
+        "verification entry",
+        "redirect parameter"
+      ],
+      "acceptableStateCategories": [],
+      "stopStateCategories": [
+        "S4_LOGIN_EXPIRED",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "readableControlCategories": [
+        "C0_DISPLAY_NAV"
+      ],
+      "stopControlCategories": [
+        "C4_BUSINESS_COMMIT"
+      ],
+      "labelGroupBuckets": [
+        "account-login-gate",
+        "confirm-modal"
+      ],
+      "allowedOutputContract": [
+        "routeShape",
+        "stateCategory",
+        "anchorNames",
+        "buttonNames",
+        "tabNames",
+        "tableHeaders",
+        "controlCategories",
+        "stopReasonCategory",
+        "fieldNamesOnly",
+        "statusCategoriesOnly",
+        "privacyCheckPassed"
+      ],
+      "fieldRiskSummary": "category-only-redacted-fields",
+      "actionGateSummary": "default G4; stop on C3/C4 or G3/G4 escalation",
+      "defaultStopReasonCategory": "stop-if-state-or-action-escalates",
+      "passEvidenceRequired": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "changeDecisionRule": "compare-baseline-signature-and-watch-signals-before-updating-page-understanding",
+      "privacyCheckRequired": true
+    },
+    {
+      "pageId": "www.loginRedirect",
+      "surface": "www",
+      "family": "identity",
+      "layer": "M5",
+      "routePattern": "/login?spm=...&redirectURL=...",
+      "routeShape": "https://www.goofish.com/login?spm=...&redirectURL=...",
+      "batchId": "B5_STATIC_EVIDENCE_PASS",
+      "entryMode": "STATIC_EVIDENCE_ONLY",
+      "runMode": "STATIC_EVIDENCE_ONLY",
+      "expectedFirstResultStatus": "static-described",
+      "defaultActionGate": "G4",
+      "readiness": "R5",
+      "liveCoverage": "static-only",
+      "deepeningQueue": "D5_STATIC_ONLY",
+      "transitionClass": "STATIC_ONLY",
+      "monitorTier": "S4_STATIC_OR_MODULE",
+      "baselineSignature": "402bbe74",
+      "redactionRequired": true,
+      "waitForAnchors": [
+        "redirect parameter"
+      ],
+      "acceptableStateCategories": [],
+      "stopStateCategories": [
+        "S4_LOGIN_EXPIRED",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "readableControlCategories": [
+        "C0_DISPLAY_NAV"
+      ],
+      "stopControlCategories": [
+        "C4_BUSINESS_COMMIT"
+      ],
+      "labelGroupBuckets": [
+        "account-login-gate",
+        "confirm-modal"
+      ],
+      "allowedOutputContract": [
+        "routeShape",
+        "stateCategory",
+        "anchorNames",
+        "buttonNames",
+        "tabNames",
+        "tableHeaders",
+        "controlCategories",
+        "stopReasonCategory",
+        "fieldNamesOnly",
+        "statusCategoriesOnly",
+        "privacyCheckPassed"
+      ],
+      "fieldRiskSummary": "category-only-redacted-fields",
+      "actionGateSummary": "default G4; stop on C3/C4 or G3/G4 escalation",
+      "defaultStopReasonCategory": "static-only",
+      "passEvidenceRequired": [
+        "static module or route signal identified",
+        "API or Page signal mapped to family",
+        "risk boundary recorded",
+        "no live probing attempted"
+      ],
+      "changeDecisionRule": "compare-baseline-signature-and-watch-signals-before-updating-page-understanding",
+      "privacyCheckRequired": true
+    },
+    {
+      "pageId": "www.findAccount",
+      "surface": "www",
+      "family": "identity",
+      "layer": "M5",
+      "routePattern": "/find-account",
+      "routeShape": "https://www.goofish.com/find-account",
+      "batchId": "B5_STATIC_EVIDENCE_PASS",
+      "entryMode": "STATIC_EVIDENCE_ONLY",
+      "runMode": "STATIC_EVIDENCE_ONLY",
+      "expectedFirstResultStatus": "static-described",
+      "defaultActionGate": "G4",
+      "readiness": "R5",
+      "liveCoverage": "static-only",
+      "deepeningQueue": "D5_STATIC_ONLY",
+      "transitionClass": "STATIC_ONLY",
+      "monitorTier": "S4_STATIC_OR_MODULE",
+      "baselineSignature": "8f3521f5",
+      "redactionRequired": true,
+      "waitForAnchors": [
+        "account recovery placeholder",
+        "redirect behavior"
+      ],
+      "acceptableStateCategories": [],
+      "stopStateCategories": [
+        "S4_LOGIN_EXPIRED",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "readableControlCategories": [
+        "C0_DISPLAY_NAV"
+      ],
+      "stopControlCategories": [
+        "C4_BUSINESS_COMMIT"
+      ],
+      "labelGroupBuckets": [
+        "account-login-gate",
+        "confirm-modal"
+      ],
+      "allowedOutputContract": [
+        "routeShape",
+        "stateCategory",
+        "anchorNames",
+        "buttonNames",
+        "tabNames",
+        "tableHeaders",
+        "controlCategories",
+        "stopReasonCategory",
+        "fieldNamesOnly",
+        "statusCategoriesOnly",
+        "privacyCheckPassed"
+      ],
+      "fieldRiskSummary": "category-only-redacted-fields",
+      "actionGateSummary": "default G4; stop on C3/C4 or G3/G4 escalation",
+      "defaultStopReasonCategory": "static-only",
+      "passEvidenceRequired": [
+        "static module or route signal identified",
+        "API or Page signal mapped to family",
+        "risk boundary recorded",
+        "no live probing attempted"
+      ],
+      "changeDecisionRule": "compare-baseline-signature-and-watch-signals-before-updating-page-understanding",
+      "privacyCheckRequired": true
+    },
+    {
+      "pageId": "www.selectAccount",
+      "surface": "www",
+      "family": "identity",
+      "layer": "M5",
+      "routePattern": "/select-account",
+      "routeShape": "https://www.goofish.com/select-account",
+      "batchId": "B5_STATIC_EVIDENCE_PASS",
+      "entryMode": "STATIC_EVIDENCE_ONLY",
+      "runMode": "STATIC_EVIDENCE_ONLY",
+      "expectedFirstResultStatus": "static-described",
+      "defaultActionGate": "G4",
+      "readiness": "R5",
+      "liveCoverage": "static-only",
+      "deepeningQueue": "D5_STATIC_ONLY",
+      "transitionClass": "STATIC_ONLY",
+      "monitorTier": "S4_STATIC_OR_MODULE",
+      "baselineSignature": "d3e70a48",
+      "redactionRequired": true,
+      "waitForAnchors": [
+        "account selection placeholder",
+        "redirect behavior"
+      ],
+      "acceptableStateCategories": [],
+      "stopStateCategories": [
+        "S4_LOGIN_EXPIRED",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "readableControlCategories": [
+        "C0_DISPLAY_NAV"
+      ],
+      "stopControlCategories": [
+        "C4_BUSINESS_COMMIT"
+      ],
+      "labelGroupBuckets": [
+        "account-login-gate",
+        "confirm-modal"
+      ],
+      "allowedOutputContract": [
+        "routeShape",
+        "stateCategory",
+        "anchorNames",
+        "buttonNames",
+        "tabNames",
+        "tableHeaders",
+        "controlCategories",
+        "stopReasonCategory",
+        "fieldNamesOnly",
+        "statusCategoriesOnly",
+        "privacyCheckPassed"
+      ],
+      "fieldRiskSummary": "category-only-redacted-fields",
+      "actionGateSummary": "default G4; stop on C3/C4 or G3/G4 escalation",
+      "defaultStopReasonCategory": "static-only",
+      "passEvidenceRequired": [
+        "static module or route signal identified",
+        "API or Page signal mapped to family",
+        "risk boundary recorded",
+        "no live probing attempted"
+      ],
+      "changeDecisionRule": "compare-baseline-signature-and-watch-signals-before-updating-page-understanding",
+      "privacyCheckRequired": true
+    },
+    {
+      "pageId": "www.loginValidation",
+      "surface": "www",
+      "family": "identity",
+      "layer": "M5",
+      "routePattern": "/login-validation",
+      "routeShape": "https://www.goofish.com/login-validation",
+      "batchId": "B5_STATIC_EVIDENCE_PASS",
+      "entryMode": "STATIC_EVIDENCE_ONLY",
+      "runMode": "STATIC_EVIDENCE_ONLY",
+      "expectedFirstResultStatus": "static-described",
+      "defaultActionGate": "G4",
+      "readiness": "R5",
+      "liveCoverage": "static-only",
+      "deepeningQueue": "D5_STATIC_ONLY",
+      "transitionClass": "STATIC_ONLY",
+      "monitorTier": "S4_STATIC_OR_MODULE",
+      "baselineSignature": "5df729ec",
+      "redactionRequired": true,
+      "waitForAnchors": [
+        "login validation placeholder"
+      ],
+      "acceptableStateCategories": [],
+      "stopStateCategories": [
+        "S4_LOGIN_EXPIRED",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "readableControlCategories": [
+        "C0_DISPLAY_NAV"
+      ],
+      "stopControlCategories": [
+        "C4_BUSINESS_COMMIT"
+      ],
+      "labelGroupBuckets": [
+        "account-login-gate",
+        "confirm-modal"
+      ],
+      "allowedOutputContract": [
+        "routeShape",
+        "stateCategory",
+        "anchorNames",
+        "buttonNames",
+        "tabNames",
+        "tableHeaders",
+        "controlCategories",
+        "stopReasonCategory",
+        "fieldNamesOnly",
+        "statusCategoriesOnly",
+        "privacyCheckPassed"
+      ],
+      "fieldRiskSummary": "category-only-redacted-fields",
+      "actionGateSummary": "default G4; stop on C3/C4 or G3/G4 escalation",
+      "defaultStopReasonCategory": "static-only",
+      "passEvidenceRequired": [
+        "static module or route signal identified",
+        "API or Page signal mapped to family",
+        "risk boundary recorded",
+        "no live probing attempted"
+      ],
+      "changeDecisionRule": "compare-baseline-signature-and-watch-signals-before-updating-page-understanding",
+      "privacyCheckRequired": true
+    },
+    {
+      "pageId": "www.commonVideo",
+      "surface": "www",
+      "family": "public-content",
+      "layer": "M0/M6",
+      "routePattern": "/common-video",
+      "routeShape": "https://www.goofish.com/common-video",
+      "batchId": "B5_STATIC_EVIDENCE_PASS",
+      "entryMode": "STATIC_EVIDENCE_ONLY",
+      "runMode": "STATIC_EVIDENCE_ONLY",
+      "expectedFirstResultStatus": "static-described",
+      "defaultActionGate": "G0",
+      "readiness": "R0/R4",
+      "liveCoverage": "static-only",
+      "deepeningQueue": "D5_STATIC_ONLY",
+      "transitionClass": "STATIC_ONLY",
+      "monitorTier": "S4_STATIC_OR_MODULE",
+      "baselineSignature": "a7f6c44e",
+      "redactionRequired": false,
+      "waitForAnchors": [
+        "video container",
+        "title/material config",
+        "playback controls"
+      ],
+      "acceptableStateCategories": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStateCategories": [
+        "S6_QR_OR_APP_BRIDGE",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "readableControlCategories": [
+        "C0_DISPLAY_NAV",
+        "C1_FILTER_READ"
+      ],
+      "stopControlCategories": [
+        "C3_FILE_EXTERNAL"
+      ],
+      "labelGroupBuckets": [
+        "navigation-display",
+        "file-external-bridge",
+        "state-loading-empty-error"
+      ],
+      "allowedOutputContract": [
+        "routeShape",
+        "moduleOrStaticSignal",
+        "family",
+        "riskBoundary",
+        "stopReasonCategory"
+      ],
+      "fieldRiskSummary": "public-structure-or-labels-only",
+      "actionGateSummary": "default G0; stop on C3/C4 or G3/G4 escalation",
+      "defaultStopReasonCategory": "static-only",
+      "passEvidenceRequired": [
+        "static module or route signal identified",
+        "API or Page signal mapped to family",
+        "risk boundary recorded",
+        "no live probing attempted"
+      ],
+      "changeDecisionRule": "compare-baseline-signature-and-watch-signals-before-updating-page-understanding",
+      "privacyCheckRequired": true
+    },
+    {
+      "pageId": "www.commonVideoLayout",
+      "surface": "www",
+      "family": "internal-module",
+      "layer": "M6",
+      "routePattern": "/common-video/layout",
+      "routeShape": "https://www.goofish.com/common-video/layout",
+      "batchId": "B5_STATIC_EVIDENCE_PASS",
+      "entryMode": "INTERNAL_OR_MODULE_ONLY",
+      "runMode": "STATIC_EVIDENCE_ONLY",
+      "expectedFirstResultStatus": "static-described",
+      "defaultActionGate": "G4",
+      "readiness": "R5",
+      "liveCoverage": "static-only",
+      "deepeningQueue": "D5_STATIC_ONLY",
+      "transitionClass": "STATIC_ONLY",
+      "monitorTier": "S4_STATIC_OR_MODULE",
+      "baselineSignature": "22fbc9a8",
+      "redactionRequired": true,
+      "waitForAnchors": [
+        "layout package path"
+      ],
+      "acceptableStateCategories": [
+        "S3_NETWORK_OR_API_FAILURE"
+      ],
+      "stopStateCategories": [],
+      "readableControlCategories": [
+        "C0_DISPLAY_NAV"
+      ],
+      "stopControlCategories": [
+        "C4_BUSINESS_COMMIT"
+      ],
+      "labelGroupBuckets": [
+        "unknown-label"
+      ],
+      "allowedOutputContract": [
+        "routeShape",
+        "stateCategory",
+        "anchorNames",
+        "buttonNames",
+        "tabNames",
+        "tableHeaders",
+        "controlCategories",
+        "stopReasonCategory",
+        "fieldNamesOnly",
+        "statusCategoriesOnly",
+        "privacyCheckPassed"
+      ],
+      "fieldRiskSummary": "category-only-redacted-fields",
+      "actionGateSummary": "default G4; stop on C3/C4 or G3/G4 escalation",
+      "defaultStopReasonCategory": "static-only",
+      "passEvidenceRequired": [
+        "static module or route signal identified",
+        "API or Page signal mapped to family",
+        "risk boundary recorded",
+        "no live probing attempted"
+      ],
+      "changeDecisionRule": "compare-baseline-signature-and-watch-signals-before-updating-page-understanding",
+      "privacyCheckRequired": true
+    },
+    {
+      "pageId": "www.upgradeBrowser",
+      "surface": "www",
+      "family": "public-content",
+      "layer": "M0/M6",
+      "routePattern": "/upgrade-browser",
+      "routeShape": "https://www.goofish.com/upgrade-browser",
+      "batchId": "B5_STATIC_EVIDENCE_PASS",
+      "entryMode": "STATIC_EVIDENCE_ONLY",
+      "runMode": "STATIC_EVIDENCE_ONLY",
+      "expectedFirstResultStatus": "static-described",
+      "defaultActionGate": "G0",
+      "readiness": "R0/R3",
+      "liveCoverage": "static-only",
+      "deepeningQueue": "D5_STATIC_ONLY",
+      "transitionClass": "STATIC_ONLY",
+      "monitorTier": "S4_STATIC_OR_MODULE",
+      "baselineSignature": "2fd9c4a5",
+      "redactionRequired": false,
+      "waitForAnchors": [
+        "browser recommendation list",
+        "download entry"
+      ],
+      "acceptableStateCategories": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStateCategories": [
+        "S6_QR_OR_APP_BRIDGE",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "readableControlCategories": [
+        "C0_DISPLAY_NAV",
+        "C1_FILTER_READ"
+      ],
+      "stopControlCategories": [
+        "C3_FILE_EXTERNAL"
+      ],
+      "labelGroupBuckets": [
+        "navigation-display",
+        "file-external-bridge",
+        "state-loading-empty-error"
+      ],
+      "allowedOutputContract": [
+        "routeShape",
+        "moduleOrStaticSignal",
+        "family",
+        "riskBoundary",
+        "stopReasonCategory"
+      ],
+      "fieldRiskSummary": "public-structure-or-labels-only",
+      "actionGateSummary": "default G0; stop on C3/C4 or G3/G4 escalation",
+      "defaultStopReasonCategory": "static-only",
+      "passEvidenceRequired": [
+        "static module or route signal identified",
+        "API or Page signal mapped to family",
+        "risk boundary recorded",
+        "no live probing attempted"
+      ],
+      "changeDecisionRule": "compare-baseline-signature-and-watch-signals-before-updating-page-understanding",
+      "privacyCheckRequired": true
+    },
+    {
+      "pageId": "www.playground",
+      "surface": "www",
+      "family": "internal-test",
+      "layer": "M6",
+      "routePattern": "/playground",
+      "routeShape": "https://www.goofish.com/playground",
+      "batchId": "B5_STATIC_EVIDENCE_PASS",
+      "entryMode": "STATIC_EVIDENCE_ONLY",
+      "runMode": "STATIC_EVIDENCE_ONLY",
+      "expectedFirstResultStatus": "static-described",
+      "defaultActionGate": "G4",
+      "readiness": "R4/R5",
+      "liveCoverage": "static-only",
+      "deepeningQueue": "D5_STATIC_ONLY",
+      "transitionClass": "STATIC_ONLY",
+      "monitorTier": "S4_STATIC_OR_MODULE",
+      "baselineSignature": "37c23492",
+      "redactionRequired": true,
+      "waitForAnchors": [
+        "internal test entry",
+        "login/upload/qr/payment test controls"
+      ],
+      "acceptableStateCategories": [],
+      "stopStateCategories": [
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "readableControlCategories": [
+        "C0_DISPLAY_NAV"
+      ],
+      "stopControlCategories": [
+        "C4_BUSINESS_COMMIT"
+      ],
+      "labelGroupBuckets": [
+        "unknown-label",
+        "high-risk-trade-finance"
+      ],
+      "allowedOutputContract": [
+        "routeShape",
+        "stateCategory",
+        "anchorNames",
+        "buttonNames",
+        "tabNames",
+        "tableHeaders",
+        "controlCategories",
+        "stopReasonCategory",
+        "fieldNamesOnly",
+        "statusCategoriesOnly",
+        "privacyCheckPassed"
+      ],
+      "fieldRiskSummary": "category-only-redacted-fields",
+      "actionGateSummary": "default G4; stop on C3/C4 or G3/G4 escalation",
+      "defaultStopReasonCategory": "static-only",
+      "passEvidenceRequired": [
+        "static module or route signal identified",
+        "API or Page signal mapped to family",
+        "risk boundary recorded",
+        "no live probing attempted"
+      ],
+      "changeDecisionRule": "compare-baseline-signature-and-watch-signals-before-updating-page-understanding",
+      "privacyCheckRequired": true
+    },
+    {
+      "pageId": "www.yhbCreateOrder",
+      "surface": "www",
+      "family": "buyer-trade",
+      "layer": "M3",
+      "routePattern": "create-order-yhb package",
+      "routeShape": "create-order-yhb package",
+      "batchId": "B5_STATIC_EVIDENCE_PASS",
+      "entryMode": "STATIC_EVIDENCE_ONLY",
+      "runMode": "STATIC_EVIDENCE_ONLY",
+      "expectedFirstResultStatus": "static-described",
+      "defaultActionGate": "G1",
+      "readiness": "R4",
+      "liveCoverage": "static-only",
+      "deepeningQueue": "D5_STATIC_ONLY",
+      "transitionClass": "STATIC_ONLY",
+      "monitorTier": "S4_STATIC_OR_MODULE",
+      "baselineSignature": "f49d0736",
+      "redactionRequired": true,
+      "waitForAnchors": [
+        "YHB order render fields",
+        "YHB order create interface"
+      ],
+      "acceptableStateCategories": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStateCategories": [
+        "S4_LOGIN_EXPIRED",
+        "S6_QR_OR_APP_BRIDGE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "readableControlCategories": [
+        "C0_DISPLAY_NAV"
+      ],
+      "stopControlCategories": [],
+      "labelGroupBuckets": [
+        "read-only-detail",
+        "high-risk-trade-finance",
+        "confirm-modal",
+        "state-loading-empty-error"
+      ],
+      "allowedOutputContract": [
+        "routeShape",
+        "stateCategory",
+        "anchorNames",
+        "buttonNames",
+        "tabNames",
+        "tableHeaders",
+        "controlCategories",
+        "stopReasonCategory",
+        "fieldNamesOnly",
+        "statusCategoriesOnly",
+        "privacyCheckPassed"
+      ],
+      "fieldRiskSummary": "category-only-redacted-fields",
+      "actionGateSummary": "default G1; stop on C3/C4 or G3/G4 escalation",
+      "defaultStopReasonCategory": "static-only",
+      "passEvidenceRequired": [
+        "static module or route signal identified",
+        "API or Page signal mapped to family",
+        "risk boundary recorded",
+        "no live probing attempted"
+      ],
+      "changeDecisionRule": "compare-baseline-signature-and-watch-signals-before-updating-page-understanding",
+      "privacyCheckRequired": true
+    },
+    {
+      "pageId": "www.yhbOrderDetail",
+      "surface": "www",
+      "family": "buyer-trade",
+      "layer": "M3",
+      "routePattern": "order-detail-yhb package",
+      "routeShape": "order-detail-yhb package",
+      "batchId": "B5_STATIC_EVIDENCE_PASS",
+      "entryMode": "STATIC_EVIDENCE_ONLY",
+      "runMode": "STATIC_EVIDENCE_ONLY",
+      "expectedFirstResultStatus": "static-described",
+      "defaultActionGate": "G1",
+      "readiness": "R4",
+      "liveCoverage": "static-only",
+      "deepeningQueue": "D5_STATIC_ONLY",
+      "transitionClass": "STATIC_ONLY",
+      "monitorTier": "S4_STATIC_OR_MODULE",
+      "baselineSignature": "d9535aa0",
+      "redactionRequired": true,
+      "waitForAnchors": [
+        "report fields",
+        "dispute fields",
+        "review-related fields"
+      ],
+      "acceptableStateCategories": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStateCategories": [
+        "S4_LOGIN_EXPIRED",
+        "S6_QR_OR_APP_BRIDGE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "readableControlCategories": [
+        "C0_DISPLAY_NAV"
+      ],
+      "stopControlCategories": [],
+      "labelGroupBuckets": [
+        "read-only-detail",
+        "high-risk-trade-finance",
+        "confirm-modal",
+        "state-loading-empty-error"
+      ],
+      "allowedOutputContract": [
+        "routeShape",
+        "stateCategory",
+        "anchorNames",
+        "buttonNames",
+        "tabNames",
+        "tableHeaders",
+        "controlCategories",
+        "stopReasonCategory",
+        "fieldNamesOnly",
+        "statusCategoriesOnly",
+        "privacyCheckPassed"
+      ],
+      "fieldRiskSummary": "category-only-redacted-fields",
+      "actionGateSummary": "default G1; stop on C3/C4 or G3/G4 escalation",
+      "defaultStopReasonCategory": "static-only",
+      "passEvidenceRequired": [
+        "static module or route signal identified",
+        "API or Page signal mapped to family",
+        "risk boundary recorded",
+        "no live probing attempted"
+      ],
+      "changeDecisionRule": "compare-baseline-signature-and-watch-signals-before-updating-page-understanding",
+      "privacyCheckRequired": true
+    },
+    {
+      "pageId": "seller.dataOverview",
+      "surface": "seller",
+      "family": "seller-data",
+      "layer": "M4",
+      "routePattern": "#/seller-data/data",
+      "routeShape": "https://seller.goofish.com/?site=<site-alias>#/seller-data/data",
+      "batchId": "B1_LOW_RISK_LIVE_STRUCTURE",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "runMode": "LIVE_READ_ONLY",
+      "expectedFirstResultStatus": "pending-read-only-observation",
+      "defaultActionGate": "G1",
+      "readiness": "R1/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D3_LOW_RISK_LIVE",
+      "transitionClass": "SAFE_READ",
+      "monitorTier": "S2_REDACTED_MONITOR",
+      "baselineSignature": "f2f5362d",
+      "redactionRequired": true,
+      "waitForAnchors": [
+        "date controls",
+        "metric cards",
+        "trend charts",
+        "info popovers"
+      ],
+      "acceptableStateCategories": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S3_NETWORK_OR_API_FAILURE"
+      ],
+      "stopStateCategories": [
+        "S6_QR_OR_APP_BRIDGE",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "readableControlCategories": [
+        "C0_DISPLAY_NAV",
+        "C1_FILTER_READ"
+      ],
+      "stopControlCategories": [
+        "C3_FILE_EXTERNAL"
+      ],
+      "labelGroupBuckets": [
+        "finance-data-metric",
+        "public-search-filter",
+        "file-external-bridge",
+        "state-loading-empty-error"
+      ],
+      "allowedOutputContract": [
+        "routeShape",
+        "stateCategory",
+        "anchorNames",
+        "buttonNames",
+        "tabNames",
+        "tableHeaders",
+        "controlCategories",
+        "stopReasonCategory",
+        "fieldNamesOnly",
+        "statusCategoriesOnly",
+        "privacyCheckPassed"
+      ],
+      "fieldRiskSummary": "category-only-redacted-fields",
+      "actionGateSummary": "default G1; stop on C3/C4 or G3/G4 escalation",
+      "defaultStopReasonCategory": "stop-if-state-or-action-escalates",
+      "passEvidenceRequired": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "changeDecisionRule": "compare-baseline-signature-and-watch-signals-before-updating-page-understanding",
+      "privacyCheckRequired": true
+    },
+    {
+      "pageId": "seller.commodityData",
+      "surface": "seller",
+      "family": "seller-data",
+      "layer": "M4",
+      "routePattern": "#/seller-data/commodity",
+      "routeShape": "https://seller.goofish.com/?site=<site-alias>#/seller-data/commodity",
+      "batchId": "B2_FORM_AND_SHELL_LIVE_PASS",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "runMode": "LIVE_READ_ONLY",
+      "expectedFirstResultStatus": "pending-read-only-observation",
+      "defaultActionGate": "G1",
+      "readiness": "R1/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D2_FORM_AND_SHELL_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "monitorTier": "S2_REDACTED_MONITOR",
+      "baselineSignature": "74405a34",
+      "redactionRequired": true,
+      "waitForAnchors": [
+        "search",
+        "date",
+        "commodity table",
+        "metric columns",
+        "pagination",
+        "download"
+      ],
+      "acceptableStateCategories": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S3_NETWORK_OR_API_FAILURE"
+      ],
+      "stopStateCategories": [
+        "S6_QR_OR_APP_BRIDGE",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "readableControlCategories": [
+        "C0_DISPLAY_NAV"
+      ],
+      "stopControlCategories": [
+        "C3_FILE_EXTERNAL"
+      ],
+      "labelGroupBuckets": [
+        "finance-data-metric",
+        "public-search-filter",
+        "file-external-bridge",
+        "state-loading-empty-error"
+      ],
+      "allowedOutputContract": [
+        "routeShape",
+        "stateCategory",
+        "anchorNames",
+        "buttonNames",
+        "tabNames",
+        "tableHeaders",
+        "controlCategories",
+        "stopReasonCategory",
+        "fieldNamesOnly",
+        "statusCategoriesOnly",
+        "privacyCheckPassed"
+      ],
+      "fieldRiskSummary": "category-only-redacted-fields",
+      "actionGateSummary": "default G1; stop on C3/C4 or G3/G4 escalation",
+      "defaultStopReasonCategory": "stop-if-state-or-action-escalates",
+      "passEvidenceRequired": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "changeDecisionRule": "compare-baseline-signature-and-watch-signals-before-updating-page-understanding",
+      "privacyCheckRequired": true
+    },
+    {
+      "pageId": "seller.fanData",
+      "surface": "seller",
+      "family": "seller-data",
+      "layer": "M4",
+      "routePattern": "#/seller-data/fanData",
+      "routeShape": "https://seller.goofish.com/?site=<site-alias>#/seller-data/fanData",
+      "batchId": "B1_LOW_RISK_LIVE_STRUCTURE",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "runMode": "LIVE_READ_ONLY",
+      "expectedFirstResultStatus": "pending-read-only-observation",
+      "defaultActionGate": "G1",
+      "readiness": "R1/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D3_LOW_RISK_LIVE",
+      "transitionClass": "SAFE_READ",
+      "monitorTier": "S2_REDACTED_MONITOR",
+      "baselineSignature": "5705c846",
+      "redactionRequired": true,
+      "waitForAnchors": [
+        "date",
+        "fan metrics",
+        "profile distributions",
+        "region/user-group modules"
+      ],
+      "acceptableStateCategories": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S3_NETWORK_OR_API_FAILURE"
+      ],
+      "stopStateCategories": [
+        "S6_QR_OR_APP_BRIDGE",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "readableControlCategories": [
+        "C0_DISPLAY_NAV",
+        "C1_FILTER_READ"
+      ],
+      "stopControlCategories": [
+        "C3_FILE_EXTERNAL"
+      ],
+      "labelGroupBuckets": [
+        "finance-data-metric",
+        "public-search-filter",
+        "file-external-bridge",
+        "state-loading-empty-error"
+      ],
+      "allowedOutputContract": [
+        "routeShape",
+        "stateCategory",
+        "anchorNames",
+        "buttonNames",
+        "tabNames",
+        "tableHeaders",
+        "controlCategories",
+        "stopReasonCategory",
+        "fieldNamesOnly",
+        "statusCategoriesOnly",
+        "privacyCheckPassed"
+      ],
+      "fieldRiskSummary": "category-only-redacted-fields",
+      "actionGateSummary": "default G1; stop on C3/C4 or G3/G4 escalation",
+      "defaultStopReasonCategory": "stop-if-state-or-action-escalates",
+      "passEvidenceRequired": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "changeDecisionRule": "compare-baseline-signature-and-watch-signals-before-updating-page-understanding",
+      "privacyCheckRequired": true
+    },
+    {
+      "pageId": "seller.customerServiceData",
+      "surface": "seller",
+      "family": "seller-data",
+      "layer": "M4",
+      "routePattern": "#/seller-data/customerService",
+      "routeShape": "https://seller.goofish.com/?site=<site-alias>#/seller-data/customerService",
+      "batchId": "B2_FORM_AND_SHELL_LIVE_PASS",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "runMode": "LIVE_READ_ONLY",
+      "expectedFirstResultStatus": "pending-read-only-observation",
+      "defaultActionGate": "G1",
+      "readiness": "R1/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D2_FORM_AND_SHELL_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "monitorTier": "S2_REDACTED_MONITOR",
+      "baselineSignature": "b5d90e58",
+      "redactionRequired": true,
+      "waitForAnchors": [
+        "consultation metrics",
+        "satisfaction fields",
+        "customer-service table",
+        "export"
+      ],
+      "acceptableStateCategories": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S3_NETWORK_OR_API_FAILURE"
+      ],
+      "stopStateCategories": [
+        "S6_QR_OR_APP_BRIDGE",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "readableControlCategories": [
+        "C0_DISPLAY_NAV"
+      ],
+      "stopControlCategories": [
+        "C3_FILE_EXTERNAL"
+      ],
+      "labelGroupBuckets": [
+        "finance-data-metric",
+        "public-search-filter",
+        "file-external-bridge",
+        "state-loading-empty-error"
+      ],
+      "allowedOutputContract": [
+        "routeShape",
+        "stateCategory",
+        "anchorNames",
+        "buttonNames",
+        "tabNames",
+        "tableHeaders",
+        "controlCategories",
+        "stopReasonCategory",
+        "fieldNamesOnly",
+        "statusCategoriesOnly",
+        "privacyCheckPassed"
+      ],
+      "fieldRiskSummary": "category-only-redacted-fields",
+      "actionGateSummary": "default G1; stop on C3/C4 or G3/G4 escalation",
+      "defaultStopReasonCategory": "stop-if-state-or-action-escalates",
+      "passEvidenceRequired": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "changeDecisionRule": "compare-baseline-signature-and-watch-signals-before-updating-page-understanding",
+      "privacyCheckRequired": true
+    },
+    {
+      "pageId": "seller.itemPublish",
+      "surface": "seller",
+      "family": "seller-item",
+      "layer": "M2/M4",
+      "routePattern": "#/seller-item/publish",
+      "routeShape": "https://seller.goofish.com/?site=<site-alias>#/seller-item/publish",
+      "batchId": "B2_FORM_AND_SHELL_LIVE_PASS",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "runMode": "LIVE_READ_ONLY",
+      "expectedFirstResultStatus": "pending-read-only-observation",
+      "defaultActionGate": "G2",
+      "readiness": "R2/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D2_FORM_AND_SHELL_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "monitorTier": "S3_HIGH_RISK_READ_ONLY",
+      "baselineSignature": "8deb0201",
+      "redactionRequired": true,
+      "waitForAnchors": [
+        "image/video uploader",
+        "title/description",
+        "category",
+        "sku",
+        "price",
+        "stock",
+        "shipping settings"
+      ],
+      "acceptableStateCategories": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S8_FORM_VALIDATION"
+      ],
+      "stopStateCategories": [
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "readableControlCategories": [
+        "C0_DISPLAY_NAV",
+        "C2_DRAFT_INPUT"
+      ],
+      "stopControlCategories": [
+        "C3_FILE_EXTERNAL",
+        "C4_BUSINESS_COMMIT"
+      ],
+      "labelGroupBuckets": [
+        "draft-input",
+        "read-only-detail",
+        "business-commit",
+        "file-external-bridge",
+        "confirm-modal"
+      ],
+      "allowedOutputContract": [
+        "routeShape",
+        "stateCategory",
+        "anchorNames",
+        "buttonNames",
+        "tabNames",
+        "tableHeaders",
+        "controlCategories",
+        "stopReasonCategory",
+        "fieldNamesOnly",
+        "statusCategoriesOnly",
+        "privacyCheckPassed"
+      ],
+      "fieldRiskSummary": "category-only-redacted-fields",
+      "actionGateSummary": "default G2; stop on C3/C4 or G3/G4 escalation",
+      "defaultStopReasonCategory": "stop-if-state-or-action-escalates",
+      "passEvidenceRequired": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "changeDecisionRule": "compare-baseline-signature-and-watch-signals-before-updating-page-understanding",
+      "privacyCheckRequired": true
+    },
+    {
+      "pageId": "seller.goodsManage",
+      "surface": "seller",
+      "family": "seller-item",
+      "layer": "M4",
+      "routePattern": "#/seller-item/goods-manage",
+      "routeShape": "https://seller.goofish.com/?site=<site-alias>#/seller-item/goods-manage",
+      "batchId": "B2_FORM_AND_SHELL_LIVE_PASS",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "runMode": "LIVE_READ_ONLY",
+      "expectedFirstResultStatus": "pending-read-only-observation",
+      "defaultActionGate": "G2",
+      "readiness": "R1/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D2_FORM_AND_SHELL_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "monitorTier": "S3_HIGH_RISK_READ_ONLY",
+      "baselineSignature": "1b3e8aaf",
+      "redactionRequired": true,
+      "waitForAnchors": [
+        "status tabs",
+        "search/filter",
+        "item table",
+        "bulk actions",
+        "operation column"
+      ],
+      "acceptableStateCategories": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S8_FORM_VALIDATION"
+      ],
+      "stopStateCategories": [
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "readableControlCategories": [
+        "C0_DISPLAY_NAV",
+        "C2_DRAFT_INPUT"
+      ],
+      "stopControlCategories": [
+        "C3_FILE_EXTERNAL",
+        "C4_BUSINESS_COMMIT"
+      ],
+      "labelGroupBuckets": [
+        "draft-input",
+        "read-only-detail",
+        "business-commit",
+        "file-external-bridge",
+        "confirm-modal"
+      ],
+      "allowedOutputContract": [
+        "routeShape",
+        "stateCategory",
+        "anchorNames",
+        "buttonNames",
+        "tabNames",
+        "tableHeaders",
+        "controlCategories",
+        "stopReasonCategory",
+        "fieldNamesOnly",
+        "statusCategoriesOnly",
+        "privacyCheckPassed"
+      ],
+      "fieldRiskSummary": "category-only-redacted-fields",
+      "actionGateSummary": "default G2; stop on C3/C4 or G3/G4 escalation",
+      "defaultStopReasonCategory": "stop-if-state-or-action-escalates",
+      "passEvidenceRequired": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "changeDecisionRule": "compare-baseline-signature-and-watch-signals-before-updating-page-understanding",
+      "privacyCheckRequired": true
+    },
+    {
+      "pageId": "seller.postTemplate",
+      "surface": "seller",
+      "family": "seller-item",
+      "layer": "M4",
+      "routePattern": "#/seller-item/post-temple",
+      "routeShape": "https://seller.goofish.com/?site=<site-alias>#/seller-item/post-temple",
+      "batchId": "B2_FORM_AND_SHELL_LIVE_PASS",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "runMode": "LIVE_READ_ONLY",
+      "expectedFirstResultStatus": "pending-read-only-observation",
+      "defaultActionGate": "G2",
+      "readiness": "R1/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D2_FORM_AND_SHELL_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "monitorTier": "S3_HIGH_RISK_READ_ONLY",
+      "baselineSignature": "cf2df6b6",
+      "redactionRequired": true,
+      "waitForAnchors": [
+        "template list",
+        "create entry",
+        "operation column",
+        "delete/default confirmation"
+      ],
+      "acceptableStateCategories": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S8_FORM_VALIDATION"
+      ],
+      "stopStateCategories": [
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "readableControlCategories": [
+        "C0_DISPLAY_NAV",
+        "C2_DRAFT_INPUT"
+      ],
+      "stopControlCategories": [
+        "C3_FILE_EXTERNAL",
+        "C4_BUSINESS_COMMIT"
+      ],
+      "labelGroupBuckets": [
+        "draft-input",
+        "read-only-detail",
+        "business-commit",
+        "file-external-bridge",
+        "confirm-modal"
+      ],
+      "allowedOutputContract": [
+        "routeShape",
+        "stateCategory",
+        "anchorNames",
+        "buttonNames",
+        "tabNames",
+        "tableHeaders",
+        "controlCategories",
+        "stopReasonCategory",
+        "fieldNamesOnly",
+        "statusCategoriesOnly",
+        "privacyCheckPassed"
+      ],
+      "fieldRiskSummary": "category-only-redacted-fields",
+      "actionGateSummary": "default G2; stop on C3/C4 or G3/G4 escalation",
+      "defaultStopReasonCategory": "stop-if-state-or-action-escalates",
+      "passEvidenceRequired": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "changeDecisionRule": "compare-baseline-signature-and-watch-signals-before-updating-page-understanding",
+      "privacyCheckRequired": true
+    },
+    {
+      "pageId": "seller.postTemplateCreate",
+      "surface": "seller",
+      "family": "seller-item",
+      "layer": "M4",
+      "routePattern": "#/seller-item/post-temple/create",
+      "routeShape": "https://seller.goofish.com/?site=<site-alias>#/seller-item/post-temple/create",
+      "batchId": "B2_FORM_AND_SHELL_LIVE_PASS",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "runMode": "LIVE_READ_ONLY",
+      "expectedFirstResultStatus": "pending-read-only-observation",
+      "defaultActionGate": "G2",
+      "readiness": "R2/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D2_FORM_AND_SHELL_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "monitorTier": "S3_HIGH_RISK_READ_ONLY",
+      "baselineSignature": "209a2928",
+      "redactionRequired": true,
+      "waitForAnchors": [
+        "template name",
+        "shipping location",
+        "billing mode",
+        "region modal",
+        "save"
+      ],
+      "acceptableStateCategories": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S8_FORM_VALIDATION"
+      ],
+      "stopStateCategories": [
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "readableControlCategories": [
+        "C0_DISPLAY_NAV",
+        "C2_DRAFT_INPUT"
+      ],
+      "stopControlCategories": [
+        "C3_FILE_EXTERNAL",
+        "C4_BUSINESS_COMMIT"
+      ],
+      "labelGroupBuckets": [
+        "draft-input",
+        "read-only-detail",
+        "business-commit",
+        "file-external-bridge",
+        "confirm-modal"
+      ],
+      "allowedOutputContract": [
+        "routeShape",
+        "stateCategory",
+        "anchorNames",
+        "buttonNames",
+        "tabNames",
+        "tableHeaders",
+        "controlCategories",
+        "stopReasonCategory",
+        "fieldNamesOnly",
+        "statusCategoriesOnly",
+        "privacyCheckPassed"
+      ],
+      "fieldRiskSummary": "category-only-redacted-fields",
+      "actionGateSummary": "default G2; stop on C3/C4 or G3/G4 escalation",
+      "defaultStopReasonCategory": "stop-if-state-or-action-escalates",
+      "passEvidenceRequired": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "changeDecisionRule": "compare-baseline-signature-and-watch-signals-before-updating-page-understanding",
+      "privacyCheckRequired": true
+    },
+    {
+      "pageId": "seller.orderManage",
+      "surface": "seller",
+      "family": "seller-trade",
+      "layer": "M3/M4",
+      "routePattern": "#/seller-trade/order-manage",
+      "routeShape": "https://seller.goofish.com/?site=<site-alias>#/seller-trade/order-manage",
+      "batchId": "B3_HIGH_RISK_LIVE_REDACTED_PASS",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "runMode": "LIVE_READ_ONLY",
+      "expectedFirstResultStatus": "pending-read-only-observation",
+      "defaultActionGate": "G1",
+      "readiness": "R1/R4",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "monitorTier": "S3_HIGH_RISK_READ_ONLY",
+      "baselineSignature": "31946ad5",
+      "redactionRequired": true,
+      "waitForAnchors": [
+        "order-status tabs",
+        "search conditions",
+        "date",
+        "order table",
+        "operation column"
+      ],
+      "acceptableStateCategories": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStateCategories": [
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "readableControlCategories": [
+        "C0_DISPLAY_NAV"
+      ],
+      "stopControlCategories": [
+        "C4_BUSINESS_COMMIT"
+      ],
+      "labelGroupBuckets": [
+        "read-only-detail",
+        "high-risk-trade-finance",
+        "confirm-modal",
+        "public-search-filter",
+        "state-loading-empty-error"
+      ],
+      "allowedOutputContract": [
+        "routeShape",
+        "stateCategory",
+        "anchorNames",
+        "buttonNames",
+        "tabNames",
+        "tableHeaders",
+        "controlCategories",
+        "stopReasonCategory",
+        "fieldNamesOnly",
+        "statusCategoriesOnly",
+        "privacyCheckPassed"
+      ],
+      "fieldRiskSummary": "category-only-redacted-fields",
+      "actionGateSummary": "default G1; stop on C3/C4 or G3/G4 escalation",
+      "defaultStopReasonCategory": "stop-if-state-or-action-escalates",
+      "passEvidenceRequired": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "changeDecisionRule": "compare-baseline-signature-and-watch-signals-before-updating-page-understanding",
+      "privacyCheckRequired": true
+    },
+    {
+      "pageId": "seller.orderDetail",
+      "surface": "seller",
+      "family": "seller-trade",
+      "layer": "M3/M4",
+      "routePattern": "#/seller-trade/order-manage/order-detail?orderId=...",
+      "routeShape": "https://seller.goofish.com/?site=<site-alias>#/seller-trade/order-manage/order-detail?orderId=...",
+      "batchId": "B4_USER_CONTEXT_REQUIRED_PASS",
+      "entryMode": "USER_CONTEXT_REQUIRED",
+      "runMode": "WAIT_FOR_USER_CONTEXT",
+      "expectedFirstResultStatus": "needs-user-context",
+      "defaultActionGate": "G1",
+      "readiness": "R1/R4",
+      "liveCoverage": "requires-user-context",
+      "deepeningQueue": "D4_REQUIRES_USER_CONTEXT",
+      "transitionClass": "REQUIRES_USER_CONTEXT",
+      "monitorTier": "S3_CONTEXT_GATED",
+      "baselineSignature": "d04fb17d",
+      "redactionRequired": true,
+      "waitForAnchors": [
+        "status nodes",
+        "logistics",
+        "address-modification area",
+        "trade messages",
+        "operation buttons"
+      ],
+      "acceptableStateCategories": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStateCategories": [
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "readableControlCategories": [
+        "C0_DISPLAY_NAV"
+      ],
+      "stopControlCategories": [],
+      "labelGroupBuckets": [
+        "read-only-detail",
+        "high-risk-trade-finance",
+        "confirm-modal",
+        "public-search-filter",
+        "state-loading-empty-error"
+      ],
+      "allowedOutputContract": [
+        "routeShape",
+        "stateCategory",
+        "anchorNames",
+        "buttonNames",
+        "tabNames",
+        "tableHeaders",
+        "controlCategories",
+        "stopReasonCategory",
+        "fieldNamesOnly",
+        "statusCategoriesOnly",
+        "privacyCheckPassed"
+      ],
+      "fieldRiskSummary": "category-only-redacted-fields",
+      "actionGateSummary": "default G1; stop on C3/C4 or G3/G4 escalation",
+      "defaultStopReasonCategory": "context-stop-until-user-supplies-route",
+      "passEvidenceRequired": [
+        "required parameter type identified",
+        "user-provided context confirmed",
+        "private parameters redacted",
+        "business action boundary recorded"
+      ],
+      "changeDecisionRule": "compare-baseline-signature-and-watch-signals-before-updating-page-understanding",
+      "privacyCheckRequired": true
+    },
+    {
+      "pageId": "seller.refundManage",
+      "surface": "seller",
+      "family": "seller-trade",
+      "layer": "M3/M4",
+      "routePattern": "#/seller-trade/refund-manage",
+      "routeShape": "https://seller.goofish.com/?site=<site-alias>#/seller-trade/refund-manage",
+      "batchId": "B3_HIGH_RISK_LIVE_REDACTED_PASS",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "runMode": "LIVE_READ_ONLY",
+      "expectedFirstResultStatus": "pending-read-only-observation",
+      "defaultActionGate": "G1",
+      "readiness": "R1/R4",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "monitorTier": "S3_HIGH_RISK_READ_ONLY",
+      "baselineSignature": "9470e7c8",
+      "redactionRequired": true,
+      "waitForAnchors": [
+        "refund type",
+        "status filter",
+        "reason",
+        "logistics",
+        "operation column"
+      ],
+      "acceptableStateCategories": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStateCategories": [
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "readableControlCategories": [
+        "C0_DISPLAY_NAV"
+      ],
+      "stopControlCategories": [
+        "C4_BUSINESS_COMMIT"
+      ],
+      "labelGroupBuckets": [
+        "read-only-detail",
+        "high-risk-trade-finance",
+        "confirm-modal",
+        "public-search-filter",
+        "state-loading-empty-error"
+      ],
+      "allowedOutputContract": [
+        "routeShape",
+        "stateCategory",
+        "anchorNames",
+        "buttonNames",
+        "tabNames",
+        "tableHeaders",
+        "controlCategories",
+        "stopReasonCategory",
+        "fieldNamesOnly",
+        "statusCategoriesOnly",
+        "privacyCheckPassed"
+      ],
+      "fieldRiskSummary": "category-only-redacted-fields",
+      "actionGateSummary": "default G1; stop on C3/C4 or G3/G4 escalation",
+      "defaultStopReasonCategory": "stop-if-state-or-action-escalates",
+      "passEvidenceRequired": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "changeDecisionRule": "compare-baseline-signature-and-watch-signals-before-updating-page-understanding",
+      "privacyCheckRequired": true
+    },
+    {
+      "pageId": "seller.evaluationManage",
+      "surface": "seller",
+      "family": "seller-trade",
+      "layer": "M3/M4",
+      "routePattern": "#/seller-trade/evaluation-manage",
+      "routeShape": "https://seller.goofish.com/?site=<site-alias>#/seller-trade/evaluation-manage",
+      "batchId": "B3_HIGH_RISK_LIVE_REDACTED_PASS",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "runMode": "LIVE_READ_ONLY",
+      "expectedFirstResultStatus": "pending-read-only-observation",
+      "defaultActionGate": "G1",
+      "readiness": "R1/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "monitorTier": "S3_HIGH_RISK_READ_ONLY",
+      "baselineSignature": "3a8f227a",
+      "redactionRequired": true,
+      "waitForAnchors": [
+        "evaluation filters",
+        "evaluation table",
+        "batch review",
+        "report/contact"
+      ],
+      "acceptableStateCategories": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStateCategories": [
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "readableControlCategories": [
+        "C0_DISPLAY_NAV"
+      ],
+      "stopControlCategories": [],
+      "labelGroupBuckets": [
+        "read-only-detail",
+        "high-risk-trade-finance",
+        "confirm-modal",
+        "public-search-filter",
+        "state-loading-empty-error"
+      ],
+      "allowedOutputContract": [
+        "routeShape",
+        "stateCategory",
+        "anchorNames",
+        "buttonNames",
+        "tabNames",
+        "tableHeaders",
+        "controlCategories",
+        "stopReasonCategory",
+        "fieldNamesOnly",
+        "statusCategoriesOnly",
+        "privacyCheckPassed"
+      ],
+      "fieldRiskSummary": "category-only-redacted-fields",
+      "actionGateSummary": "default G1; stop on C3/C4 or G3/G4 escalation",
+      "defaultStopReasonCategory": "stop-if-state-or-action-escalates",
+      "passEvidenceRequired": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "changeDecisionRule": "compare-baseline-signature-and-watch-signals-before-updating-page-understanding",
+      "privacyCheckRequired": true
+    },
+    {
+      "pageId": "seller.complaintManage",
+      "surface": "seller",
+      "family": "seller-trade",
+      "layer": "M3/M4",
+      "routePattern": "#/seller-trade/complaint-manage",
+      "routeShape": "https://seller.goofish.com/?site=<site-alias>#/seller-trade/complaint-manage",
+      "batchId": "B3_HIGH_RISK_LIVE_REDACTED_PASS",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "runMode": "LIVE_READ_ONLY",
+      "expectedFirstResultStatus": "pending-read-only-observation",
+      "defaultActionGate": "G1",
+      "readiness": "R1/R4",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "monitorTier": "S3_HIGH_RISK_READ_ONLY",
+      "baselineSignature": "39c783ba",
+      "redactionRequired": true,
+      "waitForAnchors": [
+        "complaint status",
+        "complaint table",
+        "detail/proof entry"
+      ],
+      "acceptableStateCategories": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStateCategories": [
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "readableControlCategories": [
+        "C0_DISPLAY_NAV"
+      ],
+      "stopControlCategories": [
+        "C4_BUSINESS_COMMIT"
+      ],
+      "labelGroupBuckets": [
+        "read-only-detail",
+        "high-risk-trade-finance",
+        "confirm-modal",
+        "public-search-filter",
+        "state-loading-empty-error"
+      ],
+      "allowedOutputContract": [
+        "routeShape",
+        "stateCategory",
+        "anchorNames",
+        "buttonNames",
+        "tabNames",
+        "tableHeaders",
+        "controlCategories",
+        "stopReasonCategory",
+        "fieldNamesOnly",
+        "statusCategoriesOnly",
+        "privacyCheckPassed"
+      ],
+      "fieldRiskSummary": "category-only-redacted-fields",
+      "actionGateSummary": "default G1; stop on C3/C4 or G3/G4 escalation",
+      "defaultStopReasonCategory": "stop-if-state-or-action-escalates",
+      "passEvidenceRequired": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "changeDecisionRule": "compare-baseline-signature-and-watch-signals-before-updating-page-understanding",
+      "privacyCheckRequired": true
+    },
+    {
+      "pageId": "seller.refundAddress",
+      "surface": "seller",
+      "family": "seller-trade",
+      "layer": "M4",
+      "routePattern": "#/seller-trade/refund-address",
+      "routeShape": "https://seller.goofish.com/?site=<site-alias>#/seller-trade/refund-address",
+      "batchId": "B3_HIGH_RISK_LIVE_REDACTED_PASS",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "runMode": "LIVE_READ_ONLY",
+      "expectedFirstResultStatus": "pending-read-only-observation",
+      "defaultActionGate": "G1",
+      "readiness": "R1/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "monitorTier": "S3_HIGH_RISK_READ_ONLY",
+      "baselineSignature": "c977dd22",
+      "redactionRequired": true,
+      "waitForAnchors": [
+        "address table",
+        "default status",
+        "operation column",
+        "add/edit/delete"
+      ],
+      "acceptableStateCategories": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStateCategories": [
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "readableControlCategories": [
+        "C0_DISPLAY_NAV"
+      ],
+      "stopControlCategories": [
+        "C4_BUSINESS_COMMIT"
+      ],
+      "labelGroupBuckets": [
+        "read-only-detail",
+        "high-risk-trade-finance",
+        "confirm-modal",
+        "public-search-filter",
+        "state-loading-empty-error"
+      ],
+      "allowedOutputContract": [
+        "routeShape",
+        "stateCategory",
+        "anchorNames",
+        "buttonNames",
+        "tabNames",
+        "tableHeaders",
+        "controlCategories",
+        "stopReasonCategory",
+        "fieldNamesOnly",
+        "statusCategoriesOnly",
+        "privacyCheckPassed"
+      ],
+      "fieldRiskSummary": "category-only-redacted-fields",
+      "actionGateSummary": "default G1; stop on C3/C4 or G3/G4 escalation",
+      "defaultStopReasonCategory": "stop-if-state-or-action-escalates",
+      "passEvidenceRequired": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "changeDecisionRule": "compare-baseline-signature-and-watch-signals-before-updating-page-understanding",
+      "privacyCheckRequired": true
+    },
+    {
+      "pageId": "seller.incomeBill",
+      "surface": "seller",
+      "family": "seller-finance",
+      "layer": "M4",
+      "routePattern": "#/seller-finance/income-bill",
+      "routeShape": "https://seller.goofish.com/?site=<site-alias>#/seller-finance/income-bill",
+      "batchId": "B3_HIGH_RISK_LIVE_REDACTED_PASS",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "runMode": "LIVE_READ_ONLY",
+      "expectedFirstResultStatus": "pending-read-only-observation",
+      "defaultActionGate": "G1",
+      "readiness": "R1/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "monitorTier": "S2_REDACTED_MONITOR",
+      "baselineSignature": "b06c3bde",
+      "redactionRequired": true,
+      "waitForAnchors": [
+        "month/day/detail tabs",
+        "date",
+        "business type",
+        "bill table",
+        "export/download"
+      ],
+      "acceptableStateCategories": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStateCategories": [
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "readableControlCategories": [
+        "C0_DISPLAY_NAV"
+      ],
+      "stopControlCategories": [
+        "C3_FILE_EXTERNAL"
+      ],
+      "labelGroupBuckets": [
+        "finance-data-metric",
+        "file-external-bridge",
+        "high-risk-trade-finance",
+        "confirm-modal"
+      ],
+      "allowedOutputContract": [
+        "routeShape",
+        "stateCategory",
+        "anchorNames",
+        "buttonNames",
+        "tabNames",
+        "tableHeaders",
+        "controlCategories",
+        "stopReasonCategory",
+        "fieldNamesOnly",
+        "statusCategoriesOnly",
+        "privacyCheckPassed"
+      ],
+      "fieldRiskSummary": "category-only-redacted-fields",
+      "actionGateSummary": "default G1; stop on C3/C4 or G3/G4 escalation",
+      "defaultStopReasonCategory": "stop-if-state-or-action-escalates",
+      "passEvidenceRequired": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "changeDecisionRule": "compare-baseline-signature-and-watch-signals-before-updating-page-understanding",
+      "privacyCheckRequired": true
+    },
+    {
+      "pageId": "seller.expenseBill",
+      "surface": "seller",
+      "family": "seller-finance",
+      "layer": "M4",
+      "routePattern": "#/seller-finance/expense-bill",
+      "routeShape": "https://seller.goofish.com/?site=<site-alias>#/seller-finance/expense-bill",
+      "batchId": "B3_HIGH_RISK_LIVE_REDACTED_PASS",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "runMode": "LIVE_READ_ONLY",
+      "expectedFirstResultStatus": "pending-read-only-observation",
+      "defaultActionGate": "G1",
+      "readiness": "R1/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "monitorTier": "S2_REDACTED_MONITOR",
+      "baselineSignature": "a0d9d578",
+      "redactionRequired": true,
+      "waitForAnchors": [
+        "month/day/detail tabs",
+        "expense type",
+        "bill table",
+        "export/download"
+      ],
+      "acceptableStateCategories": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStateCategories": [
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "readableControlCategories": [
+        "C0_DISPLAY_NAV"
+      ],
+      "stopControlCategories": [
+        "C3_FILE_EXTERNAL"
+      ],
+      "labelGroupBuckets": [
+        "finance-data-metric",
+        "file-external-bridge",
+        "high-risk-trade-finance",
+        "confirm-modal"
+      ],
+      "allowedOutputContract": [
+        "routeShape",
+        "stateCategory",
+        "anchorNames",
+        "buttonNames",
+        "tabNames",
+        "tableHeaders",
+        "controlCategories",
+        "stopReasonCategory",
+        "fieldNamesOnly",
+        "statusCategoriesOnly",
+        "privacyCheckPassed"
+      ],
+      "fieldRiskSummary": "category-only-redacted-fields",
+      "actionGateSummary": "default G1; stop on C3/C4 or G3/G4 escalation",
+      "defaultStopReasonCategory": "stop-if-state-or-action-escalates",
+      "passEvidenceRequired": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "changeDecisionRule": "compare-baseline-signature-and-watch-signals-before-updating-page-understanding",
+      "privacyCheckRequired": true
+    },
+    {
+      "pageId": "seller.invoiceApply",
+      "surface": "seller",
+      "family": "seller-finance",
+      "layer": "M4",
+      "routePattern": "#/seller-finance/invoice-apply",
+      "routeShape": "https://seller.goofish.com/?site=<site-alias>#/seller-finance/invoice-apply",
+      "batchId": "B3_HIGH_RISK_LIVE_REDACTED_PASS",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "runMode": "LIVE_READ_ONLY",
+      "expectedFirstResultStatus": "pending-read-only-observation",
+      "defaultActionGate": "G1",
+      "readiness": "R1/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "monitorTier": "S2_REDACTED_MONITOR",
+      "baselineSignature": "a8e528d9",
+      "redactionRequired": true,
+      "waitForAnchors": [
+        "pending/applied/legacy tabs",
+        "business type",
+        "apply",
+        "export"
+      ],
+      "acceptableStateCategories": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStateCategories": [
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "readableControlCategories": [
+        "C0_DISPLAY_NAV"
+      ],
+      "stopControlCategories": [
+        "C3_FILE_EXTERNAL"
+      ],
+      "labelGroupBuckets": [
+        "finance-data-metric",
+        "file-external-bridge",
+        "high-risk-trade-finance",
+        "confirm-modal"
+      ],
+      "allowedOutputContract": [
+        "routeShape",
+        "stateCategory",
+        "anchorNames",
+        "buttonNames",
+        "tabNames",
+        "tableHeaders",
+        "controlCategories",
+        "stopReasonCategory",
+        "fieldNamesOnly",
+        "statusCategoriesOnly",
+        "privacyCheckPassed"
+      ],
+      "fieldRiskSummary": "category-only-redacted-fields",
+      "actionGateSummary": "default G1; stop on C3/C4 or G3/G4 escalation",
+      "defaultStopReasonCategory": "stop-if-state-or-action-escalates",
+      "passEvidenceRequired": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "changeDecisionRule": "compare-baseline-signature-and-watch-signals-before-updating-page-understanding",
+      "privacyCheckRequired": true
+    },
+    {
+      "pageId": "seller.basicInfo",
+      "surface": "seller",
+      "family": "seller-finance",
+      "layer": "M4/M5",
+      "routePattern": "#/seller-finance/basic-info",
+      "routeShape": "https://seller.goofish.com/?site=<site-alias>#/seller-finance/basic-info",
+      "batchId": "B3_HIGH_RISK_LIVE_REDACTED_PASS",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "runMode": "LIVE_READ_ONLY",
+      "expectedFirstResultStatus": "pending-read-only-observation",
+      "defaultActionGate": "G1",
+      "readiness": "R1/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "monitorTier": "S2_REDACTED_MONITOR",
+      "baselineSignature": "eee7de72",
+      "redactionRequired": true,
+      "waitForAnchors": [
+        "invoice entity form",
+        "edit/save"
+      ],
+      "acceptableStateCategories": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStateCategories": [
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "readableControlCategories": [
+        "C0_DISPLAY_NAV"
+      ],
+      "stopControlCategories": [
+        "C3_FILE_EXTERNAL"
+      ],
+      "labelGroupBuckets": [
+        "finance-data-metric",
+        "file-external-bridge",
+        "high-risk-trade-finance",
+        "confirm-modal"
+      ],
+      "allowedOutputContract": [
+        "routeShape",
+        "stateCategory",
+        "anchorNames",
+        "buttonNames",
+        "tabNames",
+        "tableHeaders",
+        "controlCategories",
+        "stopReasonCategory",
+        "fieldNamesOnly",
+        "statusCategoriesOnly",
+        "privacyCheckPassed"
+      ],
+      "fieldRiskSummary": "category-only-redacted-fields",
+      "actionGateSummary": "default G1; stop on C3/C4 or G3/G4 escalation",
+      "defaultStopReasonCategory": "stop-if-state-or-action-escalates",
+      "passEvidenceRequired": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "changeDecisionRule": "compare-baseline-signature-and-watch-signals-before-updating-page-understanding",
+      "privacyCheckRequired": true
+    },
+    {
+      "pageId": "seller.subAccount",
+      "surface": "seller",
+      "family": "seller-account",
+      "layer": "M4/M5",
+      "routePattern": "#/seller-account/sub-account",
+      "routeShape": "https://seller.goofish.com/?site=<site-alias>#/seller-account/sub-account",
+      "batchId": "B3_HIGH_RISK_LIVE_REDACTED_PASS",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "runMode": "LIVE_READ_ONLY",
+      "expectedFirstResultStatus": "pending-read-only-observation",
+      "defaultActionGate": "G1",
+      "readiness": "R1/R4",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "monitorTier": "S3_HIGH_RISK_READ_ONLY",
+      "baselineSignature": "e6c26ecf",
+      "redactionRequired": true,
+      "waitForAnchors": [
+        "sub-account table",
+        "role",
+        "status",
+        "routing config",
+        "new/disable/permission"
+      ],
+      "acceptableStateCategories": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStateCategories": [
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "readableControlCategories": [
+        "C0_DISPLAY_NAV"
+      ],
+      "stopControlCategories": [
+        "C4_BUSINESS_COMMIT"
+      ],
+      "labelGroupBuckets": [
+        "account-login-gate",
+        "read-only-detail",
+        "business-commit",
+        "high-risk-trade-finance",
+        "confirm-modal"
+      ],
+      "allowedOutputContract": [
+        "routeShape",
+        "stateCategory",
+        "anchorNames",
+        "buttonNames",
+        "tabNames",
+        "tableHeaders",
+        "controlCategories",
+        "stopReasonCategory",
+        "fieldNamesOnly",
+        "statusCategoriesOnly",
+        "privacyCheckPassed"
+      ],
+      "fieldRiskSummary": "category-only-redacted-fields",
+      "actionGateSummary": "default G1; stop on C3/C4 or G3/G4 escalation",
+      "defaultStopReasonCategory": "stop-if-state-or-action-escalates",
+      "passEvidenceRequired": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "changeDecisionRule": "compare-baseline-signature-and-watch-signals-before-updating-page-understanding",
+      "privacyCheckRequired": true
+    },
+    {
+      "pageId": "seller.csDispatch",
+      "surface": "seller",
+      "family": "seller-account",
+      "layer": "M4/M5",
+      "routePattern": "#/im-cs-dispatch/customer-routing-service",
+      "routeShape": "https://seller.goofish.com/?site=<site-alias>#/im-cs-dispatch/customer-routing-service",
+      "batchId": "B3_HIGH_RISK_LIVE_REDACTED_PASS",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "runMode": "LIVE_READ_ONLY",
+      "expectedFirstResultStatus": "pending-read-only-observation",
+      "defaultActionGate": "G1",
+      "readiness": "R1/R4",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "monitorTier": "S3_HIGH_RISK_READ_ONLY",
+      "baselineSignature": "633211c7",
+      "redactionRequired": true,
+      "waitForAnchors": [
+        "groups",
+        "reception scope",
+        "participating service agents",
+        "switch",
+        "save"
+      ],
+      "acceptableStateCategories": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStateCategories": [
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "readableControlCategories": [
+        "C0_DISPLAY_NAV"
+      ],
+      "stopControlCategories": [
+        "C4_BUSINESS_COMMIT"
+      ],
+      "labelGroupBuckets": [
+        "account-login-gate",
+        "read-only-detail",
+        "business-commit",
+        "high-risk-trade-finance",
+        "confirm-modal"
+      ],
+      "allowedOutputContract": [
+        "routeShape",
+        "stateCategory",
+        "anchorNames",
+        "buttonNames",
+        "tabNames",
+        "tableHeaders",
+        "controlCategories",
+        "stopReasonCategory",
+        "fieldNamesOnly",
+        "statusCategoriesOnly",
+        "privacyCheckPassed"
+      ],
+      "fieldRiskSummary": "category-only-redacted-fields",
+      "actionGateSummary": "default G1; stop on C3/C4 or G3/G4 escalation",
+      "defaultStopReasonCategory": "stop-if-state-or-action-escalates",
+      "passEvidenceRequired": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "changeDecisionRule": "compare-baseline-signature-and-watch-signals-before-updating-page-understanding",
+      "privacyCheckRequired": true
+    },
+    {
+      "pageId": "seller.securityCenter",
+      "surface": "seller",
+      "family": "seller-security",
+      "layer": "M4",
+      "routePattern": "#/seller-sc/home",
+      "routeShape": "https://seller.goofish.com/?site=<site-alias>#/seller-sc/home",
+      "batchId": "B3_HIGH_RISK_LIVE_REDACTED_PASS",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "runMode": "LIVE_READ_ONLY",
+      "expectedFirstResultStatus": "pending-read-only-observation",
+      "defaultActionGate": "G1",
+      "readiness": "R1/R4",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "monitorTier": "S2_REDACTED_MONITOR",
+      "baselineSignature": "73d617cb",
+      "redactionRequired": true,
+      "waitForAnchors": [
+        "violation table",
+        "penalty status",
+        "appeal status",
+        "detail/appeal"
+      ],
+      "acceptableStateCategories": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStateCategories": [
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "readableControlCategories": [
+        "C0_DISPLAY_NAV"
+      ],
+      "stopControlCategories": [
+        "C3_FILE_EXTERNAL"
+      ],
+      "labelGroupBuckets": [
+        "read-only-detail",
+        "high-risk-trade-finance",
+        "confirm-modal"
+      ],
+      "allowedOutputContract": [
+        "routeShape",
+        "stateCategory",
+        "anchorNames",
+        "buttonNames",
+        "tabNames",
+        "tableHeaders",
+        "controlCategories",
+        "stopReasonCategory",
+        "fieldNamesOnly",
+        "statusCategoriesOnly",
+        "privacyCheckPassed"
+      ],
+      "fieldRiskSummary": "category-only-redacted-fields",
+      "actionGateSummary": "default G1; stop on C3/C4 or G3/G4 escalation",
+      "defaultStopReasonCategory": "stop-if-state-or-action-escalates",
+      "passEvidenceRequired": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "changeDecisionRule": "compare-baseline-signature-and-watch-signals-before-updating-page-understanding",
+      "privacyCheckRequired": true
+    },
+    {
+      "pageId": "seller.adHome",
+      "surface": "seller",
+      "family": "seller-ad",
+      "layer": "M4",
+      "routePattern": "#/seller-ad/home",
+      "routeShape": "https://seller.goofish.com/?site=<site-alias>#/seller-ad/home",
+      "batchId": "B3_HIGH_RISK_LIVE_REDACTED_PASS",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "runMode": "LIVE_READ_ONLY",
+      "expectedFirstResultStatus": "pending-read-only-observation",
+      "defaultActionGate": "G1",
+      "readiness": "R1/R4",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "monitorTier": "S2_REDACTED_MONITOR",
+      "baselineSignature": "1d79bee5",
+      "redactionRequired": true,
+      "waitForAnchors": [
+        "date",
+        "promotion metrics",
+        "plan entry",
+        "carousel controls"
+      ],
+      "acceptableStateCategories": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStateCategories": [
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "readableControlCategories": [
+        "C0_DISPLAY_NAV"
+      ],
+      "stopControlCategories": [],
+      "labelGroupBuckets": [
+        "finance-data-metric",
+        "high-risk-trade-finance",
+        "confirm-modal"
+      ],
+      "allowedOutputContract": [
+        "routeShape",
+        "stateCategory",
+        "anchorNames",
+        "buttonNames",
+        "tabNames",
+        "tableHeaders",
+        "controlCategories",
+        "stopReasonCategory",
+        "fieldNamesOnly",
+        "statusCategoriesOnly",
+        "privacyCheckPassed"
+      ],
+      "fieldRiskSummary": "category-only-redacted-fields",
+      "actionGateSummary": "default G1; stop on C3/C4 or G3/G4 escalation",
+      "defaultStopReasonCategory": "stop-if-state-or-action-escalates",
+      "passEvidenceRequired": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "changeDecisionRule": "compare-baseline-signature-and-watch-signals-before-updating-page-understanding",
+      "privacyCheckRequired": true
+    },
+    {
+      "pageId": "seller.notificationCenter",
+      "surface": "seller",
+      "family": "seller-shell",
+      "layer": "M4",
+      "routePattern": "#/notification-center",
+      "routeShape": "https://seller.goofish.com/?site=<site-alias>#/notification-center",
+      "batchId": "B3_HIGH_RISK_LIVE_REDACTED_PASS",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "runMode": "LIVE_READ_ONLY",
+      "expectedFirstResultStatus": "pending-read-only-observation",
+      "defaultActionGate": "G1",
+      "readiness": "R1/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "monitorTier": "S2_REDACTED_MONITOR",
+      "baselineSignature": "365e6b20",
+      "redactionRequired": true,
+      "waitForAnchors": [
+        "notification list",
+        "unread status",
+        "detail entry",
+        "mark read/clear unread"
+      ],
+      "acceptableStateCategories": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S3_NETWORK_OR_API_FAILURE"
+      ],
+      "stopStateCategories": [
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "readableControlCategories": [
+        "C0_DISPLAY_NAV"
+      ],
+      "stopControlCategories": [
+        "C3_FILE_EXTERNAL"
+      ],
+      "labelGroupBuckets": [
+        "navigation-display",
+        "file-external-bridge",
+        "account-login-gate",
+        "state-loading-empty-error"
+      ],
+      "allowedOutputContract": [
+        "routeShape",
+        "stateCategory",
+        "anchorNames",
+        "buttonNames",
+        "tabNames",
+        "tableHeaders",
+        "controlCategories",
+        "stopReasonCategory",
+        "fieldNamesOnly",
+        "statusCategoriesOnly",
+        "privacyCheckPassed"
+      ],
+      "fieldRiskSummary": "category-only-redacted-fields",
+      "actionGateSummary": "default G1; stop on C3/C4 or G3/G4 escalation",
+      "defaultStopReasonCategory": "stop-if-state-or-action-escalates",
+      "passEvidenceRequired": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "changeDecisionRule": "compare-baseline-signature-and-watch-signals-before-updating-page-understanding",
+      "privacyCheckRequired": true
+    },
+    {
+      "pageId": "seller.notificationApi",
+      "surface": "seller",
+      "family": "internal-module",
+      "layer": "M6",
+      "routePattern": "#/notification-center/api*",
+      "routeShape": "https://seller.goofish.com/?site=<site-alias>#/notification-center/api*",
+      "batchId": "B5_STATIC_EVIDENCE_PASS",
+      "entryMode": "STATIC_EVIDENCE_ONLY",
+      "runMode": "STATIC_EVIDENCE_ONLY",
+      "expectedFirstResultStatus": "static-described",
+      "defaultActionGate": "G4",
+      "readiness": "R5",
+      "liveCoverage": "static-only",
+      "deepeningQueue": "D5_STATIC_ONLY",
+      "transitionClass": "STATIC_ONLY",
+      "monitorTier": "S4_STATIC_OR_MODULE",
+      "baselineSignature": "decd9659",
+      "redactionRequired": true,
+      "waitForAnchors": [
+        "internal API/interface module"
+      ],
+      "acceptableStateCategories": [
+        "S3_NETWORK_OR_API_FAILURE"
+      ],
+      "stopStateCategories": [],
+      "readableControlCategories": [
+        "C0_DISPLAY_NAV"
+      ],
+      "stopControlCategories": [
+        "C4_BUSINESS_COMMIT"
+      ],
+      "labelGroupBuckets": [
+        "unknown-label"
+      ],
+      "allowedOutputContract": [
+        "routeShape",
+        "stateCategory",
+        "anchorNames",
+        "buttonNames",
+        "tabNames",
+        "tableHeaders",
+        "controlCategories",
+        "stopReasonCategory",
+        "fieldNamesOnly",
+        "statusCategoriesOnly",
+        "privacyCheckPassed"
+      ],
+      "fieldRiskSummary": "category-only-redacted-fields",
+      "actionGateSummary": "default G4; stop on C3/C4 or G3/G4 escalation",
+      "defaultStopReasonCategory": "static-only",
+      "passEvidenceRequired": [
+        "static module or route signal identified",
+        "API or Page signal mapped to family",
+        "risk boundary recorded",
+        "no live probing attempted"
+      ],
+      "changeDecisionRule": "compare-baseline-signature-and-watch-signals-before-updating-page-understanding",
+      "privacyCheckRequired": true
+    },
+    {
+      "pageId": "seller.im",
+      "surface": "seller",
+      "family": "seller-message",
+      "layer": "M3/M4",
+      "routePattern": "#/im",
+      "routeShape": "https://seller.goofish.com/?site=<site-alias>#/im",
+      "batchId": "B3_HIGH_RISK_LIVE_REDACTED_PASS",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "runMode": "LIVE_READ_ONLY",
+      "expectedFirstResultStatus": "pending-read-only-observation",
+      "defaultActionGate": "G2",
+      "readiness": "R1/R2/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "monitorTier": "S2_REDACTED_MONITOR",
+      "baselineSignature": "a9645de9",
+      "redactionRequired": true,
+      "waitForAnchors": [
+        "session list",
+        "search",
+        "input area",
+        "toolbar",
+        "quick replies",
+        "file",
+        "transfer"
+      ],
+      "acceptableStateCategories": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStateCategories": [
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "readableControlCategories": [
+        "C0_DISPLAY_NAV",
+        "C2_DRAFT_INPUT"
+      ],
+      "stopControlCategories": [
+        "C3_FILE_EXTERNAL"
+      ],
+      "labelGroupBuckets": [
+        "draft-input",
+        "business-commit",
+        "file-external-bridge",
+        "state-loading-empty-error"
+      ],
+      "allowedOutputContract": [
+        "routeShape",
+        "stateCategory",
+        "anchorNames",
+        "buttonNames",
+        "tabNames",
+        "tableHeaders",
+        "controlCategories",
+        "stopReasonCategory",
+        "fieldNamesOnly",
+        "statusCategoriesOnly",
+        "privacyCheckPassed"
+      ],
+      "fieldRiskSummary": "category-only-redacted-fields",
+      "actionGateSummary": "default G2; stop on C3/C4 or G3/G4 escalation",
+      "defaultStopReasonCategory": "stop-if-state-or-action-escalates",
+      "passEvidenceRequired": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "changeDecisionRule": "compare-baseline-signature-and-watch-signals-before-updating-page-understanding",
+      "privacyCheckRequired": true
+    },
+    {
+      "pageId": "seller.imItem",
+      "surface": "seller",
+      "family": "seller-message",
+      "layer": "M3/M4",
+      "routePattern": "#/im?itemId=...",
+      "routeShape": "https://seller.goofish.com/?site=<site-alias>#/im?itemId=...",
+      "batchId": "B4_USER_CONTEXT_REQUIRED_PASS",
+      "entryMode": "USER_CONTEXT_REQUIRED",
+      "runMode": "WAIT_FOR_USER_CONTEXT",
+      "expectedFirstResultStatus": "needs-user-context",
+      "defaultActionGate": "G2",
+      "readiness": "R3/R4",
+      "liveCoverage": "requires-user-context",
+      "deepeningQueue": "D4_REQUIRES_USER_CONTEXT",
+      "transitionClass": "REQUIRES_USER_CONTEXT",
+      "monitorTier": "S3_CONTEXT_GATED",
+      "baselineSignature": "cd482fd7",
+      "redactionRequired": true,
+      "waitForAnchors": [
+        "item-linked message parameter"
+      ],
+      "acceptableStateCategories": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE"
+      ],
+      "stopStateCategories": [
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "readableControlCategories": [
+        "C0_DISPLAY_NAV",
+        "C2_DRAFT_INPUT"
+      ],
+      "stopControlCategories": [
+        "C3_FILE_EXTERNAL"
+      ],
+      "labelGroupBuckets": [
+        "draft-input",
+        "business-commit",
+        "file-external-bridge",
+        "state-loading-empty-error"
+      ],
+      "allowedOutputContract": [
+        "routeShape",
+        "stateCategory",
+        "anchorNames",
+        "buttonNames",
+        "tabNames",
+        "tableHeaders",
+        "controlCategories",
+        "stopReasonCategory",
+        "fieldNamesOnly",
+        "statusCategoriesOnly",
+        "privacyCheckPassed"
+      ],
+      "fieldRiskSummary": "category-only-redacted-fields",
+      "actionGateSummary": "default G2; stop on C3/C4 or G3/G4 escalation",
+      "defaultStopReasonCategory": "context-stop-until-user-supplies-route",
+      "passEvidenceRequired": [
+        "required parameter type identified",
+        "user-provided context confirmed",
+        "private parameters redacted",
+        "business action boundary recorded"
+      ],
+      "changeDecisionRule": "compare-baseline-signature-and-watch-signals-before-updating-page-understanding",
+      "privacyCheckRequired": true
+    },
+    {
+      "pageId": "seller.imDesktop",
+      "surface": "seller",
+      "family": "seller-shell",
+      "layer": "M6",
+      "routePattern": "#/im-desktop",
+      "routeShape": "https://seller.goofish.com/?site=<site-alias>#/im-desktop",
+      "batchId": "B3_HIGH_RISK_LIVE_REDACTED_PASS",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "runMode": "LIVE_READ_ONLY",
+      "expectedFirstResultStatus": "pending-read-only-observation",
+      "defaultActionGate": "G1",
+      "readiness": "R5/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "monitorTier": "S2_REDACTED_MONITOR",
+      "baselineSignature": "46d78a33",
+      "redactionRequired": true,
+      "waitForAnchors": [
+        "download/open client prompt"
+      ],
+      "acceptableStateCategories": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S3_NETWORK_OR_API_FAILURE"
+      ],
+      "stopStateCategories": [
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "readableControlCategories": [
+        "C0_DISPLAY_NAV"
+      ],
+      "stopControlCategories": [
+        "C3_FILE_EXTERNAL"
+      ],
+      "labelGroupBuckets": [
+        "navigation-display",
+        "file-external-bridge",
+        "account-login-gate",
+        "state-loading-empty-error"
+      ],
+      "allowedOutputContract": [
+        "routeShape",
+        "stateCategory",
+        "anchorNames",
+        "buttonNames",
+        "tabNames",
+        "tableHeaders",
+        "controlCategories",
+        "stopReasonCategory",
+        "fieldNamesOnly",
+        "statusCategoriesOnly",
+        "privacyCheckPassed"
+      ],
+      "fieldRiskSummary": "category-only-redacted-fields",
+      "actionGateSummary": "default G1; stop on C3/C4 or G3/G4 escalation",
+      "defaultStopReasonCategory": "stop-if-state-or-action-escalates",
+      "passEvidenceRequired": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "changeDecisionRule": "compare-baseline-signature-and-watch-signals-before-updating-page-understanding",
+      "privacyCheckRequired": true
+    },
+    {
+      "pageId": "seller.download",
+      "surface": "seller",
+      "family": "seller-shell",
+      "layer": "M6",
+      "routePattern": "#/download",
+      "routeShape": "https://seller.goofish.com/?site=<site-alias>#/download",
+      "batchId": "B2_FORM_AND_SHELL_LIVE_PASS",
+      "entryMode": "LIVE_ENTRY_BOUNDARY_READ",
+      "runMode": "LIVE_READ_ONLY",
+      "expectedFirstResultStatus": "pending-read-only-observation",
+      "defaultActionGate": "G1",
+      "readiness": "R5/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D2_FORM_AND_SHELL_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "monitorTier": "S4_BOUNDARY_ONLY",
+      "baselineSignature": "569d8b38",
+      "redactionRequired": true,
+      "waitForAnchors": [
+        "download button",
+        "client type"
+      ],
+      "acceptableStateCategories": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S3_NETWORK_OR_API_FAILURE"
+      ],
+      "stopStateCategories": [
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "readableControlCategories": [
+        "C0_DISPLAY_NAV"
+      ],
+      "stopControlCategories": [
+        "C3_FILE_EXTERNAL"
+      ],
+      "labelGroupBuckets": [
+        "navigation-display",
+        "file-external-bridge",
+        "account-login-gate",
+        "state-loading-empty-error"
+      ],
+      "allowedOutputContract": [
+        "routeShape",
+        "stateCategory",
+        "anchorNames",
+        "buttonNames",
+        "tabNames",
+        "tableHeaders",
+        "controlCategories",
+        "stopReasonCategory",
+        "fieldNamesOnly",
+        "statusCategoriesOnly",
+        "privacyCheckPassed"
+      ],
+      "fieldRiskSummary": "category-only-redacted-fields",
+      "actionGateSummary": "default G1; stop on C3/C4 or G3/G4 escalation",
+      "defaultStopReasonCategory": "stop-if-state-or-action-escalates",
+      "passEvidenceRequired": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "changeDecisionRule": "compare-baseline-signature-and-watch-signals-before-updating-page-understanding",
+      "privacyCheckRequired": true
+    },
+    {
+      "pageId": "seller.selectSite",
+      "surface": "seller",
+      "family": "seller-gate",
+      "layer": "M5",
+      "routePattern": "#/select-site",
+      "routeShape": "https://seller.goofish.com/?site=<site-alias>#/select-site",
+      "batchId": "B2_FORM_AND_SHELL_LIVE_PASS",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "runMode": "LIVE_READ_ONLY",
+      "expectedFirstResultStatus": "pending-read-only-observation",
+      "defaultActionGate": "G4",
+      "readiness": "R5/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D2_FORM_AND_SHELL_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "monitorTier": "S3_HIGH_RISK_READ_ONLY",
+      "baselineSignature": "689be932",
+      "redactionRequired": true,
+      "waitForAnchors": [
+        "site/identity list",
+        "selection button"
+      ],
+      "acceptableStateCategories": [],
+      "stopStateCategories": [
+        "S4_LOGIN_EXPIRED",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "readableControlCategories": [
+        "C0_DISPLAY_NAV"
+      ],
+      "stopControlCategories": [
+        "C4_BUSINESS_COMMIT"
+      ],
+      "labelGroupBuckets": [
+        "account-login-gate",
+        "confirm-modal"
+      ],
+      "allowedOutputContract": [
+        "routeShape",
+        "stateCategory",
+        "anchorNames",
+        "buttonNames",
+        "tabNames",
+        "tableHeaders",
+        "controlCategories",
+        "stopReasonCategory",
+        "fieldNamesOnly",
+        "statusCategoriesOnly",
+        "privacyCheckPassed"
+      ],
+      "fieldRiskSummary": "category-only-redacted-fields",
+      "actionGateSummary": "default G4; stop on C3/C4 or G3/G4 escalation",
+      "defaultStopReasonCategory": "stop-if-state-or-action-escalates",
+      "passEvidenceRequired": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "changeDecisionRule": "compare-baseline-signature-and-watch-signals-before-updating-page-understanding",
+      "privacyCheckRequired": true
+    },
+    {
+      "pageId": "seller.accountCheck",
+      "surface": "seller",
+      "family": "seller-gate",
+      "layer": "M5",
+      "routePattern": "#/account-check",
+      "routeShape": "https://seller.goofish.com/?site=<site-alias>#/account-check",
+      "batchId": "B2_FORM_AND_SHELL_LIVE_PASS",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "runMode": "LIVE_READ_ONLY",
+      "expectedFirstResultStatus": "pending-read-only-observation",
+      "defaultActionGate": "G4",
+      "readiness": "R5/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D2_FORM_AND_SHELL_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "monitorTier": "S3_HIGH_RISK_READ_ONLY",
+      "baselineSignature": "000f7dd7",
+      "redactionRequired": true,
+      "waitForAnchors": [
+        "account check",
+        "continue",
+        "re-login",
+        "switch"
+      ],
+      "acceptableStateCategories": [],
+      "stopStateCategories": [
+        "S4_LOGIN_EXPIRED",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "readableControlCategories": [
+        "C0_DISPLAY_NAV"
+      ],
+      "stopControlCategories": [
+        "C4_BUSINESS_COMMIT"
+      ],
+      "labelGroupBuckets": [
+        "account-login-gate",
+        "confirm-modal"
+      ],
+      "allowedOutputContract": [
+        "routeShape",
+        "stateCategory",
+        "anchorNames",
+        "buttonNames",
+        "tabNames",
+        "tableHeaders",
+        "controlCategories",
+        "stopReasonCategory",
+        "fieldNamesOnly",
+        "statusCategoriesOnly",
+        "privacyCheckPassed"
+      ],
+      "fieldRiskSummary": "category-only-redacted-fields",
+      "actionGateSummary": "default G4; stop on C3/C4 or G3/G4 escalation",
+      "defaultStopReasonCategory": "stop-if-state-or-action-escalates",
+      "passEvidenceRequired": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "changeDecisionRule": "compare-baseline-signature-and-watch-signals-before-updating-page-understanding",
+      "privacyCheckRequired": true
+    },
+    {
+      "pageId": "seller.accountCheckUser",
+      "surface": "seller",
+      "family": "seller-gate",
+      "layer": "M5",
+      "routePattern": "#/account-check?userNick=...",
+      "routeShape": "https://seller.goofish.com/?site=<site-alias>#/account-check?userNick=...",
+      "batchId": "B4_USER_CONTEXT_REQUIRED_PASS",
+      "entryMode": "USER_CONTEXT_REQUIRED",
+      "runMode": "WAIT_FOR_USER_CONTEXT",
+      "expectedFirstResultStatus": "needs-user-context",
+      "defaultActionGate": "G4",
+      "readiness": "R5",
+      "liveCoverage": "requires-user-context",
+      "deepeningQueue": "D4_REQUIRES_USER_CONTEXT",
+      "transitionClass": "REQUIRES_USER_CONTEXT",
+      "monitorTier": "S3_CONTEXT_GATED",
+      "baselineSignature": "af58c9cd",
+      "redactionRequired": true,
+      "waitForAnchors": [
+        "account-check parameter"
+      ],
+      "acceptableStateCategories": [],
+      "stopStateCategories": [
+        "S4_LOGIN_EXPIRED",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "readableControlCategories": [
+        "C0_DISPLAY_NAV"
+      ],
+      "stopControlCategories": [
+        "C4_BUSINESS_COMMIT"
+      ],
+      "labelGroupBuckets": [
+        "account-login-gate",
+        "confirm-modal"
+      ],
+      "allowedOutputContract": [
+        "routeShape",
+        "stateCategory",
+        "anchorNames",
+        "buttonNames",
+        "tabNames",
+        "tableHeaders",
+        "controlCategories",
+        "stopReasonCategory",
+        "fieldNamesOnly",
+        "statusCategoriesOnly",
+        "privacyCheckPassed"
+      ],
+      "fieldRiskSummary": "category-only-redacted-fields",
+      "actionGateSummary": "default G4; stop on C3/C4 or G3/G4 escalation",
+      "defaultStopReasonCategory": "context-stop-until-user-supplies-route",
+      "passEvidenceRequired": [
+        "required parameter type identified",
+        "user-provided context confirmed",
+        "private parameters redacted",
+        "business action boundary recorded"
+      ],
+      "changeDecisionRule": "compare-baseline-signature-and-watch-signals-before-updating-page-understanding",
+      "privacyCheckRequired": true
+    },
+    {
+      "pageId": "seller.login",
+      "surface": "seller",
+      "family": "seller-gate",
+      "layer": "M5",
+      "routePattern": "#/login",
+      "routeShape": "https://seller.goofish.com/?site=<site-alias>#/login",
+      "batchId": "B6_SHELL_BOUNDARY_PASS",
+      "entryMode": "SHELL_BOUNDARY_ONLY",
+      "runMode": "SHELL_BOUNDARY_ONLY",
+      "expectedFirstResultStatus": "shell-described",
+      "defaultActionGate": "G4",
+      "readiness": "R5",
+      "liveCoverage": "shell-boundary",
+      "deepeningQueue": "D6_SHELL_BOUNDARY",
+      "transitionClass": "SHELL_ONLY",
+      "monitorTier": "S4_BOUNDARY_ONLY",
+      "baselineSignature": "69a63af8",
+      "redactionRequired": true,
+      "waitForAnchors": [
+        "login",
+        "scan",
+        "verification entry"
+      ],
+      "acceptableStateCategories": [],
+      "stopStateCategories": [
+        "S4_LOGIN_EXPIRED",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "readableControlCategories": [
+        "C0_DISPLAY_NAV"
+      ],
+      "stopControlCategories": [
+        "C4_BUSINESS_COMMIT"
+      ],
+      "labelGroupBuckets": [
+        "account-login-gate",
+        "confirm-modal"
+      ],
+      "allowedOutputContract": [
+        "routeShape",
+        "stateCategory",
+        "anchorNames",
+        "buttonNames",
+        "tabNames",
+        "tableHeaders",
+        "controlCategories",
+        "stopReasonCategory",
+        "fieldNamesOnly",
+        "statusCategoriesOnly",
+        "privacyCheckPassed"
+      ],
+      "fieldRiskSummary": "category-only-redacted-fields",
+      "actionGateSummary": "default G4; stop on C3/C4 or G3/G4 escalation",
+      "defaultStopReasonCategory": "shell-boundary",
+      "passEvidenceRequired": [
+        "container type identified",
+        "embedded target shape described",
+        "login or permission boundary recorded",
+        "no embedded action triggered"
+      ],
+      "changeDecisionRule": "compare-baseline-signature-and-watch-signals-before-updating-page-understanding",
+      "privacyCheckRequired": true
+    },
+    {
+      "pageId": "seller.noPermission",
+      "surface": "seller",
+      "family": "seller-gate",
+      "layer": "M5",
+      "routePattern": "#/no-permission",
+      "routeShape": "https://seller.goofish.com/?site=<site-alias>#/no-permission",
+      "batchId": "B2_FORM_AND_SHELL_LIVE_PASS",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "runMode": "LIVE_READ_ONLY",
+      "expectedFirstResultStatus": "pending-read-only-observation",
+      "defaultActionGate": "G4",
+      "readiness": "R5",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D2_FORM_AND_SHELL_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "monitorTier": "S3_HIGH_RISK_READ_ONLY",
+      "baselineSignature": "54b4dfcc",
+      "redactionRequired": true,
+      "waitForAnchors": [
+        "no-permission message",
+        "return/jump controls"
+      ],
+      "acceptableStateCategories": [],
+      "stopStateCategories": [
+        "S4_LOGIN_EXPIRED",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "readableControlCategories": [
+        "C0_DISPLAY_NAV"
+      ],
+      "stopControlCategories": [
+        "C4_BUSINESS_COMMIT"
+      ],
+      "labelGroupBuckets": [
+        "account-login-gate",
+        "confirm-modal"
+      ],
+      "allowedOutputContract": [
+        "routeShape",
+        "stateCategory",
+        "anchorNames",
+        "buttonNames",
+        "tabNames",
+        "tableHeaders",
+        "controlCategories",
+        "stopReasonCategory",
+        "fieldNamesOnly",
+        "statusCategoriesOnly",
+        "privacyCheckPassed"
+      ],
+      "fieldRiskSummary": "category-only-redacted-fields",
+      "actionGateSummary": "default G4; stop on C3/C4 or G3/G4 escalation",
+      "defaultStopReasonCategory": "stop-if-state-or-action-escalates",
+      "passEvidenceRequired": [
+        "route shape recognized",
+        "one or more anchors visible",
+        "expected state category assigned",
+        "recordable structure captured without private values"
+      ],
+      "changeDecisionRule": "compare-baseline-signature-and-watch-signals-before-updating-page-understanding",
+      "privacyCheckRequired": true
+    },
+    {
+      "pageId": "seller.iframe",
+      "surface": "seller",
+      "family": "seller-shell",
+      "layer": "M6",
+      "routePattern": "#/iframe?url=...",
+      "routeShape": "https://seller.goofish.com/?site=<site-alias>#/iframe?url=...",
+      "batchId": "B6_SHELL_BOUNDARY_PASS",
+      "entryMode": "SHELL_BOUNDARY_ONLY",
+      "runMode": "SHELL_BOUNDARY_ONLY",
+      "expectedFirstResultStatus": "shell-described",
+      "defaultActionGate": "G1",
+      "readiness": "R5",
+      "liveCoverage": "shell-boundary",
+      "deepeningQueue": "D6_SHELL_BOUNDARY",
+      "transitionClass": "SHELL_ONLY",
+      "monitorTier": "S4_BOUNDARY_ONLY",
+      "baselineSignature": "f81440c6",
+      "redactionRequired": true,
+      "waitForAnchors": [
+        "iframe source",
+        "loading/failure state"
+      ],
+      "acceptableStateCategories": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S3_NETWORK_OR_API_FAILURE"
+      ],
+      "stopStateCategories": [
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "readableControlCategories": [
+        "C0_DISPLAY_NAV"
+      ],
+      "stopControlCategories": [
+        "C3_FILE_EXTERNAL"
+      ],
+      "labelGroupBuckets": [
+        "navigation-display",
+        "file-external-bridge",
+        "account-login-gate",
+        "state-loading-empty-error"
+      ],
+      "allowedOutputContract": [
+        "routeShape",
+        "stateCategory",
+        "anchorNames",
+        "buttonNames",
+        "tabNames",
+        "tableHeaders",
+        "controlCategories",
+        "stopReasonCategory",
+        "fieldNamesOnly",
+        "statusCategoriesOnly",
+        "privacyCheckPassed"
+      ],
+      "fieldRiskSummary": "category-only-redacted-fields",
+      "actionGateSummary": "default G1; stop on C3/C4 or G3/G4 escalation",
+      "defaultStopReasonCategory": "shell-boundary",
+      "passEvidenceRequired": [
+        "container type identified",
+        "embedded target shape described",
+        "login or permission boundary recorded",
+        "no embedded action triggered"
+      ],
+      "changeDecisionRule": "compare-baseline-signature-and-watch-signals-before-updating-page-understanding",
+      "privacyCheckRequired": true
+    },
+    {
+      "pageId": "seller.playground",
+      "surface": "seller",
+      "family": "internal-test",
+      "layer": "M6",
+      "routePattern": "#/playground",
+      "routeShape": "https://seller.goofish.com/?site=<site-alias>#/playground",
+      "batchId": "B5_STATIC_EVIDENCE_PASS",
+      "entryMode": "STATIC_EVIDENCE_ONLY",
+      "runMode": "STATIC_EVIDENCE_ONLY",
+      "expectedFirstResultStatus": "static-described",
+      "defaultActionGate": "G4",
+      "readiness": "R5/R4",
+      "liveCoverage": "static-only",
+      "deepeningQueue": "D5_STATIC_ONLY",
+      "transitionClass": "STATIC_ONLY",
+      "monitorTier": "S4_STATIC_OR_MODULE",
+      "baselineSignature": "fa3e818d",
+      "redactionRequired": true,
+      "waitForAnchors": [
+        "test entry"
+      ],
+      "acceptableStateCategories": [],
+      "stopStateCategories": [
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "readableControlCategories": [
+        "C0_DISPLAY_NAV"
+      ],
+      "stopControlCategories": [
+        "C4_BUSINESS_COMMIT"
+      ],
+      "labelGroupBuckets": [
+        "unknown-label",
+        "high-risk-trade-finance"
+      ],
+      "allowedOutputContract": [
+        "routeShape",
+        "stateCategory",
+        "anchorNames",
+        "buttonNames",
+        "tabNames",
+        "tableHeaders",
+        "controlCategories",
+        "stopReasonCategory",
+        "fieldNamesOnly",
+        "statusCategoriesOnly",
+        "privacyCheckPassed"
+      ],
+      "fieldRiskSummary": "category-only-redacted-fields",
+      "actionGateSummary": "default G4; stop on C3/C4 or G3/G4 escalation",
+      "defaultStopReasonCategory": "static-only",
+      "passEvidenceRequired": [
+        "static module or route signal identified",
+        "API or Page signal mapped to family",
+        "risk boundary recorded",
+        "no live probing attempted"
+      ],
+      "changeDecisionRule": "compare-baseline-signature-and-watch-signals-before-updating-page-understanding",
+      "privacyCheckRequired": true
+    }
+  ]
+}

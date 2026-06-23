@@ -1,0 +1,223 @@
+{
+  "schema": "goofish-action-gate-rules/v1",
+  "date": "2026-06-22",
+  "purpose": "Machine-readable G0-G4 action gate rules for Goofish/Xianyu page observation and automation.",
+  "sources": {
+    "actionGateMatrix": "goofish-action-gate-matrix.md",
+    "apiCrosswalk": "goofish-page-api-crosswalk.md",
+    "probePolicy": "goofish-probe-policy.json",
+    "transitionGraph": "goofish-page-transition-graph.json"
+  },
+  "privacy": {
+    "storeButtonTextOnly": true,
+    "storeRealAccount": false,
+    "storeRealOrder": false,
+    "storeRealAddress": false,
+    "storeRealChat": false,
+    "storeRealItemTitle": false,
+    "storeRealAmount": false,
+    "storeBusinessMetricValue": false,
+    "storeLoginMaterial": false
+  },
+  "gateDefinitions": {
+    "G0": "Public read-only action. It does not depend on private data and does not change account state.",
+    "G1": "Logged-in read-only action. It may reveal private account or business data; output must be redacted.",
+    "G2": "Draft assistance. It may type or prepare content, but must stop before save, submit, send, upload, or publish.",
+    "G3": "Explicit confirmation required. It can change account, item, message, export, permission, or business state.",
+    "G4": "Never proactive. It is payment, order state, refund, shipment, dispute, identity, permission, paid promotion, or internal test."
+  },
+  "globalDecisionOrder": [
+    "If current transition is STOP_BEFORE_ACTION, classify as G3 or G4 and stop.",
+    "If route has real order, item, user, chat, account, address, logistics, invoice, or payment parameters, require user context and redact.",
+    "If the DOM action text or API name matches a G4 token, stop even if the page is otherwise readable.",
+    "If the DOM action text or API name matches a G3 token, ask for explicit action-time confirmation.",
+    "If the element is an upload, download, export, save, submit, send, delete, pay, or verify control, stop.",
+    "If the current page family has a lower max gate than the action requires, use the higher risk gate.",
+    "Only G0/G1 read-only actions may run without another confirmation."
+  ],
+  "defaultGateByFamily": {
+    "public-discovery": "G0",
+    "item-detail": "G1",
+    "public-profile": "G1",
+    "buyer-account": "G1",
+    "buyer-trade": "G1",
+    "draft-input": "G2",
+    "message": "G2",
+    "identity": "G4",
+    "public-content": "G0",
+    "internal-module": "G4",
+    "internal-test": "G4",
+    "seller-data": "G1",
+    "seller-item": "G2",
+    "seller-trade": "G1",
+    "seller-finance": "G1",
+    "seller-account": "G1",
+    "seller-security": "G1",
+    "seller-ad": "G1",
+    "seller-message": "G2",
+    "seller-gate": "G4",
+    "seller-shell": "G1"
+  },
+  "actionTextRules": {
+    "G0": {
+      "allowByDefaultWhenPublic": [
+        "search",
+        "filter",
+        "sort",
+        "reset",
+        "expand",
+        "collapse",
+        "back",
+        "close",
+        "cancel",
+        "scroll",
+        "page",
+        "tabChange"
+      ],
+      "labels": ["搜索", "筛选", "排序", "重置", "展开", "收起", "返回", "关闭", "取消", "翻页", "切换 tab"]
+    },
+    "G1": {
+      "readOnlyWithRedaction": [
+        "view",
+        "detail",
+        "viewDetail",
+        "logisticsRecord",
+        "snapshot",
+        "status",
+        "tableHeader",
+        "fieldName",
+        "emptyState"
+      ],
+      "labels": ["查看", "详情", "查看详情", "物流记录", "宝贝快照", "状态", "表头", "字段名", "空态"]
+    },
+    "G2": {
+      "draftOnly": [
+        "typeDraft",
+        "fillDraft",
+        "precheck",
+        "preview",
+        "generateCopy",
+        "prepareMessage",
+        "prepareTemplate"
+      ],
+      "labels": ["填写草稿", "预检", "预览", "生成文案", "准备消息", "准备模板"]
+    },
+    "G3": {
+      "confirmRequired": [
+        "collect",
+        "uncollect",
+        "follow",
+        "unfollow",
+        "want",
+        "contact",
+        "send",
+        "sendCard",
+        "save",
+        "submit",
+        "confirm",
+        "create",
+        "new",
+        "apply",
+        "export",
+        "download",
+        "edit",
+        "update",
+        "remark",
+        "markRead",
+        "clearUnread",
+        "blacklist",
+        "switchSite",
+        "openExternal",
+        "install"
+      ],
+      "labels": ["收藏", "取消收藏", "关注", "取消关注", "我想要", "联系", "发送", "保存", "提交", "确定", "确认", "创建", "新建", "申请", "导出", "下载", "编辑", "更新", "备注", "标已读", "清未读", "拉黑", "切换站点", "打开外部", "安装"]
+    },
+    "G4": {
+      "neverProactive": [
+        "buyNow",
+        "submitOrder",
+        "pay",
+        "confirmReceipt",
+        "extendReceipt",
+        "cancelOrder",
+        "closeOrder",
+        "refund",
+        "agreeRefund",
+        "refuseRefund",
+        "compensate",
+        "ship",
+        "changeLogistics",
+        "batchShip",
+        "complain",
+        "dispute",
+        "proof",
+        "appeal",
+        "report",
+        "verifyIdentity",
+        "realNameAuth",
+        "changePermission",
+        "createSubAccount",
+        "paidPromotion",
+        "internalTest",
+        "deleteBusinessData"
+      ],
+      "labels": ["立即购买", "提交订单", "立即支付", "去支付", "确认收货", "延长收货", "取消订单", "关闭订单", "我要退款", "同意退款", "拒绝退款", "赔付", "发货", "修改物流", "批量发货", "投诉", "纠纷", "举证", "申诉", "举报", "实名认证", "改权限", "新建子账号", "付费推广", "内部测试", "删除业务数据"]
+    }
+  },
+  "apiVerbRules": {
+    "G0": ["search", "suggest", "feed", "shade", "filter", "division"],
+    "G1": ["query", "list", "render", "detail", "summary", "head", "status", "configs"],
+    "G2": ["preget", "precheck", "prepubcheck", "draft"],
+    "G3": ["create", "publish", "submit", "apply", "save", "edit", "update", "operate", "remark", "export", "download", "send", "clean", "read", "blacklist", "switch"],
+    "G4": ["pay", "dopay", "doPay", "transfer", "refund", "compensate", "refuse", "agree", "consign", "logistics", "mailno", "proof", "dispute", "complain", "appeal", "identity", "verify", "permission", "usergroup", "account.sub", "test"]
+  },
+  "controlTypeRules": {
+    "link": "Use route and transition graph; links to deep parameter pages require user context.",
+    "button": "Classify by visible label, aria label, title, and nearby modal state.",
+    "inputText": "G0/G1 for search and filters; G2 for draft fields; stop before save or submit.",
+    "textarea": "G2 draft only; stop before submit or send.",
+    "fileInput": "G3/G4; never upload without explicit user confirmation.",
+    "checkboxRadio": "G1 for filter; G3/G4 if tied to order, finance, permission, invoice, or publish settings.",
+    "selectDropdown": "G1 for filters; G3/G4 if changing address, logistics, payment, permission, or dispatch rules.",
+    "downloadControl": "G3; do not download data or client installers by default.",
+    "confirmDialog": "G3/G4; do not click confirm without action-time confirmation."
+  },
+  "pageStateEscalation": {
+    "login": "G4",
+    "qrCode": "G4",
+    "verificationCode": "G4",
+    "identityVerification": "G4",
+    "payment": "G4",
+    "orderConfirmation": "G4",
+    "refundOrDispute": "G4",
+    "financeExport": "G3",
+    "permissionManagement": "G4",
+    "privateConversation": "G3",
+    "noPermission": "G1",
+    "emptyState": "G1"
+  },
+  "allowWithoutConfirmation": [
+    "openKnownReadOnlyRoute",
+    "readRouteShape",
+    "readTabNames",
+    "readFieldNames",
+    "readTableHeaders",
+    "readButtonNames",
+    "readStatusCategory",
+    "readEmptyState",
+    "publicSearch",
+    "publicFilter",
+    "scrollReadOnly"
+  ],
+  "confirmationRequiredPayload": {
+    "requiredFields": ["profileAlias", "pageId", "routeShape", "actionLabel", "classifiedGate", "expectedSideEffect", "dataRisk"],
+    "mustNotInclude": ["realAccountName", "realOrderId", "realAddress", "realChatText", "realItemTitle", "realAmount", "cookie", "token", "verificationCode"]
+  },
+  "runtimeDecision": {
+    "ifGateIsG0": "Proceed when page and transition are read-only.",
+    "ifGateIsG1": "Proceed with redacted structural observation only.",
+    "ifGateIsG2": "Prepare draft only; stop before upload/save/submit/send/publish.",
+    "ifGateIsG3": "Ask user for explicit action-time confirmation.",
+    "ifGateIsG4": "Do not perform proactively; explain risk and stop."
+  }
+}

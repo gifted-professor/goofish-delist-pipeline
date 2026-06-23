@@ -1,0 +1,315 @@
+{
+  "schema": "goofish-page-transition-graph/v1",
+  "date": "2026-06-22",
+  "purpose": "Safe navigation and state-transition graph for Goofish/Xianyu page familiarization.",
+  "sources": {
+    "manifest": "goofish-page-manifest.json",
+    "routeInventory": "goofish-route-inventory.md",
+    "coverageStatus": "goofish-live-coverage-status.json",
+    "deepeningQueue": "goofish-page-deepening-queue.json",
+    "actionGateMatrix": "goofish-action-gate-matrix.md"
+  },
+  "privacy": {
+    "storeRealAccount": false,
+    "storeRealOrder": false,
+    "storeRealAddress": false,
+    "storeRealChat": false,
+    "storeRealItemTitle": false,
+    "storeRealAmount": false,
+    "storeRealBusinessMetric": false,
+    "storeLoginMaterial": false
+  },
+  "navigationClasses": {
+    "SAFE_READ": "May navigate and observe structure only.",
+    "READ_WITH_REDACTION": "May observe only if visible values are not recorded.",
+    "REQUIRES_USER_CONTEXT": "Only navigate when user provides URL/context; redact parameters.",
+    "STOP_BEFORE_ACTION": "Visible entry can be named, but do not trigger it.",
+    "STATIC_ONLY": "Describe from static evidence; do not navigate for coverage.",
+    "SHELL_ONLY": "Identify shell/container and stop at embedded or login boundary."
+  },
+  "nodesTotal": 66,
+  "safeReadNodes": [
+    "www.home",
+    "www.search",
+    "www.machFeeds",
+    "www.personalSelf",
+    "www.collection",
+    "www.changelog",
+    "seller.dataOverview",
+    "seller.fanData"
+  ],
+  "readWithRedactionNodes": [
+    "www.bought",
+    "www.account",
+    "www.publish",
+    "www.feedback",
+    "www.im",
+    "www.login",
+    "seller.commodityData",
+    "seller.customerServiceData",
+    "seller.itemPublish",
+    "seller.goodsManage",
+    "seller.postTemplate",
+    "seller.postTemplateCreate",
+    "seller.orderManage",
+    "seller.refundManage",
+    "seller.evaluationManage",
+    "seller.complaintManage",
+    "seller.refundAddress",
+    "seller.incomeBill",
+    "seller.expenseBill",
+    "seller.invoiceApply",
+    "seller.basicInfo",
+    "seller.subAccount",
+    "seller.csDispatch",
+    "seller.securityCenter",
+    "seller.adHome",
+    "seller.notificationCenter",
+    "seller.im",
+    "seller.imDesktop",
+    "seller.download",
+    "seller.selectSite",
+    "seller.accountCheck",
+    "seller.noPermission"
+  ],
+  "requiresUserContextNodes": [
+    "www.item",
+    "www.personalOther",
+    "www.orderDetail",
+    "www.createOrder",
+    "www.imItem",
+    "seller.orderDetail",
+    "seller.imItem",
+    "seller.accountCheckUser"
+  ],
+  "staticOnlyNodes": [
+    "www.paySuccess",
+    "www.publishScene",
+    "www.publishEdit",
+    "www.accountApi",
+    "www.loginRedirect",
+    "www.findAccount",
+    "www.selectAccount",
+    "www.loginValidation",
+    "www.commonVideo",
+    "www.commonVideoLayout",
+    "www.upgradeBrowser",
+    "www.playground",
+    "www.yhbCreateOrder",
+    "www.yhbOrderDetail",
+    "seller.notificationApi",
+    "seller.playground"
+  ],
+  "shellOnlyNodes": [
+    "seller.login",
+    "seller.iframe"
+  ],
+  "graphs": {
+    "wwwPublicDiscovery": {
+      "entryNodes": ["www.home", "www.search", "www.machFeeds"],
+      "safeTransitions": [
+        ["www.home", "www.search", "SAFE_READ"],
+        ["www.home", "www.machFeeds", "SAFE_READ"],
+        ["www.search", "www.home", "SAFE_READ"],
+        ["www.machFeeds", "www.home", "SAFE_READ"]
+      ],
+      "contextTransitions": [
+        ["www.home", "www.item", "REQUIRES_USER_CONTEXT"],
+        ["www.search", "www.item", "REQUIRES_USER_CONTEXT"],
+        ["www.machFeeds", "www.item", "REQUIRES_USER_CONTEXT"],
+        ["www.item", "www.personalOther", "REQUIRES_USER_CONTEXT"]
+      ],
+      "stopTransitions": [
+        ["www.item", "www.imItem", "STOP_BEFORE_ACTION"],
+        ["www.item", "www.createOrder", "STOP_BEFORE_ACTION"],
+        ["www.item", "collect", "STOP_BEFORE_ACTION"]
+      ]
+    },
+    "wwwAccountAndBuyer": {
+      "entryNodes": ["www.personalSelf", "www.collection", "www.bought", "www.account"],
+      "safeTransitions": [
+        ["www.personalSelf", "www.collection", "READ_WITH_REDACTION"],
+        ["www.personalSelf", "www.bought", "READ_WITH_REDACTION"],
+        ["www.personalSelf", "www.account", "READ_WITH_REDACTION"],
+        ["www.collection", "www.personalSelf", "READ_WITH_REDACTION"],
+        ["www.bought", "www.personalSelf", "READ_WITH_REDACTION"],
+        ["www.account", "www.personalSelf", "READ_WITH_REDACTION"]
+      ],
+      "contextTransitions": [
+        ["www.bought", "www.orderDetail", "REQUIRES_USER_CONTEXT"],
+        ["www.bought", "www.imItem", "REQUIRES_USER_CONTEXT"],
+        ["www.collection", "www.item", "REQUIRES_USER_CONTEXT"]
+      ],
+      "stopTransitions": [
+        ["www.bought", "pay", "STOP_BEFORE_ACTION"],
+        ["www.bought", "refund", "STOP_BEFORE_ACTION"],
+        ["www.bought", "review", "STOP_BEFORE_ACTION"],
+        ["www.bought", "confirmReceipt", "STOP_BEFORE_ACTION"],
+        ["www.account", "editProfile", "STOP_BEFORE_ACTION"],
+        ["www.account", "verifyIdentity", "STOP_BEFORE_ACTION"],
+        ["www.account", "switchAccount", "STOP_BEFORE_ACTION"]
+      ]
+    },
+    "wwwDraftMessageIdentity": {
+      "entryNodes": ["www.publish", "www.feedback", "www.im", "www.login", "www.changelog"],
+      "safeTransitions": [
+        ["www.publish", "www.home", "SAFE_READ"],
+        ["www.feedback", "www.home", "SAFE_READ"],
+        ["www.im", "www.home", "READ_WITH_REDACTION"],
+        ["www.changelog", "www.home", "SAFE_READ"]
+      ],
+      "contextTransitions": [
+        ["www.im", "www.imItem", "REQUIRES_USER_CONTEXT"],
+        ["www.login", "www.loginRedirect", "STATIC_ONLY"]
+      ],
+      "stopTransitions": [
+        ["www.publish", "upload", "STOP_BEFORE_ACTION"],
+        ["www.publish", "save", "STOP_BEFORE_ACTION"],
+        ["www.publish", "publish", "STOP_BEFORE_ACTION"],
+        ["www.feedback", "upload", "STOP_BEFORE_ACTION"],
+        ["www.feedback", "submit", "STOP_BEFORE_ACTION"],
+        ["www.im", "openPrivateConversation", "STOP_BEFORE_ACTION"],
+        ["www.im", "send", "STOP_BEFORE_ACTION"],
+        ["www.login", "scan", "STOP_BEFORE_ACTION"],
+        ["www.login", "verificationCode", "STOP_BEFORE_ACTION"]
+      ]
+    },
+    "sellerDataItem": {
+      "entryNodes": [
+        "seller.dataOverview",
+        "seller.commodityData",
+        "seller.fanData",
+        "seller.customerServiceData",
+        "seller.itemPublish",
+        "seller.goodsManage",
+        "seller.postTemplate",
+        "seller.postTemplateCreate"
+      ],
+      "safeTransitions": [
+        ["seller.dataOverview", "seller.commodityData", "READ_WITH_REDACTION"],
+        ["seller.dataOverview", "seller.fanData", "READ_WITH_REDACTION"],
+        ["seller.dataOverview", "seller.customerServiceData", "READ_WITH_REDACTION"],
+        ["seller.goodsManage", "seller.itemPublish", "READ_WITH_REDACTION"],
+        ["seller.postTemplate", "seller.postTemplateCreate", "READ_WITH_REDACTION"]
+      ],
+      "contextTransitions": [],
+      "stopTransitions": [
+        ["seller.dataOverview", "export", "STOP_BEFORE_ACTION"],
+        ["seller.commodityData", "downloadDetail", "STOP_BEFORE_ACTION"],
+        ["seller.customerServiceData", "export", "STOP_BEFORE_ACTION"],
+        ["seller.itemPublish", "upload", "STOP_BEFORE_ACTION"],
+        ["seller.itemPublish", "publish", "STOP_BEFORE_ACTION"],
+        ["seller.goodsManage", "editItem", "STOP_BEFORE_ACTION"],
+        ["seller.goodsManage", "shelfChange", "STOP_BEFORE_ACTION"],
+        ["seller.goodsManage", "delete", "STOP_BEFORE_ACTION"],
+        ["seller.postTemplateCreate", "saveTemplate", "STOP_BEFORE_ACTION"]
+      ]
+    },
+    "sellerTradeFinance": {
+      "entryNodes": [
+        "seller.orderManage",
+        "seller.refundManage",
+        "seller.evaluationManage",
+        "seller.complaintManage",
+        "seller.refundAddress",
+        "seller.incomeBill",
+        "seller.expenseBill",
+        "seller.invoiceApply",
+        "seller.basicInfo"
+      ],
+      "safeTransitions": [
+        ["seller.orderManage", "seller.refundManage", "READ_WITH_REDACTION"],
+        ["seller.orderManage", "seller.evaluationManage", "READ_WITH_REDACTION"],
+        ["seller.orderManage", "seller.complaintManage", "READ_WITH_REDACTION"],
+        ["seller.refundManage", "seller.refundAddress", "READ_WITH_REDACTION"],
+        ["seller.incomeBill", "seller.expenseBill", "READ_WITH_REDACTION"],
+        ["seller.incomeBill", "seller.invoiceApply", "READ_WITH_REDACTION"],
+        ["seller.invoiceApply", "seller.basicInfo", "READ_WITH_REDACTION"]
+      ],
+      "contextTransitions": [
+        ["seller.orderManage", "seller.orderDetail", "REQUIRES_USER_CONTEXT"],
+        ["seller.orderManage", "seller.imItem", "REQUIRES_USER_CONTEXT"]
+      ],
+      "stopTransitions": [
+        ["seller.orderManage", "ship", "STOP_BEFORE_ACTION"],
+        ["seller.orderManage", "remark", "STOP_BEFORE_ACTION"],
+        ["seller.orderManage", "contact", "STOP_BEFORE_ACTION"],
+        ["seller.refundManage", "agreeRefund", "STOP_BEFORE_ACTION"],
+        ["seller.refundManage", "refuseRefund", "STOP_BEFORE_ACTION"],
+        ["seller.evaluationManage", "review", "STOP_BEFORE_ACTION"],
+        ["seller.complaintManage", "submitProof", "STOP_BEFORE_ACTION"],
+        ["seller.refundAddress", "editAddress", "STOP_BEFORE_ACTION"],
+        ["seller.incomeBill", "export", "STOP_BEFORE_ACTION"],
+        ["seller.expenseBill", "download", "STOP_BEFORE_ACTION"],
+        ["seller.invoiceApply", "applyInvoice", "STOP_BEFORE_ACTION"],
+        ["seller.basicInfo", "modifyEntity", "STOP_BEFORE_ACTION"]
+      ]
+    },
+    "sellerAccountSecurityMessage": {
+      "entryNodes": [
+        "seller.subAccount",
+        "seller.csDispatch",
+        "seller.securityCenter",
+        "seller.adHome",
+        "seller.notificationCenter",
+        "seller.im",
+        "seller.imDesktop"
+      ],
+      "safeTransitions": [
+        ["seller.subAccount", "seller.csDispatch", "READ_WITH_REDACTION"],
+        ["seller.notificationCenter", "seller.im", "READ_WITH_REDACTION"],
+        ["seller.im", "seller.imDesktop", "READ_WITH_REDACTION"]
+      ],
+      "contextTransitions": [
+        ["seller.im", "seller.imItem", "REQUIRES_USER_CONTEXT"],
+        ["seller.accountCheck", "seller.accountCheckUser", "REQUIRES_USER_CONTEXT"]
+      ],
+      "stopTransitions": [
+        ["seller.subAccount", "changePermission", "STOP_BEFORE_ACTION"],
+        ["seller.csDispatch", "saveRouting", "STOP_BEFORE_ACTION"],
+        ["seller.securityCenter", "appeal", "STOP_BEFORE_ACTION"],
+        ["seller.securityCenter", "processViolation", "STOP_BEFORE_ACTION"],
+        ["seller.adHome", "createPlan", "STOP_BEFORE_ACTION"],
+        ["seller.adHome", "paidPromotion", "STOP_BEFORE_ACTION"],
+        ["seller.notificationCenter", "openSensitiveNotification", "STOP_BEFORE_ACTION"],
+        ["seller.im", "openPrivateConversation", "STOP_BEFORE_ACTION"],
+        ["seller.im", "send", "STOP_BEFORE_ACTION"]
+      ]
+    },
+    "sellerShellGate": {
+      "entryNodes": [
+        "seller.download",
+        "seller.selectSite",
+        "seller.accountCheck",
+        "seller.login",
+        "seller.noPermission",
+        "seller.iframe"
+      ],
+      "safeTransitions": [
+        ["seller.selectSite", "seller.dataOverview", "READ_WITH_REDACTION"],
+        ["seller.noPermission", "seller.accountCheck", "SHELL_ONLY"]
+      ],
+      "contextTransitions": [
+        ["seller.iframe", "embeddedTarget", "REQUIRES_USER_CONTEXT"]
+      ],
+      "stopTransitions": [
+        ["seller.download", "download", "STOP_BEFORE_ACTION"],
+        ["seller.download", "install", "STOP_BEFORE_ACTION"],
+        ["seller.selectSite", "switchSiteOrAccount", "STOP_BEFORE_ACTION"],
+        ["seller.accountCheck", "continueLogin", "STOP_BEFORE_ACTION"],
+        ["seller.login", "scan", "STOP_BEFORE_ACTION"],
+        ["seller.login", "verificationCode", "STOP_BEFORE_ACTION"],
+        ["seller.noPermission", "applyPermission", "STOP_BEFORE_ACTION"],
+        ["seller.iframe", "embeddedAction", "STOP_BEFORE_ACTION"]
+      ]
+    }
+  },
+  "staticOnlyGroups": {
+    "wwwTradeResultAndYhb": ["www.paySuccess", "www.yhbCreateOrder", "www.yhbOrderDetail"],
+    "wwwPublishVariants": ["www.publishScene", "www.publishEdit"],
+    "wwwIdentityVariants": ["www.loginRedirect", "www.findAccount", "www.selectAccount", "www.loginValidation"],
+    "wwwContentCompatInternal": ["www.commonVideo", "www.commonVideoLayout", "www.upgradeBrowser", "www.playground", "www.accountApi"],
+    "sellerInternal": ["seller.notificationApi", "seller.playground"]
+  },
+  "globalRule": "Navigate only along SAFE_READ or READ_WITH_REDACTION edges by default. REQUIRES_USER_CONTEXT edges need a user-provided URL or task context. STOP_BEFORE_ACTION edges are named but never triggered without explicit user confirmation."
+}

@@ -1,0 +1,3248 @@
+{
+  "schema": "goofish-page-ontology/v1",
+  "date": "2026-06-22",
+  "purpose": "Unified privacy-safe per-page ontology for Goofish/Xianyu page understanding, safe probing, and automation planning.",
+  "sources": {
+    "pageManifest": "goofish-page-manifest.json",
+    "probePolicy": "goofish-probe-policy.json",
+    "liveCoverageStatus": "goofish-live-coverage-status.json",
+    "pageDeepeningQueue": "goofish-page-deepening-queue.json",
+    "pageTransitionGraph": "goofish-page-transition-graph.json",
+    "actionGateRules": "goofish-action-gate-rules.json",
+    "stateModalRules": "goofish-state-modal-rules.json"
+  },
+  "privacy": {
+    "storesRealAccount": false,
+    "storesRealOrder": false,
+    "storesRealAddress": false,
+    "storesRealChat": false,
+    "storesRealItemTitle": false,
+    "storesRealAmount": false,
+    "storesBusinessMetricValue": false,
+    "storesImageUrl": false,
+    "storesQrContent": false,
+    "storesLoginMaterial": false,
+    "storesCookieOrToken": false,
+    "storesBrowserStorage": false
+  },
+  "totals": {
+    "pages": 66,
+    "surfaces": {
+      "seller": 35,
+      "www": 31
+    },
+    "coverage": {
+      "observed-live": 40,
+      "requires-user-context": 8,
+      "shell-boundary": 2,
+      "static-only": 16
+    },
+    "deepeningQueues": {
+      "D1_HIGH_RISK_LIVE": 18,
+      "D2_FORM_AND_SHELL_LIVE": 14,
+      "D3_LOW_RISK_LIVE": 8,
+      "D4_REQUIRES_USER_CONTEXT": 8,
+      "D5_STATIC_ONLY": 16,
+      "D6_SHELL_BOUNDARY": 2
+    },
+    "transitionClasses": {
+      "READ_WITH_REDACTION": 32,
+      "REQUIRES_USER_CONTEXT": 8,
+      "SAFE_READ": 8,
+      "SHELL_ONLY": 2,
+      "STATIC_ONLY": 16
+    },
+    "defaultActionGates": {
+      "G0": 6,
+      "G1": 32,
+      "G2": 12,
+      "G4": 16
+    },
+    "families": 21
+  },
+  "fieldDefinitions": {
+    "id": "Stable synthetic page id from the manifest.",
+    "surface": "www or seller surface.",
+    "routePattern": "Route shape only; never a real private URL with parameters.",
+    "family": "Page family used for policy, state, field, and action rules.",
+    "layer": "M0-M6 risk layer.",
+    "evidence": "Live/static/deep/shell evidence class from the manifest.",
+    "readiness": "R0-R5 page understanding readiness.",
+    "liveCoverage": "Observed live, requires user context, static only, or shell boundary.",
+    "deepeningQueue": "D1-D6 next safe observation queue.",
+    "transitionClass": "SAFE_READ, READ_WITH_REDACTION, REQUIRES_USER_CONTEXT, STATIC_ONLY, or SHELL_ONLY.",
+    "defaultActionGate": "G0-G4 default gate before inspecting a specific control.",
+    "expectedStates": "S0-S10 page states or modal classes expected for this family.",
+    "probeMode": "Default read-only probing mode from probe policy.",
+    "allowedRead": "Safe high-level action/category labels from the manifest.",
+    "defaultObservationTargets": "Structure categories to read for the deepening queue.",
+    "anchors": "Visible structural anchors used to decide whether the page loaded.",
+    "stopPoints": "Actions or states where probing must stop.",
+    "stopPolicy": "Plain-language stop rule derived from coverage class."
+  },
+  "useOrder": [
+    "Find the page by id or routePattern.",
+    "Read family, layer, evidence, readiness, and liveCoverage before probing.",
+    "Use transitionClass to decide whether navigation is allowed.",
+    "Use defaultActionGate and expectedStates before reading or touching controls.",
+    "Record only allowedRead, defaultObservationTargets, anchors, status categories, field names, button names, and stopPoints.",
+    "Stop immediately at any stopPoint, G3/G4 action, S4/S5/S6/S7/S9/S10 state, or private value boundary."
+  ],
+  "familyRollups": {
+    "buyer-account": {
+      "pages": 2,
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S4_LOGIN_EXPIRED",
+        "S6_QR_OR_APP_BRIDGE",
+        "S7_CONFIRM_DIALOG"
+      ],
+      "probeMode": "loggedInRead",
+      "ids": [
+        "www.personalSelf",
+        "www.collection"
+      ]
+    },
+    "buyer-trade": {
+      "pages": 6,
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S4_LOGIN_EXPIRED",
+        "S6_QR_OR_APP_BRIDGE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "probeMode": "tradeReadOnly",
+      "ids": [
+        "www.bought",
+        "www.orderDetail",
+        "www.createOrder",
+        "www.paySuccess",
+        "www.yhbCreateOrder",
+        "www.yhbOrderDetail"
+      ]
+    },
+    "draft-input": {
+      "pages": 4,
+      "defaultActionGate": "G2",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S4_LOGIN_EXPIRED",
+        "S7_CONFIRM_DIALOG",
+        "S8_FORM_VALIDATION",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "probeMode": "draftAssist",
+      "ids": [
+        "www.publish",
+        "www.publishScene",
+        "www.publishEdit",
+        "www.feedback"
+      ]
+    },
+    "identity": {
+      "pages": 6,
+      "defaultActionGate": "G4",
+      "expectedStates": [
+        "S4_LOGIN_EXPIRED",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "probeMode": "identityGate",
+      "ids": [
+        "www.account",
+        "www.login",
+        "www.loginRedirect",
+        "www.findAccount",
+        "www.selectAccount",
+        "www.loginValidation"
+      ]
+    },
+    "internal-module": {
+      "pages": 3,
+      "defaultActionGate": "G4",
+      "expectedStates": [
+        "S3_NETWORK_OR_API_FAILURE"
+      ],
+      "probeMode": "doNotProbe",
+      "ids": [
+        "www.accountApi",
+        "www.commonVideoLayout",
+        "seller.notificationApi"
+      ]
+    },
+    "internal-test": {
+      "pages": 2,
+      "defaultActionGate": "G4",
+      "expectedStates": [
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "probeMode": "doNotProbe",
+      "ids": [
+        "www.playground",
+        "seller.playground"
+      ]
+    },
+    "item-detail": {
+      "pages": 1,
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S6_QR_OR_APP_BRIDGE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "probeMode": "publicReadWithTradeBoundary",
+      "ids": [
+        "www.item"
+      ]
+    },
+    "message": {
+      "pages": 2,
+      "defaultActionGate": "G2",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S4_LOGIN_EXPIRED",
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "probeMode": "messageShellRead",
+      "ids": [
+        "www.im",
+        "www.imItem"
+      ]
+    },
+    "public-content": {
+      "pages": 3,
+      "defaultActionGate": "G0",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S6_QR_OR_APP_BRIDGE",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "probeMode": "publicContentRead",
+      "ids": [
+        "www.changelog",
+        "www.commonVideo",
+        "www.upgradeBrowser"
+      ]
+    },
+    "public-discovery": {
+      "pages": 3,
+      "defaultActionGate": "G0",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S3_NETWORK_OR_API_FAILURE",
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "probeMode": "publicRead",
+      "ids": [
+        "www.home",
+        "www.search",
+        "www.machFeeds"
+      ]
+    },
+    "public-profile": {
+      "pages": 1,
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S6_QR_OR_APP_BRIDGE",
+        "S7_CONFIRM_DIALOG"
+      ],
+      "probeMode": "publicReadWithAccountBoundary",
+      "ids": [
+        "www.personalOther"
+      ]
+    },
+    "seller-account": {
+      "pages": 2,
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "probeMode": "sellerPermissionReadOnly",
+      "ids": [
+        "seller.subAccount",
+        "seller.csDispatch"
+      ]
+    },
+    "seller-ad": {
+      "pages": 1,
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "probeMode": "sellerAdReadOnly",
+      "ids": [
+        "seller.adHome"
+      ]
+    },
+    "seller-data": {
+      "pages": 4,
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S3_NETWORK_OR_API_FAILURE",
+        "S6_QR_OR_APP_BRIDGE",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "probeMode": "sellerMetricReadOnly",
+      "ids": [
+        "seller.dataOverview",
+        "seller.commodityData",
+        "seller.fanData",
+        "seller.customerServiceData"
+      ]
+    },
+    "seller-finance": {
+      "pages": 4,
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "probeMode": "sellerFinanceReadOnly",
+      "ids": [
+        "seller.incomeBill",
+        "seller.expenseBill",
+        "seller.invoiceApply",
+        "seller.basicInfo"
+      ]
+    },
+    "seller-gate": {
+      "pages": 5,
+      "defaultActionGate": "G4",
+      "expectedStates": [
+        "S4_LOGIN_EXPIRED",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "probeMode": "sellerGateRead",
+      "ids": [
+        "seller.selectSite",
+        "seller.accountCheck",
+        "seller.accountCheckUser",
+        "seller.login",
+        "seller.noPermission"
+      ]
+    },
+    "seller-item": {
+      "pages": 4,
+      "defaultActionGate": "G2",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S7_CONFIRM_DIALOG",
+        "S8_FORM_VALIDATION",
+        "S9_FILE_OR_EXPORT",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "probeMode": "sellerItemReadOrDraft",
+      "ids": [
+        "seller.itemPublish",
+        "seller.goodsManage",
+        "seller.postTemplate",
+        "seller.postTemplateCreate"
+      ]
+    },
+    "seller-message": {
+      "pages": 2,
+      "defaultActionGate": "G2",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "probeMode": "sellerMessageShellRead",
+      "ids": [
+        "seller.im",
+        "seller.imItem"
+      ]
+    },
+    "seller-security": {
+      "pages": 1,
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "probeMode": "sellerSecurityReadOnly",
+      "ids": [
+        "seller.securityCenter"
+      ]
+    },
+    "seller-shell": {
+      "pages": 4,
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S3_NETWORK_OR_API_FAILURE",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "probeMode": "sellerShellRead",
+      "ids": [
+        "seller.notificationCenter",
+        "seller.imDesktop",
+        "seller.download",
+        "seller.iframe"
+      ]
+    },
+    "seller-trade": {
+      "pages": 6,
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "probeMode": "sellerTradeReadOnly",
+      "ids": [
+        "seller.orderManage",
+        "seller.orderDetail",
+        "seller.refundManage",
+        "seller.evaluationManage",
+        "seller.complaintManage",
+        "seller.refundAddress"
+      ]
+    }
+  },
+  "pages": [
+    {
+      "id": "www.home",
+      "surface": "www",
+      "routePattern": "/",
+      "family": "public-discovery",
+      "layer": "M0",
+      "evidence": "Live + Static",
+      "readiness": "R0",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D3_LOW_RISK_LIVE",
+      "transitionClass": "SAFE_READ",
+      "defaultActionGate": "G0",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S3_NETWORK_OR_API_FAILURE",
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "probeMode": "publicRead",
+      "allowedRead": [
+        "open",
+        "search",
+        "browse channels",
+        "read public card structure"
+      ],
+      "defaultObservationTargets": [
+        "navigationEntries",
+        "filterControls",
+        "cardStructure",
+        "contentBlocks",
+        "routeShapes"
+      ],
+      "anchors": [
+        "search box",
+        "channel entries",
+        "recommended item cards",
+        "sidebar tools"
+      ],
+      "stopPoints": [
+        "message entry",
+        "publish entry",
+        "order entry"
+      ],
+      "stopPolicy": "read structure only; apply action and state gates before any control use"
+    },
+    {
+      "id": "www.search",
+      "surface": "www",
+      "routePattern": "/search?q=...",
+      "family": "public-discovery",
+      "layer": "M0",
+      "evidence": "Live + Static",
+      "readiness": "R0",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D3_LOW_RISK_LIVE",
+      "transitionClass": "SAFE_READ",
+      "defaultActionGate": "G0",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S3_NETWORK_OR_API_FAILURE",
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "probeMode": "publicRead",
+      "allowedRead": [
+        "change keyword",
+        "change price range",
+        "change sort",
+        "read item-card structure"
+      ],
+      "defaultObservationTargets": [
+        "navigationEntries",
+        "filterControls",
+        "cardStructure",
+        "contentBlocks",
+        "routeShapes"
+      ],
+      "anchors": [
+        "query box",
+        "sort controls",
+        "price inputs",
+        "filter tags",
+        "item cards",
+        "pagination"
+      ],
+      "stopPoints": [
+        "unstable location panel",
+        "collect",
+        "contact",
+        "purchase"
+      ],
+      "stopPolicy": "read structure only; apply action and state gates before any control use"
+    },
+    {
+      "id": "www.machFeeds",
+      "surface": "www",
+      "routePattern": "/mach-feeds?machId=...&publishTimes=...",
+      "family": "public-discovery",
+      "layer": "M0",
+      "evidence": "Live + Static",
+      "readiness": "R0",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D3_LOW_RISK_LIVE",
+      "transitionClass": "SAFE_READ",
+      "defaultActionGate": "G0",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S3_NETWORK_OR_API_FAILURE",
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "probeMode": "publicRead",
+      "allowedRead": [
+        "read channel feed structure"
+      ],
+      "defaultObservationTargets": [
+        "navigationEntries",
+        "filterControls",
+        "cardStructure",
+        "contentBlocks",
+        "routeShapes"
+      ],
+      "anchors": [
+        "channel title",
+        "waterfall feed",
+        "item-card links"
+      ],
+      "stopPoints": [
+        "collect",
+        "contact",
+        "purchase"
+      ],
+      "stopPolicy": "read structure only; apply action and state gates before any control use"
+    },
+    {
+      "id": "www.item",
+      "surface": "www",
+      "routePattern": "/item?id=...&categoryId=...",
+      "family": "item-detail",
+      "layer": "M0/M3",
+      "evidence": "Live + Static",
+      "readiness": "R0/R3",
+      "liveCoverage": "requires-user-context",
+      "deepeningQueue": "D4_REQUIRES_USER_CONTEXT",
+      "transitionClass": "REQUIRES_USER_CONTEXT",
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S6_QR_OR_APP_BRIDGE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "probeMode": "publicReadWithTradeBoundary",
+      "allowedRead": [
+        "read public item structure",
+        "draft question text"
+      ],
+      "defaultObservationTargets": [
+        "routeShape",
+        "requiredParameterType",
+        "riskBoundary",
+        "userConfirmationNeeded"
+      ],
+      "anchors": [
+        "image area",
+        "price area",
+        "assurance labels",
+        "seller card",
+        "action buttons",
+        "recommendations"
+      ],
+      "stopPoints": [
+        "collect",
+        "chat",
+        "buy now",
+        "downshelf",
+        "delete"
+      ],
+      "stopPolicy": "wait for user-provided URL or business context; redact parameters; stop before business action"
+    },
+    {
+      "id": "www.personalOther",
+      "surface": "www",
+      "routePattern": "/personal?userId=...",
+      "family": "public-profile",
+      "layer": "M0/M1",
+      "evidence": "Live + Static",
+      "readiness": "R0/R3",
+      "liveCoverage": "requires-user-context",
+      "deepeningQueue": "D4_REQUIRES_USER_CONTEXT",
+      "transitionClass": "REQUIRES_USER_CONTEXT",
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S6_QR_OR_APP_BRIDGE",
+        "S7_CONFIRM_DIALOG"
+      ],
+      "probeMode": "publicReadWithAccountBoundary",
+      "allowedRead": [
+        "read public profile structure"
+      ],
+      "defaultObservationTargets": [
+        "routeShape",
+        "requiredParameterType",
+        "riskBoundary",
+        "userConfirmationNeeded"
+      ],
+      "anchors": [
+        "public profile block",
+        "credit area",
+        "item list",
+        "follow/contact entries"
+      ],
+      "stopPoints": [
+        "follow",
+        "contact",
+        "purchase"
+      ],
+      "stopPolicy": "wait for user-provided URL or business context; redact parameters; stop before business action"
+    },
+    {
+      "id": "www.personalSelf",
+      "surface": "www",
+      "routePattern": "/personal",
+      "family": "buyer-account",
+      "layer": "M1/M2",
+      "evidence": "Live + Static",
+      "readiness": "R1/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D3_LOW_RISK_LIVE",
+      "transitionClass": "SAFE_READ",
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S4_LOGIN_EXPIRED",
+        "S6_QR_OR_APP_BRIDGE",
+        "S7_CONFIRM_DIALOG"
+      ],
+      "probeMode": "loggedInRead",
+      "allowedRead": [
+        "read current profile structure",
+        "read listing status categories"
+      ],
+      "defaultObservationTargets": [
+        "navigationEntries",
+        "filterControls",
+        "cardStructure",
+        "contentBlocks",
+        "routeShapes"
+      ],
+      "anchors": [
+        "left navigation",
+        "home tab",
+        "item/credit/manage tabs",
+        "filters"
+      ],
+      "stopPoints": [
+        "edit profile",
+        "manage item",
+        "downshelf",
+        "delete"
+      ],
+      "stopPolicy": "read structure only; apply action and state gates before any control use"
+    },
+    {
+      "id": "www.collection",
+      "surface": "www",
+      "routePattern": "/collection",
+      "family": "buyer-account",
+      "layer": "M1/M3",
+      "evidence": "Live + Static",
+      "readiness": "R1/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D3_LOW_RISK_LIVE",
+      "transitionClass": "SAFE_READ",
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S4_LOGIN_EXPIRED",
+        "S6_QR_OR_APP_BRIDGE",
+        "S7_CONFIRM_DIALOG"
+      ],
+      "probeMode": "loggedInRead",
+      "allowedRead": [
+        "read collection structure"
+      ],
+      "defaultObservationTargets": [
+        "navigationEntries",
+        "filterControls",
+        "cardStructure",
+        "contentBlocks",
+        "routeShapes"
+      ],
+      "anchors": [
+        "collection tab",
+        "item cards",
+        "uncollect button",
+        "want button"
+      ],
+      "stopPoints": [
+        "uncollect",
+        "want",
+        "contact"
+      ],
+      "stopPolicy": "read structure only; apply action and state gates before any control use"
+    },
+    {
+      "id": "www.bought",
+      "surface": "www",
+      "routePattern": "/bought",
+      "family": "buyer-trade",
+      "layer": "M1/M3",
+      "evidence": "Live + Static",
+      "readiness": "R1/R4",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S4_LOGIN_EXPIRED",
+        "S6_QR_OR_APP_BRIDGE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "probeMode": "tradeReadOnly",
+      "allowedRead": [
+        "read order status categories",
+        "read button structure"
+      ],
+      "defaultObservationTargets": [
+        "tabNames",
+        "filterFieldNames",
+        "tableHeaders",
+        "buttonCategories",
+        "statusCategories",
+        "modalCategories"
+      ],
+      "anchors": [
+        "order tabs",
+        "order cards",
+        "more menu",
+        "logistics record",
+        "snapshot entry"
+      ],
+      "stopPoints": [
+        "confirm receipt",
+        "refund",
+        "review",
+        "delete",
+        "complaint"
+      ],
+      "stopPolicy": "read structure only; apply action and state gates before any control use"
+    },
+    {
+      "id": "www.orderDetail",
+      "surface": "www",
+      "routePattern": "/order-detail?orderId=...",
+      "family": "buyer-trade",
+      "layer": "M3",
+      "evidence": "Live + Static",
+      "readiness": "R1/R4",
+      "liveCoverage": "requires-user-context",
+      "deepeningQueue": "D4_REQUIRES_USER_CONTEXT",
+      "transitionClass": "REQUIRES_USER_CONTEXT",
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S4_LOGIN_EXPIRED",
+        "S6_QR_OR_APP_BRIDGE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "probeMode": "tradeReadOnly",
+      "allowedRead": [
+        "read field names",
+        "read status-node categories"
+      ],
+      "defaultObservationTargets": [
+        "routeShape",
+        "requiredParameterType",
+        "riskBoundary",
+        "userConfirmationNeeded"
+      ],
+      "anchors": [
+        "status nodes",
+        "order field labels",
+        "logistics module",
+        "after-sale entry"
+      ],
+      "stopPoints": [
+        "any order-state change",
+        "real order value logging"
+      ],
+      "stopPolicy": "wait for user-provided URL or business context; redact parameters; stop before business action"
+    },
+    {
+      "id": "www.createOrder",
+      "surface": "www",
+      "routePattern": "/create-order?itemId=...",
+      "family": "buyer-trade",
+      "layer": "M3/M5",
+      "evidence": "Live + Static",
+      "readiness": "R4",
+      "liveCoverage": "requires-user-context",
+      "deepeningQueue": "D4_REQUIRES_USER_CONTEXT",
+      "transitionClass": "REQUIRES_USER_CONTEXT",
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S4_LOGIN_EXPIRED",
+        "S6_QR_OR_APP_BRIDGE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "probeMode": "tradeReadOnly",
+      "allowedRead": [
+        "build pre-order checklist from field names"
+      ],
+      "defaultObservationTargets": [
+        "routeShape",
+        "requiredParameterType",
+        "riskBoundary",
+        "userConfirmationNeeded"
+      ],
+      "anchors": [
+        "sku",
+        "quantity",
+        "address fields",
+        "price-detail block",
+        "payment area",
+        "scan-to-pay fallback"
+      ],
+      "stopPoints": [
+        "submit order",
+        "pay",
+        "change address",
+        "bind account",
+        "verify identity"
+      ],
+      "stopPolicy": "wait for user-provided URL or business context; redact parameters; stop before business action"
+    },
+    {
+      "id": "www.paySuccess",
+      "surface": "www",
+      "routePattern": "/pay-success?orderId=...&itemId=...",
+      "family": "buyer-trade",
+      "layer": "M3",
+      "evidence": "Static Only",
+      "readiness": "R4",
+      "liveCoverage": "static-only",
+      "deepeningQueue": "D5_STATIC_ONLY",
+      "transitionClass": "STATIC_ONLY",
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S4_LOGIN_EXPIRED",
+        "S6_QR_OR_APP_BRIDGE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "probeMode": "tradeReadOnly",
+      "allowedRead": [
+        "identify result page structure"
+      ],
+      "defaultObservationTargets": [
+        "staticRoute",
+        "moduleName",
+        "staticApiFamily",
+        "riskBoundary"
+      ],
+      "anchors": [
+        "payment result structure",
+        "order-detail entry",
+        "recommendations"
+      ],
+      "stopPoints": [
+        "trigger payment for testing"
+      ],
+      "stopPolicy": "describe from static evidence only; do not force live probing"
+    },
+    {
+      "id": "www.publish",
+      "surface": "www",
+      "routePattern": "/publish",
+      "family": "draft-input",
+      "layer": "M2/M3",
+      "evidence": "Live + Static",
+      "readiness": "R2/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D2_FORM_AND_SHELL_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G2",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S4_LOGIN_EXPIRED",
+        "S7_CONFIRM_DIALOG",
+        "S8_FORM_VALIDATION",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "probeMode": "draftAssist",
+      "allowedRead": [
+        "draft listing text",
+        "check required field categories"
+      ],
+      "defaultObservationTargets": [
+        "fieldNames",
+        "inputTypes",
+        "validationHintCategories",
+        "uploadZones",
+        "emptyStateCategories",
+        "shellAnchors"
+      ],
+      "anchors": [
+        "image/video uploader",
+        "description",
+        "category",
+        "properties",
+        "sku",
+        "price",
+        "location",
+        "shipping settings"
+      ],
+      "stopPoints": [
+        "upload",
+        "save draft",
+        "publish",
+        "edit existing item"
+      ],
+      "stopPolicy": "read structure only; apply action and state gates before any control use"
+    },
+    {
+      "id": "www.publishScene",
+      "surface": "www",
+      "routePattern": "/publish?scene=xyPcMainPublish",
+      "family": "draft-input",
+      "layer": "M2/M3",
+      "evidence": "Static Only",
+      "readiness": "R2/R3",
+      "liveCoverage": "static-only",
+      "deepeningQueue": "D5_STATIC_ONLY",
+      "transitionClass": "STATIC_ONLY",
+      "defaultActionGate": "G2",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S4_LOGIN_EXPIRED",
+        "S7_CONFIRM_DIALOG",
+        "S8_FORM_VALIDATION",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "probeMode": "draftAssist",
+      "allowedRead": [
+        "identify publish entry shape"
+      ],
+      "defaultObservationTargets": [
+        "staticRoute",
+        "moduleName",
+        "staticApiFamily",
+        "riskBoundary"
+      ],
+      "anchors": [
+        "publish scene parameter",
+        "publish form fields"
+      ],
+      "stopPoints": [
+        "save",
+        "publish"
+      ],
+      "stopPolicy": "describe from static evidence only; do not force live probing"
+    },
+    {
+      "id": "www.publishEdit",
+      "surface": "www",
+      "routePattern": "/publish?scene=xyPcMainPublish&itemId=...",
+      "family": "draft-input",
+      "layer": "M2/M3",
+      "evidence": "Static Only",
+      "readiness": "R3/R4",
+      "liveCoverage": "static-only",
+      "deepeningQueue": "D5_STATIC_ONLY",
+      "transitionClass": "STATIC_ONLY",
+      "defaultActionGate": "G2",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S4_LOGIN_EXPIRED",
+        "S7_CONFIRM_DIALOG",
+        "S8_FORM_VALIDATION",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "probeMode": "draftAssist",
+      "allowedRead": [
+        "identify edit risk"
+      ],
+      "defaultObservationTargets": [
+        "staticRoute",
+        "moduleName",
+        "staticApiFamily",
+        "riskBoundary"
+      ],
+      "anchors": [
+        "item context parameter",
+        "publish/edit form fields"
+      ],
+      "stopPoints": [
+        "overwrite existing item",
+        "save",
+        "publish"
+      ],
+      "stopPolicy": "describe from static evidence only; do not force live probing"
+    },
+    {
+      "id": "www.im",
+      "surface": "www",
+      "routePattern": "/im",
+      "family": "message",
+      "layer": "M1/M2/M3",
+      "evidence": "Live + Static",
+      "readiness": "R1/R2/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D2_FORM_AND_SHELL_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G2",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S4_LOGIN_EXPIRED",
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "probeMode": "messageShellRead",
+      "allowedRead": [
+        "read message-frame structure",
+        "draft message text"
+      ],
+      "defaultObservationTargets": [
+        "fieldNames",
+        "inputTypes",
+        "validationHintCategories",
+        "uploadZones",
+        "emptyStateCategories",
+        "shellAnchors"
+      ],
+      "anchors": [
+        "empty state",
+        "session list",
+        "input area",
+        "toolbar",
+        "item/order card tools",
+        "file tool"
+      ],
+      "stopPoints": [
+        "read specific private chat",
+        "send",
+        "send card",
+        "upload file"
+      ],
+      "stopPolicy": "read structure only; apply action and state gates before any control use"
+    },
+    {
+      "id": "www.imItem",
+      "surface": "www",
+      "routePattern": "/im?itemId=...&peerUserId=...",
+      "family": "message",
+      "layer": "M1/M3",
+      "evidence": "Deep/Param",
+      "readiness": "R3/R4",
+      "liveCoverage": "requires-user-context",
+      "deepeningQueue": "D4_REQUIRES_USER_CONTEXT",
+      "transitionClass": "REQUIRES_USER_CONTEXT",
+      "defaultActionGate": "G2",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S4_LOGIN_EXPIRED",
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "probeMode": "messageShellRead",
+      "allowedRead": [
+        "identify item-linked chat entry"
+      ],
+      "defaultObservationTargets": [
+        "routeShape",
+        "requiredParameterType",
+        "riskBoundary",
+        "userConfirmationNeeded"
+      ],
+      "anchors": [
+        "item-linked chat parameters",
+        "input area"
+      ],
+      "stopPoints": [
+        "read specific conversation",
+        "send"
+      ],
+      "stopPolicy": "wait for user-provided URL or business context; redact parameters; stop before business action"
+    },
+    {
+      "id": "www.account",
+      "surface": "www",
+      "routePattern": "/account",
+      "family": "identity",
+      "layer": "M1/M5",
+      "evidence": "Live + Static",
+      "readiness": "R1/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G4",
+      "expectedStates": [
+        "S4_LOGIN_EXPIRED",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "probeMode": "identityGate",
+      "allowedRead": [
+        "read module names and status categories"
+      ],
+      "defaultObservationTargets": [
+        "tabNames",
+        "filterFieldNames",
+        "tableHeaders",
+        "buttonCategories",
+        "statusCategories",
+        "modalCategories"
+      ],
+      "anchors": [
+        "basic info module",
+        "stay signed in",
+        "notice switch",
+        "verification entry",
+        "security center"
+      ],
+      "stopPoints": [
+        "toggle notice",
+        "verify identity",
+        "switch account",
+        "logout"
+      ],
+      "stopPolicy": "read structure only; apply action and state gates before any control use"
+    },
+    {
+      "id": "www.accountApi",
+      "surface": "www",
+      "routePattern": "/account/api",
+      "family": "internal-module",
+      "layer": "M6",
+      "evidence": "Internal/Module",
+      "readiness": "R5",
+      "liveCoverage": "static-only",
+      "deepeningQueue": "D5_STATIC_ONLY",
+      "transitionClass": "STATIC_ONLY",
+      "defaultActionGate": "G4",
+      "expectedStates": [
+        "S3_NETWORK_OR_API_FAILURE"
+      ],
+      "probeMode": "doNotProbe",
+      "allowedRead": [
+        "treat as non-page evidence"
+      ],
+      "defaultObservationTargets": [
+        "staticRoute",
+        "moduleName",
+        "staticApiFamily",
+        "riskBoundary"
+      ],
+      "anchors": [
+        "module path"
+      ],
+      "stopPoints": [
+        "direct call",
+        "page navigation"
+      ],
+      "stopPolicy": "describe from static evidence only; do not force live probing"
+    },
+    {
+      "id": "www.feedback",
+      "surface": "www",
+      "routePattern": "/feedback?from=...",
+      "family": "draft-input",
+      "layer": "M2/M3",
+      "evidence": "Live + Static",
+      "readiness": "R2/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D2_FORM_AND_SHELL_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G2",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S4_LOGIN_EXPIRED",
+        "S7_CONFIRM_DIALOG",
+        "S8_FORM_VALIDATION",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "probeMode": "draftAssist",
+      "allowedRead": [
+        "draft feedback text"
+      ],
+      "defaultObservationTargets": [
+        "fieldNames",
+        "inputTypes",
+        "validationHintCategories",
+        "uploadZones",
+        "emptyStateCategories",
+        "shellAnchors"
+      ],
+      "anchors": [
+        "feedback type",
+        "source page option",
+        "text area",
+        "screenshot upload",
+        "submit"
+      ],
+      "stopPoints": [
+        "upload screenshot",
+        "submit"
+      ],
+      "stopPolicy": "read structure only; apply action and state gates before any control use"
+    },
+    {
+      "id": "www.changelog",
+      "surface": "www",
+      "routePattern": "/changelog",
+      "family": "public-content",
+      "layer": "M0",
+      "evidence": "Live Only",
+      "readiness": "R0",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D3_LOW_RISK_LIVE",
+      "transitionClass": "SAFE_READ",
+      "defaultActionGate": "G0",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S6_QR_OR_APP_BRIDGE",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "probeMode": "publicContentRead",
+      "allowedRead": [
+        "read public content structure"
+      ],
+      "defaultObservationTargets": [
+        "navigationEntries",
+        "filterControls",
+        "cardStructure",
+        "contentBlocks",
+        "routeShapes"
+      ],
+      "anchors": [
+        "update-log title",
+        "feature entries"
+      ],
+      "stopPoints": [],
+      "stopPolicy": "read structure only; apply action and state gates before any control use"
+    },
+    {
+      "id": "www.login",
+      "surface": "www",
+      "routePattern": "/login",
+      "family": "identity",
+      "layer": "M5",
+      "evidence": "Live + Static",
+      "readiness": "R5",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D2_FORM_AND_SHELL_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G4",
+      "expectedStates": [
+        "S4_LOGIN_EXPIRED",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "probeMode": "identityGate",
+      "allowedRead": [
+        "open login page"
+      ],
+      "defaultObservationTargets": [
+        "fieldNames",
+        "inputTypes",
+        "validationHintCategories",
+        "uploadZones",
+        "emptyStateCategories",
+        "shellAnchors"
+      ],
+      "anchors": [
+        "login method",
+        "scan container",
+        "verification entry",
+        "redirect parameter"
+      ],
+      "stopPoints": [
+        "scan",
+        "enter verification code",
+        "bypass risk control"
+      ],
+      "stopPolicy": "read structure only; apply action and state gates before any control use"
+    },
+    {
+      "id": "www.loginRedirect",
+      "surface": "www",
+      "routePattern": "/login?spm=...&redirectURL=...",
+      "family": "identity",
+      "layer": "M5",
+      "evidence": "Static Only",
+      "readiness": "R5",
+      "liveCoverage": "static-only",
+      "deepeningQueue": "D5_STATIC_ONLY",
+      "transitionClass": "STATIC_ONLY",
+      "defaultActionGate": "G4",
+      "expectedStates": [
+        "S4_LOGIN_EXPIRED",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "probeMode": "identityGate",
+      "allowedRead": [
+        "identify login redirect shape"
+      ],
+      "defaultObservationTargets": [
+        "staticRoute",
+        "moduleName",
+        "staticApiFamily",
+        "riskBoundary"
+      ],
+      "anchors": [
+        "redirect parameter"
+      ],
+      "stopPoints": [
+        "change login parameters",
+        "bypass risk control"
+      ],
+      "stopPolicy": "describe from static evidence only; do not force live probing"
+    },
+    {
+      "id": "www.findAccount",
+      "surface": "www",
+      "routePattern": "/find-account",
+      "family": "identity",
+      "layer": "M5",
+      "evidence": "Static Only",
+      "readiness": "R5",
+      "liveCoverage": "static-only",
+      "deepeningQueue": "D5_STATIC_ONLY",
+      "transitionClass": "STATIC_ONLY",
+      "defaultActionGate": "G4",
+      "expectedStates": [
+        "S4_LOGIN_EXPIRED",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "probeMode": "identityGate",
+      "allowedRead": [
+        "identify page type"
+      ],
+      "defaultObservationTargets": [
+        "staticRoute",
+        "moduleName",
+        "staticApiFamily",
+        "riskBoundary"
+      ],
+      "anchors": [
+        "account recovery placeholder",
+        "redirect behavior"
+      ],
+      "stopPoints": [
+        "recover account"
+      ],
+      "stopPolicy": "describe from static evidence only; do not force live probing"
+    },
+    {
+      "id": "www.selectAccount",
+      "surface": "www",
+      "routePattern": "/select-account",
+      "family": "identity",
+      "layer": "M5",
+      "evidence": "Static Only",
+      "readiness": "R5",
+      "liveCoverage": "static-only",
+      "deepeningQueue": "D5_STATIC_ONLY",
+      "transitionClass": "STATIC_ONLY",
+      "defaultActionGate": "G4",
+      "expectedStates": [
+        "S4_LOGIN_EXPIRED",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "probeMode": "identityGate",
+      "allowedRead": [
+        "identify page type"
+      ],
+      "defaultObservationTargets": [
+        "staticRoute",
+        "moduleName",
+        "staticApiFamily",
+        "riskBoundary"
+      ],
+      "anchors": [
+        "account selection placeholder",
+        "redirect behavior"
+      ],
+      "stopPoints": [
+        "switch account"
+      ],
+      "stopPolicy": "describe from static evidence only; do not force live probing"
+    },
+    {
+      "id": "www.loginValidation",
+      "surface": "www",
+      "routePattern": "/login-validation",
+      "family": "identity",
+      "layer": "M5",
+      "evidence": "Static Only",
+      "readiness": "R5",
+      "liveCoverage": "static-only",
+      "deepeningQueue": "D5_STATIC_ONLY",
+      "transitionClass": "STATIC_ONLY",
+      "defaultActionGate": "G4",
+      "expectedStates": [
+        "S4_LOGIN_EXPIRED",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "probeMode": "identityGate",
+      "allowedRead": [
+        "identify page type"
+      ],
+      "defaultObservationTargets": [
+        "staticRoute",
+        "moduleName",
+        "staticApiFamily",
+        "riskBoundary"
+      ],
+      "anchors": [
+        "login validation placeholder"
+      ],
+      "stopPoints": [
+        "enter verification code"
+      ],
+      "stopPolicy": "describe from static evidence only; do not force live probing"
+    },
+    {
+      "id": "www.commonVideo",
+      "surface": "www",
+      "routePattern": "/common-video",
+      "family": "public-content",
+      "layer": "M0/M6",
+      "evidence": "Static Only",
+      "readiness": "R0/R4",
+      "liveCoverage": "static-only",
+      "deepeningQueue": "D5_STATIC_ONLY",
+      "transitionClass": "STATIC_ONLY",
+      "defaultActionGate": "G0",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S6_QR_OR_APP_BRIDGE",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "probeMode": "publicContentRead",
+      "allowedRead": [
+        "read activity/video container structure"
+      ],
+      "defaultObservationTargets": [
+        "staticRoute",
+        "moduleName",
+        "staticApiFamily",
+        "riskBoundary"
+      ],
+      "anchors": [
+        "video container",
+        "title/material config",
+        "playback controls"
+      ],
+      "stopPoints": [
+        "play proactively",
+        "download",
+        "capture video"
+      ],
+      "stopPolicy": "describe from static evidence only; do not force live probing"
+    },
+    {
+      "id": "www.commonVideoLayout",
+      "surface": "www",
+      "routePattern": "/common-video/layout",
+      "family": "internal-module",
+      "layer": "M6",
+      "evidence": "Internal/Module",
+      "readiness": "R5",
+      "liveCoverage": "static-only",
+      "deepeningQueue": "D5_STATIC_ONLY",
+      "transitionClass": "STATIC_ONLY",
+      "defaultActionGate": "G4",
+      "expectedStates": [
+        "S3_NETWORK_OR_API_FAILURE"
+      ],
+      "probeMode": "doNotProbe",
+      "allowedRead": [
+        "treat as static evidence"
+      ],
+      "defaultObservationTargets": [
+        "staticRoute",
+        "moduleName",
+        "staticApiFamily",
+        "riskBoundary"
+      ],
+      "anchors": [
+        "layout package path"
+      ],
+      "stopPoints": [
+        "page navigation"
+      ],
+      "stopPolicy": "describe from static evidence only; do not force live probing"
+    },
+    {
+      "id": "www.upgradeBrowser",
+      "surface": "www",
+      "routePattern": "/upgrade-browser",
+      "family": "public-content",
+      "layer": "M0/M6",
+      "evidence": "Static Only",
+      "readiness": "R0/R3",
+      "liveCoverage": "static-only",
+      "deepeningQueue": "D5_STATIC_ONLY",
+      "transitionClass": "STATIC_ONLY",
+      "defaultActionGate": "G0",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S6_QR_OR_APP_BRIDGE",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "probeMode": "publicContentRead",
+      "allowedRead": [
+        "read recommendation structure"
+      ],
+      "defaultObservationTargets": [
+        "staticRoute",
+        "moduleName",
+        "staticApiFamily",
+        "riskBoundary"
+      ],
+      "anchors": [
+        "browser recommendation list",
+        "download entry"
+      ],
+      "stopPoints": [
+        "download",
+        "install"
+      ],
+      "stopPolicy": "describe from static evidence only; do not force live probing"
+    },
+    {
+      "id": "www.playground",
+      "surface": "www",
+      "routePattern": "/playground",
+      "family": "internal-test",
+      "layer": "M6",
+      "evidence": "Static Only",
+      "readiness": "R4/R5",
+      "liveCoverage": "static-only",
+      "deepeningQueue": "D5_STATIC_ONLY",
+      "transitionClass": "STATIC_ONLY",
+      "defaultActionGate": "G4",
+      "expectedStates": [
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "probeMode": "doNotProbe",
+      "allowedRead": [
+        "static identification only"
+      ],
+      "defaultObservationTargets": [
+        "staticRoute",
+        "moduleName",
+        "staticApiFamily",
+        "riskBoundary"
+      ],
+      "anchors": [
+        "internal test entry",
+        "login/upload/qr/payment test controls"
+      ],
+      "stopPoints": [
+        "visit proactively",
+        "trigger test action"
+      ],
+      "stopPolicy": "describe from static evidence only; do not force live probing"
+    },
+    {
+      "id": "www.yhbCreateOrder",
+      "surface": "www",
+      "routePattern": "create-order-yhb package",
+      "family": "buyer-trade",
+      "layer": "M3",
+      "evidence": "Static Only",
+      "readiness": "R4",
+      "liveCoverage": "static-only",
+      "deepeningQueue": "D5_STATIC_ONLY",
+      "transitionClass": "STATIC_ONLY",
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S4_LOGIN_EXPIRED",
+        "S6_QR_OR_APP_BRIDGE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "probeMode": "tradeReadOnly",
+      "allowedRead": [
+        "record structure and risk"
+      ],
+      "defaultObservationTargets": [
+        "staticRoute",
+        "moduleName",
+        "staticApiFamily",
+        "riskBoundary"
+      ],
+      "anchors": [
+        "YHB order render fields",
+        "YHB order create interface"
+      ],
+      "stopPoints": [
+        "create YHB order"
+      ],
+      "stopPolicy": "describe from static evidence only; do not force live probing"
+    },
+    {
+      "id": "www.yhbOrderDetail",
+      "surface": "www",
+      "routePattern": "order-detail-yhb package",
+      "family": "buyer-trade",
+      "layer": "M3",
+      "evidence": "Static Only",
+      "readiness": "R4",
+      "liveCoverage": "static-only",
+      "deepeningQueue": "D5_STATIC_ONLY",
+      "transitionClass": "STATIC_ONLY",
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S4_LOGIN_EXPIRED",
+        "S6_QR_OR_APP_BRIDGE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "probeMode": "tradeReadOnly",
+      "allowedRead": [
+        "read report/status capability shape"
+      ],
+      "defaultObservationTargets": [
+        "staticRoute",
+        "moduleName",
+        "staticApiFamily",
+        "riskBoundary"
+      ],
+      "anchors": [
+        "report fields",
+        "dispute fields",
+        "review-related fields"
+      ],
+      "stopPoints": [
+        "after-sale action",
+        "review action"
+      ],
+      "stopPolicy": "describe from static evidence only; do not force live probing"
+    },
+    {
+      "id": "seller.dataOverview",
+      "surface": "seller",
+      "routePattern": "#/seller-data/data",
+      "family": "seller-data",
+      "layer": "M4",
+      "evidence": "Live + Static",
+      "readiness": "R1/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D3_LOW_RISK_LIVE",
+      "transitionClass": "SAFE_READ",
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S3_NETWORK_OR_API_FAILURE",
+        "S6_QR_OR_APP_BRIDGE",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "probeMode": "sellerMetricReadOnly",
+      "allowedRead": [
+        "read metric field names and module names"
+      ],
+      "defaultObservationTargets": [
+        "navigationEntries",
+        "filterControls",
+        "cardStructure",
+        "contentBlocks",
+        "routeShapes"
+      ],
+      "anchors": [
+        "date controls",
+        "metric cards",
+        "trend charts",
+        "info popovers"
+      ],
+      "stopPoints": [
+        "record real numbers",
+        "export",
+        "download"
+      ],
+      "stopPolicy": "read structure only; apply action and state gates before any control use"
+    },
+    {
+      "id": "seller.commodityData",
+      "surface": "seller",
+      "routePattern": "#/seller-data/commodity",
+      "family": "seller-data",
+      "layer": "M4",
+      "evidence": "Live + Static",
+      "readiness": "R1/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D2_FORM_AND_SHELL_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S3_NETWORK_OR_API_FAILURE",
+        "S6_QR_OR_APP_BRIDGE",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "probeMode": "sellerMetricReadOnly",
+      "allowedRead": [
+        "read headers and filters"
+      ],
+      "defaultObservationTargets": [
+        "fieldNames",
+        "inputTypes",
+        "validationHintCategories",
+        "uploadZones",
+        "emptyStateCategories",
+        "shellAnchors"
+      ],
+      "anchors": [
+        "search",
+        "date",
+        "commodity table",
+        "metric columns",
+        "pagination",
+        "download"
+      ],
+      "stopPoints": [
+        "download item detail"
+      ],
+      "stopPolicy": "read structure only; apply action and state gates before any control use"
+    },
+    {
+      "id": "seller.fanData",
+      "surface": "seller",
+      "routePattern": "#/seller-data/fanData",
+      "family": "seller-data",
+      "layer": "M4",
+      "evidence": "Live + Static",
+      "readiness": "R1/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D3_LOW_RISK_LIVE",
+      "transitionClass": "SAFE_READ",
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S3_NETWORK_OR_API_FAILURE",
+        "S6_QR_OR_APP_BRIDGE",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "probeMode": "sellerMetricReadOnly",
+      "allowedRead": [
+        "read profile module names"
+      ],
+      "defaultObservationTargets": [
+        "navigationEntries",
+        "filterControls",
+        "cardStructure",
+        "contentBlocks",
+        "routeShapes"
+      ],
+      "anchors": [
+        "date",
+        "fan metrics",
+        "profile distributions",
+        "region/user-group modules"
+      ],
+      "stopPoints": [
+        "record real audience numbers",
+        "export"
+      ],
+      "stopPolicy": "read structure only; apply action and state gates before any control use"
+    },
+    {
+      "id": "seller.customerServiceData",
+      "surface": "seller",
+      "routePattern": "#/seller-data/customerService",
+      "family": "seller-data",
+      "layer": "M4",
+      "evidence": "Live + Static",
+      "readiness": "R1/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D2_FORM_AND_SHELL_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S3_NETWORK_OR_API_FAILURE",
+        "S6_QR_OR_APP_BRIDGE",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "probeMode": "sellerMetricReadOnly",
+      "allowedRead": [
+        "read headers and satisfaction field names"
+      ],
+      "defaultObservationTargets": [
+        "fieldNames",
+        "inputTypes",
+        "validationHintCategories",
+        "uploadZones",
+        "emptyStateCategories",
+        "shellAnchors"
+      ],
+      "anchors": [
+        "consultation metrics",
+        "satisfaction fields",
+        "customer-service table",
+        "export"
+      ],
+      "stopPoints": [
+        "export customer-service detail"
+      ],
+      "stopPolicy": "read structure only; apply action and state gates before any control use"
+    },
+    {
+      "id": "seller.itemPublish",
+      "surface": "seller",
+      "routePattern": "#/seller-item/publish",
+      "family": "seller-item",
+      "layer": "M2/M4",
+      "evidence": "Live + Static",
+      "readiness": "R2/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D2_FORM_AND_SHELL_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G2",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S7_CONFIRM_DIALOG",
+        "S8_FORM_VALIDATION",
+        "S9_FILE_OR_EXPORT",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "probeMode": "sellerItemReadOrDraft",
+      "allowedRead": [
+        "draft item listing"
+      ],
+      "defaultObservationTargets": [
+        "fieldNames",
+        "inputTypes",
+        "validationHintCategories",
+        "uploadZones",
+        "emptyStateCategories",
+        "shellAnchors"
+      ],
+      "anchors": [
+        "image/video uploader",
+        "title/description",
+        "category",
+        "sku",
+        "price",
+        "stock",
+        "shipping settings"
+      ],
+      "stopPoints": [
+        "upload",
+        "save",
+        "publish"
+      ],
+      "stopPolicy": "read structure only; apply action and state gates before any control use"
+    },
+    {
+      "id": "seller.goodsManage",
+      "surface": "seller",
+      "routePattern": "#/seller-item/goods-manage",
+      "family": "seller-item",
+      "layer": "M4",
+      "evidence": "Live + Static",
+      "readiness": "R1/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D2_FORM_AND_SHELL_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G2",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S7_CONFIRM_DIALOG",
+        "S8_FORM_VALIDATION",
+        "S9_FILE_OR_EXPORT",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "probeMode": "sellerItemReadOrDraft",
+      "allowedRead": [
+        "read filters and headers"
+      ],
+      "defaultObservationTargets": [
+        "fieldNames",
+        "inputTypes",
+        "validationHintCategories",
+        "uploadZones",
+        "emptyStateCategories",
+        "shellAnchors"
+      ],
+      "anchors": [
+        "status tabs",
+        "search/filter",
+        "item table",
+        "bulk actions",
+        "operation column"
+      ],
+      "stopPoints": [
+        "edit",
+        "copy",
+        "adjust price",
+        "shelf changes",
+        "delete"
+      ],
+      "stopPolicy": "read structure only; apply action and state gates before any control use"
+    },
+    {
+      "id": "seller.postTemplate",
+      "surface": "seller",
+      "routePattern": "#/seller-item/post-temple",
+      "family": "seller-item",
+      "layer": "M4",
+      "evidence": "Live + Static",
+      "readiness": "R1/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D2_FORM_AND_SHELL_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G2",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S7_CONFIRM_DIALOG",
+        "S8_FORM_VALIDATION",
+        "S9_FILE_OR_EXPORT",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "probeMode": "sellerItemReadOrDraft",
+      "allowedRead": [
+        "read template field names"
+      ],
+      "defaultObservationTargets": [
+        "fieldNames",
+        "inputTypes",
+        "validationHintCategories",
+        "uploadZones",
+        "emptyStateCategories",
+        "shellAnchors"
+      ],
+      "anchors": [
+        "template list",
+        "create entry",
+        "operation column",
+        "delete/default confirmation"
+      ],
+      "stopPoints": [
+        "create",
+        "edit",
+        "delete",
+        "set default"
+      ],
+      "stopPolicy": "read structure only; apply action and state gates before any control use"
+    },
+    {
+      "id": "seller.postTemplateCreate",
+      "surface": "seller",
+      "routePattern": "#/seller-item/post-temple/create",
+      "family": "seller-item",
+      "layer": "M4",
+      "evidence": "Live + Static",
+      "readiness": "R2/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D2_FORM_AND_SHELL_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G2",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S7_CONFIRM_DIALOG",
+        "S8_FORM_VALIDATION",
+        "S9_FILE_OR_EXPORT",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "probeMode": "sellerItemReadOrDraft",
+      "allowedRead": [
+        "draft template fields"
+      ],
+      "defaultObservationTargets": [
+        "fieldNames",
+        "inputTypes",
+        "validationHintCategories",
+        "uploadZones",
+        "emptyStateCategories",
+        "shellAnchors"
+      ],
+      "anchors": [
+        "template name",
+        "shipping location",
+        "billing mode",
+        "region modal",
+        "save"
+      ],
+      "stopPoints": [
+        "save real template"
+      ],
+      "stopPolicy": "read structure only; apply action and state gates before any control use"
+    },
+    {
+      "id": "seller.orderManage",
+      "surface": "seller",
+      "routePattern": "#/seller-trade/order-manage",
+      "family": "seller-trade",
+      "layer": "M3/M4",
+      "evidence": "Live + Static",
+      "readiness": "R1/R4",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "probeMode": "sellerTradeReadOnly",
+      "allowedRead": [
+        "read order-status categories and headers"
+      ],
+      "defaultObservationTargets": [
+        "tabNames",
+        "filterFieldNames",
+        "tableHeaders",
+        "buttonCategories",
+        "statusCategories",
+        "modalCategories"
+      ],
+      "anchors": [
+        "order-status tabs",
+        "search conditions",
+        "date",
+        "order table",
+        "operation column"
+      ],
+      "stopPoints": [
+        "ship",
+        "change logistics",
+        "remark",
+        "contact",
+        "view funds"
+      ],
+      "stopPolicy": "read structure only; apply action and state gates before any control use"
+    },
+    {
+      "id": "seller.orderDetail",
+      "surface": "seller",
+      "routePattern": "#/seller-trade/order-manage/order-detail?orderId=...",
+      "family": "seller-trade",
+      "layer": "M3/M4",
+      "evidence": "Deep/Param",
+      "readiness": "R1/R4",
+      "liveCoverage": "requires-user-context",
+      "deepeningQueue": "D4_REQUIRES_USER_CONTEXT",
+      "transitionClass": "REQUIRES_USER_CONTEXT",
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "probeMode": "sellerTradeReadOnly",
+      "allowedRead": [
+        "read field names after user-provided context"
+      ],
+      "defaultObservationTargets": [
+        "routeShape",
+        "requiredParameterType",
+        "riskBoundary",
+        "userConfirmationNeeded"
+      ],
+      "anchors": [
+        "status nodes",
+        "logistics",
+        "address-modification area",
+        "trade messages",
+        "operation buttons"
+      ],
+      "stopPoints": [
+        "guess order id",
+        "order action"
+      ],
+      "stopPolicy": "wait for user-provided URL or business context; redact parameters; stop before business action"
+    },
+    {
+      "id": "seller.refundManage",
+      "surface": "seller",
+      "routePattern": "#/seller-trade/refund-manage",
+      "family": "seller-trade",
+      "layer": "M3/M4",
+      "evidence": "Live + Static",
+      "readiness": "R1/R4",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "probeMode": "sellerTradeReadOnly",
+      "allowedRead": [
+        "read refund status and field names"
+      ],
+      "defaultObservationTargets": [
+        "tabNames",
+        "filterFieldNames",
+        "tableHeaders",
+        "buttonCategories",
+        "statusCategories",
+        "modalCategories"
+      ],
+      "anchors": [
+        "refund type",
+        "status filter",
+        "reason",
+        "logistics",
+        "operation column"
+      ],
+      "stopPoints": [
+        "agree refund",
+        "refuse refund",
+        "compensate",
+        "confirm receipt"
+      ],
+      "stopPolicy": "read structure only; apply action and state gates before any control use"
+    },
+    {
+      "id": "seller.evaluationManage",
+      "surface": "seller",
+      "routePattern": "#/seller-trade/evaluation-manage",
+      "family": "seller-trade",
+      "layer": "M3/M4",
+      "evidence": "Live + Static",
+      "readiness": "R1/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "probeMode": "sellerTradeReadOnly",
+      "allowedRead": [
+        "read evaluation fields",
+        "draft reply text"
+      ],
+      "defaultObservationTargets": [
+        "tabNames",
+        "filterFieldNames",
+        "tableHeaders",
+        "buttonCategories",
+        "statusCategories",
+        "modalCategories"
+      ],
+      "anchors": [
+        "evaluation filters",
+        "evaluation table",
+        "batch review",
+        "report/contact"
+      ],
+      "stopPoints": [
+        "review",
+        "report",
+        "contact"
+      ],
+      "stopPolicy": "read structure only; apply action and state gates before any control use"
+    },
+    {
+      "id": "seller.complaintManage",
+      "surface": "seller",
+      "routePattern": "#/seller-trade/complaint-manage",
+      "family": "seller-trade",
+      "layer": "M3/M4",
+      "evidence": "Live + Static",
+      "readiness": "R1/R4",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "probeMode": "sellerTradeReadOnly",
+      "allowedRead": [
+        "read complaint status",
+        "draft appeal/proof text"
+      ],
+      "defaultObservationTargets": [
+        "tabNames",
+        "filterFieldNames",
+        "tableHeaders",
+        "buttonCategories",
+        "statusCategories",
+        "modalCategories"
+      ],
+      "anchors": [
+        "complaint status",
+        "complaint table",
+        "detail/proof entry"
+      ],
+      "stopPoints": [
+        "submit proof",
+        "revoke",
+        "refuse",
+        "submit material"
+      ],
+      "stopPolicy": "read structure only; apply action and state gates before any control use"
+    },
+    {
+      "id": "seller.refundAddress",
+      "surface": "seller",
+      "routePattern": "#/seller-trade/refund-address",
+      "family": "seller-trade",
+      "layer": "M4",
+      "evidence": "Live + Static",
+      "readiness": "R1/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "probeMode": "sellerTradeReadOnly",
+      "allowedRead": [
+        "read address table headers"
+      ],
+      "defaultObservationTargets": [
+        "tabNames",
+        "filterFieldNames",
+        "tableHeaders",
+        "buttonCategories",
+        "statusCategories",
+        "modalCategories"
+      ],
+      "anchors": [
+        "address table",
+        "default status",
+        "operation column",
+        "add/edit/delete"
+      ],
+      "stopPoints": [
+        "add address",
+        "edit address",
+        "delete address"
+      ],
+      "stopPolicy": "read structure only; apply action and state gates before any control use"
+    },
+    {
+      "id": "seller.incomeBill",
+      "surface": "seller",
+      "routePattern": "#/seller-finance/income-bill",
+      "family": "seller-finance",
+      "layer": "M4",
+      "evidence": "Live + Static",
+      "readiness": "R1/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "probeMode": "sellerFinanceReadOnly",
+      "allowedRead": [
+        "read income field names"
+      ],
+      "defaultObservationTargets": [
+        "tabNames",
+        "filterFieldNames",
+        "tableHeaders",
+        "buttonCategories",
+        "statusCategories",
+        "modalCategories"
+      ],
+      "anchors": [
+        "month/day/detail tabs",
+        "date",
+        "business type",
+        "bill table",
+        "export/download"
+      ],
+      "stopPoints": [
+        "export",
+        "historical download",
+        "download full detail"
+      ],
+      "stopPolicy": "read structure only; apply action and state gates before any control use"
+    },
+    {
+      "id": "seller.expenseBill",
+      "surface": "seller",
+      "routePattern": "#/seller-finance/expense-bill",
+      "family": "seller-finance",
+      "layer": "M4",
+      "evidence": "Live + Static",
+      "readiness": "R1/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "probeMode": "sellerFinanceReadOnly",
+      "allowedRead": [
+        "read expense field names"
+      ],
+      "defaultObservationTargets": [
+        "tabNames",
+        "filterFieldNames",
+        "tableHeaders",
+        "buttonCategories",
+        "statusCategories",
+        "modalCategories"
+      ],
+      "anchors": [
+        "month/day/detail tabs",
+        "expense type",
+        "bill table",
+        "export/download"
+      ],
+      "stopPoints": [
+        "export",
+        "download"
+      ],
+      "stopPolicy": "read structure only; apply action and state gates before any control use"
+    },
+    {
+      "id": "seller.invoiceApply",
+      "surface": "seller",
+      "routePattern": "#/seller-finance/invoice-apply",
+      "family": "seller-finance",
+      "layer": "M4",
+      "evidence": "Live + Static",
+      "readiness": "R1/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "probeMode": "sellerFinanceReadOnly",
+      "allowedRead": [
+        "read invoice fields and button names"
+      ],
+      "defaultObservationTargets": [
+        "tabNames",
+        "filterFieldNames",
+        "tableHeaders",
+        "buttonCategories",
+        "statusCategories",
+        "modalCategories"
+      ],
+      "anchors": [
+        "pending/applied/legacy tabs",
+        "business type",
+        "apply",
+        "export"
+      ],
+      "stopPoints": [
+        "apply invoice",
+        "export"
+      ],
+      "stopPolicy": "read structure only; apply action and state gates before any control use"
+    },
+    {
+      "id": "seller.basicInfo",
+      "surface": "seller",
+      "routePattern": "#/seller-finance/basic-info",
+      "family": "seller-finance",
+      "layer": "M4/M5",
+      "evidence": "Live + Static",
+      "readiness": "R1/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "probeMode": "sellerFinanceReadOnly",
+      "allowedRead": [
+        "read field names only"
+      ],
+      "defaultObservationTargets": [
+        "tabNames",
+        "filterFieldNames",
+        "tableHeaders",
+        "buttonCategories",
+        "statusCategories",
+        "modalCategories"
+      ],
+      "anchors": [
+        "invoice entity form",
+        "edit/save"
+      ],
+      "stopPoints": [
+        "modify entity data"
+      ],
+      "stopPolicy": "read structure only; apply action and state gates before any control use"
+    },
+    {
+      "id": "seller.subAccount",
+      "surface": "seller",
+      "routePattern": "#/seller-account/sub-account",
+      "family": "seller-account",
+      "layer": "M4/M5",
+      "evidence": "Live + Static",
+      "readiness": "R1/R4",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "probeMode": "sellerPermissionReadOnly",
+      "allowedRead": [
+        "read permission field names and status categories"
+      ],
+      "defaultObservationTargets": [
+        "tabNames",
+        "filterFieldNames",
+        "tableHeaders",
+        "buttonCategories",
+        "statusCategories",
+        "modalCategories"
+      ],
+      "anchors": [
+        "sub-account table",
+        "role",
+        "status",
+        "routing config",
+        "new/disable/permission"
+      ],
+      "stopPoints": [
+        "create sub-account",
+        "disable account",
+        "change permission"
+      ],
+      "stopPolicy": "read structure only; apply action and state gates before any control use"
+    },
+    {
+      "id": "seller.csDispatch",
+      "surface": "seller",
+      "routePattern": "#/im-cs-dispatch/customer-routing-service",
+      "family": "seller-account",
+      "layer": "M4/M5",
+      "evidence": "Live + Static",
+      "readiness": "R1/R4",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "probeMode": "sellerPermissionReadOnly",
+      "allowedRead": [
+        "read routing rule structure"
+      ],
+      "defaultObservationTargets": [
+        "tabNames",
+        "filterFieldNames",
+        "tableHeaders",
+        "buttonCategories",
+        "statusCategories",
+        "modalCategories"
+      ],
+      "anchors": [
+        "groups",
+        "reception scope",
+        "participating service agents",
+        "switch",
+        "save"
+      ],
+      "stopPoints": [
+        "save",
+        "enable/disable",
+        "create group"
+      ],
+      "stopPolicy": "read structure only; apply action and state gates before any control use"
+    },
+    {
+      "id": "seller.securityCenter",
+      "surface": "seller",
+      "routePattern": "#/seller-sc/home",
+      "family": "seller-security",
+      "layer": "M4",
+      "evidence": "Live + Static",
+      "readiness": "R1/R4",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "probeMode": "sellerSecurityReadOnly",
+      "allowedRead": [
+        "read violation field names and status categories"
+      ],
+      "defaultObservationTargets": [
+        "tabNames",
+        "filterFieldNames",
+        "tableHeaders",
+        "buttonCategories",
+        "statusCategories",
+        "modalCategories"
+      ],
+      "anchors": [
+        "violation table",
+        "penalty status",
+        "appeal status",
+        "detail/appeal"
+      ],
+      "stopPoints": [
+        "view sensitive detail",
+        "appeal",
+        "process"
+      ],
+      "stopPolicy": "read structure only; apply action and state gates before any control use"
+    },
+    {
+      "id": "seller.adHome",
+      "surface": "seller",
+      "routePattern": "#/seller-ad/home",
+      "family": "seller-ad",
+      "layer": "M4",
+      "evidence": "Live + Static",
+      "readiness": "R1/R4",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S7_CONFIRM_DIALOG",
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "probeMode": "sellerAdReadOnly",
+      "allowedRead": [
+        "read promotion fields",
+        "draft plan idea"
+      ],
+      "defaultObservationTargets": [
+        "tabNames",
+        "filterFieldNames",
+        "tableHeaders",
+        "buttonCategories",
+        "statusCategories",
+        "modalCategories"
+      ],
+      "anchors": [
+        "date",
+        "promotion metrics",
+        "plan entry",
+        "carousel controls"
+      ],
+      "stopPoints": [
+        "create plan",
+        "launch paid promotion"
+      ],
+      "stopPolicy": "read structure only; apply action and state gates before any control use"
+    },
+    {
+      "id": "seller.notificationCenter",
+      "surface": "seller",
+      "routePattern": "#/notification-center",
+      "family": "seller-shell",
+      "layer": "M4",
+      "evidence": "Live + Static",
+      "readiness": "R1/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S3_NETWORK_OR_API_FAILURE",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "probeMode": "sellerShellRead",
+      "allowedRead": [
+        "read notification structure and categories"
+      ],
+      "defaultObservationTargets": [
+        "tabNames",
+        "filterFieldNames",
+        "tableHeaders",
+        "buttonCategories",
+        "statusCategories",
+        "modalCategories"
+      ],
+      "anchors": [
+        "notification list",
+        "unread status",
+        "detail entry",
+        "mark read/clear unread"
+      ],
+      "stopPoints": [
+        "mark read",
+        "clear unread"
+      ],
+      "stopPolicy": "read structure only; apply action and state gates before any control use"
+    },
+    {
+      "id": "seller.notificationApi",
+      "surface": "seller",
+      "routePattern": "#/notification-center/api*",
+      "family": "internal-module",
+      "layer": "M6",
+      "evidence": "Static Only",
+      "readiness": "R5",
+      "liveCoverage": "static-only",
+      "deepeningQueue": "D5_STATIC_ONLY",
+      "transitionClass": "STATIC_ONLY",
+      "defaultActionGate": "G4",
+      "expectedStates": [
+        "S3_NETWORK_OR_API_FAILURE"
+      ],
+      "probeMode": "doNotProbe",
+      "allowedRead": [
+        "treat as non-page"
+      ],
+      "defaultObservationTargets": [
+        "staticRoute",
+        "moduleName",
+        "staticApiFamily",
+        "riskBoundary"
+      ],
+      "anchors": [
+        "internal API/interface module"
+      ],
+      "stopPoints": [
+        "direct call"
+      ],
+      "stopPolicy": "describe from static evidence only; do not force live probing"
+    },
+    {
+      "id": "seller.im",
+      "surface": "seller",
+      "routePattern": "#/im",
+      "family": "seller-message",
+      "layer": "M3/M4",
+      "evidence": "Live + Static",
+      "readiness": "R1/R2/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G2",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "probeMode": "sellerMessageShellRead",
+      "allowedRead": [
+        "read frame",
+        "draft reply"
+      ],
+      "defaultObservationTargets": [
+        "tabNames",
+        "filterFieldNames",
+        "tableHeaders",
+        "buttonCategories",
+        "statusCategories",
+        "modalCategories"
+      ],
+      "anchors": [
+        "session list",
+        "search",
+        "input area",
+        "toolbar",
+        "quick replies",
+        "file",
+        "transfer"
+      ],
+      "stopPoints": [
+        "read specific conversation",
+        "send",
+        "file upload",
+        "transfer"
+      ],
+      "stopPolicy": "read structure only; apply action and state gates before any control use"
+    },
+    {
+      "id": "seller.imItem",
+      "surface": "seller",
+      "routePattern": "#/im?itemId=...",
+      "family": "seller-message",
+      "layer": "M3/M4",
+      "evidence": "Deep/Param",
+      "readiness": "R3/R4",
+      "liveCoverage": "requires-user-context",
+      "deepeningQueue": "D4_REQUIRES_USER_CONTEXT",
+      "transitionClass": "REQUIRES_USER_CONTEXT",
+      "defaultActionGate": "G2",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S2_EMPTY_STATE",
+        "S7_CONFIRM_DIALOG",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "probeMode": "sellerMessageShellRead",
+      "allowedRead": [
+        "identify entry shape"
+      ],
+      "defaultObservationTargets": [
+        "routeShape",
+        "requiredParameterType",
+        "riskBoundary",
+        "userConfirmationNeeded"
+      ],
+      "anchors": [
+        "item-linked message parameter"
+      ],
+      "stopPoints": [
+        "guess parameter",
+        "send"
+      ],
+      "stopPolicy": "wait for user-provided URL or business context; redact parameters; stop before business action"
+    },
+    {
+      "id": "seller.imDesktop",
+      "surface": "seller",
+      "routePattern": "#/im-desktop",
+      "family": "seller-shell",
+      "layer": "M6",
+      "evidence": "Live + Static",
+      "readiness": "R5/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S3_NETWORK_OR_API_FAILURE",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "probeMode": "sellerShellRead",
+      "allowedRead": [
+        "read container structure"
+      ],
+      "defaultObservationTargets": [
+        "tabNames",
+        "filterFieldNames",
+        "tableHeaders",
+        "buttonCategories",
+        "statusCategories",
+        "modalCategories"
+      ],
+      "anchors": [
+        "download/open client prompt"
+      ],
+      "stopPoints": [
+        "download",
+        "install",
+        "open"
+      ],
+      "stopPolicy": "read structure only; apply action and state gates before any control use"
+    },
+    {
+      "id": "seller.download",
+      "surface": "seller",
+      "routePattern": "#/download",
+      "family": "seller-shell",
+      "layer": "M6",
+      "evidence": "Static + Live entry",
+      "readiness": "R5/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D2_FORM_AND_SHELL_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S3_NETWORK_OR_API_FAILURE",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "probeMode": "sellerShellRead",
+      "allowedRead": [
+        "read download entry"
+      ],
+      "defaultObservationTargets": [
+        "fieldNames",
+        "inputTypes",
+        "validationHintCategories",
+        "uploadZones",
+        "emptyStateCategories",
+        "shellAnchors"
+      ],
+      "anchors": [
+        "download button",
+        "client type"
+      ],
+      "stopPoints": [
+        "download",
+        "install"
+      ],
+      "stopPolicy": "read structure only; apply action and state gates before any control use"
+    },
+    {
+      "id": "seller.selectSite",
+      "surface": "seller",
+      "routePattern": "#/select-site",
+      "family": "seller-gate",
+      "layer": "M5",
+      "evidence": "Live + Static",
+      "readiness": "R5/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D2_FORM_AND_SHELL_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G4",
+      "expectedStates": [
+        "S4_LOGIN_EXPIRED",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "probeMode": "sellerGateRead",
+      "allowedRead": [
+        "read site-selection structure"
+      ],
+      "defaultObservationTargets": [
+        "fieldNames",
+        "inputTypes",
+        "validationHintCategories",
+        "uploadZones",
+        "emptyStateCategories",
+        "shellAnchors"
+      ],
+      "anchors": [
+        "site/identity list",
+        "selection button"
+      ],
+      "stopPoints": [
+        "switch site"
+      ],
+      "stopPolicy": "read structure only; apply action and state gates before any control use"
+    },
+    {
+      "id": "seller.accountCheck",
+      "surface": "seller",
+      "routePattern": "#/account-check",
+      "family": "seller-gate",
+      "layer": "M5",
+      "evidence": "Live + Static",
+      "readiness": "R5/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D2_FORM_AND_SHELL_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G4",
+      "expectedStates": [
+        "S4_LOGIN_EXPIRED",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "probeMode": "sellerGateRead",
+      "allowedRead": [
+        "read gate structure"
+      ],
+      "defaultObservationTargets": [
+        "fieldNames",
+        "inputTypes",
+        "validationHintCategories",
+        "uploadZones",
+        "emptyStateCategories",
+        "shellAnchors"
+      ],
+      "anchors": [
+        "account check",
+        "continue",
+        "re-login",
+        "switch"
+      ],
+      "stopPoints": [
+        "continue",
+        "re-login",
+        "switch account"
+      ],
+      "stopPolicy": "read structure only; apply action and state gates before any control use"
+    },
+    {
+      "id": "seller.accountCheckUser",
+      "surface": "seller",
+      "routePattern": "#/account-check?userNick=...",
+      "family": "seller-gate",
+      "layer": "M5",
+      "evidence": "Deep/Param",
+      "readiness": "R5",
+      "liveCoverage": "requires-user-context",
+      "deepeningQueue": "D4_REQUIRES_USER_CONTEXT",
+      "transitionClass": "REQUIRES_USER_CONTEXT",
+      "defaultActionGate": "G4",
+      "expectedStates": [
+        "S4_LOGIN_EXPIRED",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "probeMode": "sellerGateRead",
+      "allowedRead": [
+        "identify parameter shape"
+      ],
+      "defaultObservationTargets": [
+        "routeShape",
+        "requiredParameterType",
+        "riskBoundary",
+        "userConfirmationNeeded"
+      ],
+      "anchors": [
+        "account-check parameter"
+      ],
+      "stopPoints": [
+        "guess real account name"
+      ],
+      "stopPolicy": "wait for user-provided URL or business context; redact parameters; stop before business action"
+    },
+    {
+      "id": "seller.login",
+      "surface": "seller",
+      "routePattern": "#/login",
+      "family": "seller-gate",
+      "layer": "M5",
+      "evidence": "Shell/Container",
+      "readiness": "R5",
+      "liveCoverage": "shell-boundary",
+      "deepeningQueue": "D6_SHELL_BOUNDARY",
+      "transitionClass": "SHELL_ONLY",
+      "defaultActionGate": "G4",
+      "expectedStates": [
+        "S4_LOGIN_EXPIRED",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "probeMode": "sellerGateRead",
+      "allowedRead": [
+        "open login container"
+      ],
+      "defaultObservationTargets": [
+        "containerType",
+        "embeddedTargetShape",
+        "permissionBoundary"
+      ],
+      "anchors": [
+        "login",
+        "scan",
+        "verification entry"
+      ],
+      "stopPoints": [
+        "scan",
+        "enter verification code"
+      ],
+      "stopPolicy": "identify shell or container only; stop at embedded, login, or permission boundary"
+    },
+    {
+      "id": "seller.noPermission",
+      "surface": "seller",
+      "routePattern": "#/no-permission",
+      "family": "seller-gate",
+      "layer": "M5",
+      "evidence": "Live + Static",
+      "readiness": "R5",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D2_FORM_AND_SHELL_LIVE",
+      "transitionClass": "READ_WITH_REDACTION",
+      "defaultActionGate": "G4",
+      "expectedStates": [
+        "S4_LOGIN_EXPIRED",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE"
+      ],
+      "probeMode": "sellerGateRead",
+      "allowedRead": [
+        "record permission failure"
+      ],
+      "defaultObservationTargets": [
+        "fieldNames",
+        "inputTypes",
+        "validationHintCategories",
+        "uploadZones",
+        "emptyStateCategories",
+        "shellAnchors"
+      ],
+      "anchors": [
+        "no-permission message",
+        "return/jump controls"
+      ],
+      "stopPoints": [],
+      "stopPolicy": "read structure only; apply action and state gates before any control use"
+    },
+    {
+      "id": "seller.iframe",
+      "surface": "seller",
+      "routePattern": "#/iframe?url=...",
+      "family": "seller-shell",
+      "layer": "M6",
+      "evidence": "Shell/Container",
+      "readiness": "R5",
+      "liveCoverage": "shell-boundary",
+      "deepeningQueue": "D6_SHELL_BOUNDARY",
+      "transitionClass": "SHELL_ONLY",
+      "defaultActionGate": "G1",
+      "expectedStates": [
+        "S0_NORMAL_CONTENT",
+        "S1_LOADING",
+        "S3_NETWORK_OR_API_FAILURE",
+        "S5_PERMISSION_OR_IDENTITY_GATE",
+        "S6_QR_OR_APP_BRIDGE",
+        "S9_FILE_OR_EXPORT"
+      ],
+      "probeMode": "sellerShellRead",
+      "allowedRead": [
+        "identify container source"
+      ],
+      "defaultObservationTargets": [
+        "containerType",
+        "embeddedTargetShape",
+        "permissionBoundary"
+      ],
+      "anchors": [
+        "iframe source",
+        "loading/failure state"
+      ],
+      "stopPoints": [
+        "operate external page without separate review"
+      ],
+      "stopPolicy": "identify shell or container only; stop at embedded, login, or permission boundary"
+    },
+    {
+      "id": "seller.playground",
+      "surface": "seller",
+      "routePattern": "#/playground",
+      "family": "internal-test",
+      "layer": "M6",
+      "evidence": "Static Only",
+      "readiness": "R5/R4",
+      "liveCoverage": "static-only",
+      "deepeningQueue": "D5_STATIC_ONLY",
+      "transitionClass": "STATIC_ONLY",
+      "defaultActionGate": "G4",
+      "expectedStates": [
+        "S10_HIGH_RISK_BUSINESS_STATE"
+      ],
+      "probeMode": "doNotProbe",
+      "allowedRead": [
+        "static identification only"
+      ],
+      "defaultObservationTargets": [
+        "staticRoute",
+        "moduleName",
+        "staticApiFamily",
+        "riskBoundary"
+      ],
+      "anchors": [
+        "test entry"
+      ],
+      "stopPoints": [
+        "visit proactively",
+        "trigger test action"
+      ],
+      "stopPolicy": "describe from static evidence only; do not force live probing"
+    }
+  ]
+}

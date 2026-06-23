@@ -1,0 +1,161 @@
+{
+  "schema": "goofish-state-modal-rules/v1",
+  "date": "2026-06-22",
+  "purpose": "Machine-readable page state and modal handling rules for Goofish/Xianyu read-only probing.",
+  "sources": {
+    "stateModalInventory": "goofish-page-state-modal-inventory.md",
+    "safeProbeProtocol": "goofish-safe-probe-protocol.md",
+    "actionGateRules": "goofish-action-gate-rules.json",
+    "pageManifest": "goofish-page-manifest.json"
+  },
+  "privacy": {
+    "recordStateCategoryOnly": true,
+    "storeRealAccount": false,
+    "storeRealOrder": false,
+    "storeRealAddress": false,
+    "storeRealChat": false,
+    "storeRealItemTitle": false,
+    "storeRealAmount": false,
+    "storeBusinessMetricValue": false,
+    "storeQrContent": false,
+    "storeLoginMaterial": false
+  },
+  "stateOrder": [
+    "S0_NORMAL_CONTENT",
+    "S1_LOADING",
+    "S2_EMPTY_STATE",
+    "S3_NETWORK_OR_API_FAILURE",
+    "S4_LOGIN_EXPIRED",
+    "S5_PERMISSION_OR_IDENTITY_GATE",
+    "S6_QR_OR_APP_BRIDGE",
+    "S7_CONFIRM_DIALOG",
+    "S8_FORM_VALIDATION",
+    "S9_FILE_OR_EXPORT",
+    "S10_HIGH_RISK_BUSINESS_STATE"
+  ],
+  "stateDefinitions": {
+    "S0_NORMAL_CONTENT": {
+      "meaning": "The page has reached a readable structure such as title, tabs, table headers, cards, form fields, or a known empty-state container.",
+      "allowedRead": ["routeShape", "pageFamily", "tabNames", "fieldNames", "tableHeaders", "buttonNames", "statusCategory", "controlCategory"],
+      "defaultGate": "G1",
+      "next": "Continue with field/control-level read-only probing."
+    },
+    "S1_LOADING": {
+      "meaning": "The page is still waiting for skeleton, loading, spinner, waterfall, micro-frontend, or site configuration to settle.",
+      "allowedRead": ["routeShape", "loadingCategory"],
+      "defaultGate": "G1",
+      "next": "Wait for an allowed anchor or empty state before classifying the page."
+    },
+    "S2_EMPTY_STATE": {
+      "meaning": "The page has no rows, cards, recommendations, selected conversation, or results for the current account or filter.",
+      "allowedRead": ["emptyStateCategory", "visibleContainerType", "tabNames", "fieldNames"],
+      "defaultGate": "G1",
+      "next": "Record empty-state type only; do not create data for coverage."
+    },
+    "S3_NETWORK_OR_API_FAILURE": {
+      "meaning": "Network, API, map, resource, retry, or unknown page failure.",
+      "allowedRead": ["errorCategory", "retryControlName", "routeShape"],
+      "defaultGate": "G1",
+      "next": "One safe reload is allowed; if still failing, record failure and stop."
+    },
+    "S4_LOGIN_EXPIRED": {
+      "meaning": "Login page, login modal, scan prompt, session expired, verification, or account recovery state.",
+      "allowedRead": ["gateType", "loginMethodCategory", "routeShape"],
+      "defaultGate": "G4",
+      "next": "Stop for user login; never record QR content, passwords, codes, cookies, tokens, or storage."
+    },
+    "S5_PERMISSION_OR_IDENTITY_GATE": {
+      "meaning": "No-permission page, account check, site selection, identity selection, or account mismatch.",
+      "allowedRead": ["gateType", "buttonNames", "statusCategory"],
+      "defaultGate": "G4",
+      "next": "Record gate type; do not switch site, continue, relogin, or change identity."
+    },
+    "S6_QR_OR_APP_BRIDGE": {
+      "meaning": "The page asks the user to continue in an app, scan a QR code, open a client, bind, pay, verify, report, or manage address externally.",
+      "allowedRead": ["bridgeType", "buttonNames", "statusCategory"],
+      "defaultGate": "G4",
+      "next": "Record bridge category only; do not save QR content or continue externally."
+    },
+    "S7_CONFIRM_DIALOG": {
+      "meaning": "A modal or drawer asks for confirm/cancel on a state-changing action.",
+      "allowedRead": ["modalCategory", "cancelControlName", "confirmControlCategory"],
+      "defaultGate": "G3",
+      "next": "Do not click confirm. Prefer cancel/close only after checking it will not submit."
+    },
+    "S8_FORM_VALIDATION": {
+      "meaning": "The page shows required fields, format errors, missing stock, invalid quantity, upload limit, or draft validation.",
+      "allowedRead": ["fieldNames", "validationCategory", "inputType"],
+      "defaultGate": "G2",
+      "next": "Draft assistance is allowed; stop before upload, save, submit, send, or publish."
+    },
+    "S9_FILE_OR_EXPORT": {
+      "meaning": "Upload, download, export, historical download, full-detail download, client install, or file transfer state.",
+      "allowedRead": ["fileActionCategory", "buttonNames", "targetCategory"],
+      "defaultGate": "G3",
+      "next": "Stop and ask for explicit scope and destination before any file transfer."
+    },
+    "S10_HIGH_RISK_BUSINESS_STATE": {
+      "meaning": "Payment, order confirmation, receipt, refund, compensation, shipment, dispute, complaint, invoice, finance, permission, identity, or paid-promotion state.",
+      "allowedRead": ["statusCategory", "fieldNames", "buttonNames", "tableHeaders"],
+      "defaultGate": "G4",
+      "next": "Read labels only. Do not submit, pay, agree, refuse, ship, appeal, export, or change permission."
+    }
+  },
+  "detectionSignals": {
+    "S1_LOADING": ["loading", "skeleton", "spinner", "waterfallPlaceholder", "siteConfigLoading", "microFrontendLoading"],
+    "S2_EMPTY_STATE": ["noData", "noItem", "noReview", "noRecommendation", "noConversationSelected", "emptyTable", "emptyList"],
+    "S3_NETWORK_OR_API_FAILURE": ["networkError", "unknownError", "retry", "pageError", "mapLoadFailure", "apiFailure"],
+    "S4_LOGIN_EXPIRED": ["loginPage", "loginModal", "scanLogin", "sessionExpired", "verificationEntry", "accountRecovery"],
+    "S5_PERMISSION_OR_IDENTITY_GATE": ["noPermission", "accountCheck", "siteSelection", "identitySelection", "accountMismatch"],
+    "S6_QR_OR_APP_BRIDGE": ["appOpen", "qrPrompt", "appAddressManagement", "appReport", "scanPay", "identityQr", "desktopClient"],
+    "S7_CONFIRM_DIALOG": ["confirmCancelButtons", "deleteConfirm", "downshelfConfirm", "closeOrderConfirm", "unfollowConfirm", "saveConfirm"],
+    "S8_FORM_VALIDATION": ["requiredField", "formatError", "stockEmpty", "quantityInvalid", "uploadLimit", "draftInvalid"],
+    "S9_FILE_OR_EXPORT": ["fileInput", "uploading", "uploadFailure", "downloadButton", "exportButton", "historicalDownload", "clientInstall"],
+    "S10_HIGH_RISK_BUSINESS_STATE": ["payment", "submitOrder", "confirmReceipt", "refund", "compensation", "shipment", "complaint", "proof", "invoice", "finance", "permission", "paidPromotion"]
+  },
+  "priorityRules": [
+    "S10_HIGH_RISK_BUSINESS_STATE overrides all lower states.",
+    "S7_CONFIRM_DIALOG overrides S0/S1/S2/S3/S8 when a confirm action is visible.",
+    "S4_LOGIN_EXPIRED and S5_PERMISSION_OR_IDENTITY_GATE stop probing unless the user resolves the gate.",
+    "S9_FILE_OR_EXPORT stops before any upload, download, export, or install.",
+    "S8_FORM_VALIDATION allows draft correction only and never implies submit permission.",
+    "S2_EMPTY_STATE is a valid page state and must not be filled by creating data."
+  ],
+  "familyStateExpectations": {
+    "public-discovery": ["S0_NORMAL_CONTENT", "S1_LOADING", "S2_EMPTY_STATE", "S3_NETWORK_OR_API_FAILURE", "S6_QR_OR_APP_BRIDGE"],
+    "item-detail": ["S0_NORMAL_CONTENT", "S1_LOADING", "S2_EMPTY_STATE", "S6_QR_OR_APP_BRIDGE", "S7_CONFIRM_DIALOG", "S10_HIGH_RISK_BUSINESS_STATE"],
+    "public-profile": ["S0_NORMAL_CONTENT", "S1_LOADING", "S2_EMPTY_STATE", "S6_QR_OR_APP_BRIDGE", "S7_CONFIRM_DIALOG"],
+    "buyer-account": ["S0_NORMAL_CONTENT", "S1_LOADING", "S2_EMPTY_STATE", "S4_LOGIN_EXPIRED", "S6_QR_OR_APP_BRIDGE", "S7_CONFIRM_DIALOG"],
+    "buyer-trade": ["S0_NORMAL_CONTENT", "S1_LOADING", "S2_EMPTY_STATE", "S4_LOGIN_EXPIRED", "S6_QR_OR_APP_BRIDGE", "S7_CONFIRM_DIALOG", "S10_HIGH_RISK_BUSINESS_STATE"],
+    "draft-input": ["S0_NORMAL_CONTENT", "S1_LOADING", "S4_LOGIN_EXPIRED", "S7_CONFIRM_DIALOG", "S8_FORM_VALIDATION", "S9_FILE_OR_EXPORT"],
+    "message": ["S0_NORMAL_CONTENT", "S1_LOADING", "S2_EMPTY_STATE", "S4_LOGIN_EXPIRED", "S7_CONFIRM_DIALOG", "S9_FILE_OR_EXPORT"],
+    "identity": ["S4_LOGIN_EXPIRED", "S5_PERMISSION_OR_IDENTITY_GATE", "S6_QR_OR_APP_BRIDGE"],
+    "public-content": ["S0_NORMAL_CONTENT", "S1_LOADING", "S2_EMPTY_STATE", "S6_QR_OR_APP_BRIDGE", "S9_FILE_OR_EXPORT"],
+    "internal-module": ["S3_NETWORK_OR_API_FAILURE"],
+    "internal-test": ["S10_HIGH_RISK_BUSINESS_STATE"],
+    "seller-data": ["S0_NORMAL_CONTENT", "S1_LOADING", "S2_EMPTY_STATE", "S3_NETWORK_OR_API_FAILURE", "S6_QR_OR_APP_BRIDGE", "S9_FILE_OR_EXPORT"],
+    "seller-item": ["S0_NORMAL_CONTENT", "S1_LOADING", "S2_EMPTY_STATE", "S7_CONFIRM_DIALOG", "S8_FORM_VALIDATION", "S9_FILE_OR_EXPORT", "S10_HIGH_RISK_BUSINESS_STATE"],
+    "seller-trade": ["S0_NORMAL_CONTENT", "S1_LOADING", "S2_EMPTY_STATE", "S7_CONFIRM_DIALOG", "S10_HIGH_RISK_BUSINESS_STATE"],
+    "seller-finance": ["S0_NORMAL_CONTENT", "S1_LOADING", "S2_EMPTY_STATE", "S7_CONFIRM_DIALOG", "S9_FILE_OR_EXPORT", "S10_HIGH_RISK_BUSINESS_STATE"],
+    "seller-account": ["S0_NORMAL_CONTENT", "S1_LOADING", "S2_EMPTY_STATE", "S5_PERMISSION_OR_IDENTITY_GATE", "S7_CONFIRM_DIALOG", "S10_HIGH_RISK_BUSINESS_STATE"],
+    "seller-security": ["S0_NORMAL_CONTENT", "S1_LOADING", "S2_EMPTY_STATE", "S7_CONFIRM_DIALOG", "S10_HIGH_RISK_BUSINESS_STATE"],
+    "seller-ad": ["S0_NORMAL_CONTENT", "S1_LOADING", "S2_EMPTY_STATE", "S7_CONFIRM_DIALOG", "S10_HIGH_RISK_BUSINESS_STATE"],
+    "seller-message": ["S0_NORMAL_CONTENT", "S1_LOADING", "S2_EMPTY_STATE", "S7_CONFIRM_DIALOG", "S9_FILE_OR_EXPORT"],
+    "seller-gate": ["S4_LOGIN_EXPIRED", "S5_PERMISSION_OR_IDENTITY_GATE", "S6_QR_OR_APP_BRIDGE"],
+    "seller-shell": ["S0_NORMAL_CONTENT", "S1_LOADING", "S3_NETWORK_OR_API_FAILURE", "S5_PERMISSION_OR_IDENTITY_GATE", "S6_QR_OR_APP_BRIDGE", "S9_FILE_OR_EXPORT"]
+  },
+  "runtimeHandling": {
+    "S0_NORMAL_CONTENT": "Continue read-only structural observation.",
+    "S1_LOADING": "Wait for anchor, empty state, or failure; do not click through.",
+    "S2_EMPTY_STATE": "Record empty-state category and stop or move to another read-only route.",
+    "S3_NETWORK_OR_API_FAILURE": "Reload once if safe; otherwise record failure and stop.",
+    "S4_LOGIN_EXPIRED": "Stop for user login. Do not capture login material.",
+    "S5_PERMISSION_OR_IDENTITY_GATE": "Record gate type. Do not bypass, switch identity, or continue.",
+    "S6_QR_OR_APP_BRIDGE": "Record bridge type. Do not save QR content or proceed externally.",
+    "S7_CONFIRM_DIALOG": "Do not click confirm. Classify consequence and ask if action is explicitly requested.",
+    "S8_FORM_VALIDATION": "Assist with draft fields only; stop before side effects.",
+    "S9_FILE_OR_EXPORT": "Stop before file transfer, export, download, upload, or install.",
+    "S10_HIGH_RISK_BUSINESS_STATE": "Labels only. No state-changing business action."
+  },
+  "outputFields": ["pageId", "routeShape", "stateCode", "stateCategory", "visibleAnchors", "allowedRead", "defaultGate", "nextAction", "privacy"]
+}

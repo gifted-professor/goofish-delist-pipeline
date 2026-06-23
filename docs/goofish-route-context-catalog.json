@@ -1,0 +1,3363 @@
+{
+  "schema": "goofish-route-context-catalog/v1",
+  "date": "2026-06-22",
+  "purpose": "Machine-readable entry, route parameter and context requirements for known Goofish/Xianyu pages.",
+  "sources": [
+    "goofish-page-manifest.json",
+    "goofish-page-ontology.json",
+    "goofish-page-classifier-rules.json",
+    "goofish-live-coverage-status.json",
+    "goofish-page-deepening-queue.json",
+    "goofish-probe-batch-matrix.json"
+  ],
+  "privacy": {
+    "storeConcreteParameterValues": false,
+    "storeAccountData": false,
+    "storeOrderData": false,
+    "storeAddressData": false,
+    "storeChatData": false,
+    "storeItemIdentity": false,
+    "storeLoginMaterial": false,
+    "allowedParameterOutput": [
+      "parameterName",
+      "riskRuleId",
+      "risk",
+      "action",
+      "valuePolicy"
+    ],
+    "forbiddenParameterOutput": [
+      "concreteValue",
+      "orderIdValue",
+      "itemIdValue",
+      "userIdValue",
+      "chatIdValue",
+      "addressValue",
+      "invoiceValue",
+      "redirectTargetValue",
+      "cookie",
+      "token",
+      "localStorage",
+      "sessionStorage"
+    ]
+  },
+  "totals": {
+    "pages": 66,
+    "byEntryMode": {
+      "DIRECT_LIVE_READ_ONLY": 39,
+      "USER_CONTEXT_REQUIRED": 8,
+      "STATIC_EVIDENCE_ONLY": 14,
+      "INTERNAL_OR_MODULE_ONLY": 2,
+      "LIVE_ENTRY_BOUNDARY_READ": 1,
+      "SHELL_BOUNDARY_ONLY": 2
+    },
+    "pagesWithParameters": 47,
+    "parameterSlots": 57,
+    "pagesRequiringUserContext": 8,
+    "pagesStaticOrModuleOnly": 16,
+    "shellBoundaryPages": 2,
+    "parameterRiskCounts": {
+      "search-query-param": 1,
+      "entry-context-param": 3,
+      "item-id-param": 6,
+      "user-param": 3,
+      "order-id-param": 3,
+      "scene-source-param": 4,
+      "redirect-param": 2,
+      "seller-site-param": 35
+    }
+  },
+  "entryModeDefinitions": {
+    "DIRECT_LIVE_READ_ONLY": "Known page can be opened under current profile for read-only structural observation.",
+    "LIVE_ENTRY_BOUNDARY_READ": "Known entry can be opened only to identify download/app/client boundary; do not continue into external action.",
+    "USER_CONTEXT_REQUIRED": "Requires user-provided URL or explicit business context; do not guess parameters.",
+    "STATIC_EVIDENCE_ONLY": "Describe from static evidence; do not open merely for coverage.",
+    "INTERNAL_OR_MODULE_ONLY": "Treat as module/resource path rather than user-facing page.",
+    "SHELL_BOUNDARY_ONLY": "Identify shell/container/login/iframe boundary only.",
+    "UNKNOWN_TRIAGE": "Run unknown page triage before any deeper observation."
+  },
+  "contextRequirementDefinitions": {
+    "PUBLIC_DIRECT": "No private context required; read public structure only.",
+    "CURRENT_PROFILE_DIRECT_READ": "Current logged-in profile is enough; read structure with redaction.",
+    "PUBLIC_OR_NEUTRAL_QUERY_ALLOWED": "A neutral or user-provided search query may be used; drop the query value from output.",
+    "VISIBLE_LINK_OR_ROUTE_SHAPE_ONLY": "Use only visible navigation links or keep route shape; do not invent entry ids.",
+    "READ_ROUTE_SHAPE_ONLY": "Read parameter names and route shape; drop values.",
+    "USER_PROVIDED_CONTEXT_ONLY": "Wait for user-provided URL or explicit target context.",
+    "STATIC_DESCRIPTION_ONLY": "Use static bundle and existing route evidence only.",
+    "SHELL_IDENTIFICATION_ONLY": "Only identify login, iframe, app bridge, download or permission shell.",
+    "PROFILE_OR_SITE_ALIAS_ONLY": "Use only the current browser profile and a site/profile alias; do not store real account or store identity."
+  },
+  "parameterRiskRules": [
+    {
+      "id": "order-id-param",
+      "tokens": [
+        "orderId",
+        "bizOrderId",
+        "tradeId"
+      ],
+      "risk": "trade-private",
+      "action": "REQUIRES_USER_CONTEXT_AND_REDACTION"
+    },
+    {
+      "id": "item-id-param",
+      "tokens": [
+        "itemId",
+        "item_id",
+        "auctionId"
+      ],
+      "risk": "item-context",
+      "action": "REQUIRES_USER_CONTEXT_IF_NOT_PUBLIC_DETAIL"
+    },
+    {
+      "id": "user-param",
+      "tokens": [
+        "userId",
+        "peerUserId",
+        "userNick",
+        "nick",
+        "sellerId",
+        "buyerId"
+      ],
+      "risk": "account-identity",
+      "action": "REQUIRES_USER_CONTEXT_AND_REDACTION"
+    },
+    {
+      "id": "chat-param",
+      "tokens": [
+        "conversationId",
+        "chatId",
+        "peerId",
+        "messageId"
+      ],
+      "risk": "private-message",
+      "action": "MESSAGE_SHELL_ONLY"
+    },
+    {
+      "id": "address-logistics-param",
+      "tokens": [
+        "addressId",
+        "logisticsId",
+        "trackingNo",
+        "mailNo"
+      ],
+      "risk": "address-logistics",
+      "action": "REQUIRES_USER_CONTEXT_AND_REDACTION"
+    },
+    {
+      "id": "invoice-finance-param",
+      "tokens": [
+        "invoiceId",
+        "billId",
+        "fundId",
+        "payId",
+        "alipay"
+      ],
+      "risk": "finance-payment",
+      "action": "STOP_BEFORE_ACTION"
+    },
+    {
+      "id": "redirect-param",
+      "tokens": [
+        "redirectURL",
+        "redirectUrl",
+        "returnUrl",
+        "targetUrl",
+        "url"
+      ],
+      "risk": "external-or-embedded-target",
+      "action": "SHELL_BOUNDARY_ONLY"
+    },
+    {
+      "id": "scene-source-param",
+      "tokens": [
+        "scene",
+        "spm",
+        "from",
+        "source"
+      ],
+      "risk": "tracking-or-entry-context",
+      "action": "READ_ROUTE_SHAPE_ONLY"
+    },
+    {
+      "id": "search-query-param",
+      "tokens": [
+        "q",
+        "keyword",
+        "query"
+      ],
+      "risk": "public-search-context",
+      "action": "DROP_VALUE_KEEP_INTENT_CATEGORY"
+    },
+    {
+      "id": "entry-context-param",
+      "tokens": [
+        "machId",
+        "publishTimes",
+        "categoryId"
+      ],
+      "risk": "route-entry-context",
+      "action": "READ_ROUTE_SHAPE_ONLY"
+    },
+    {
+      "id": "seller-site-param",
+      "tokens": [
+        "site"
+      ],
+      "risk": "seller-site-context",
+      "action": "USE_PROFILE_ALIAS_ONLY"
+    },
+    {
+      "id": "unknown-param",
+      "tokens": [],
+      "risk": "unknown-context",
+      "action": "READ_ROUTE_SHAPE_ONLY_AND_TRIAGE"
+    }
+  ],
+  "globalRules": [
+    "Never persist concrete query/hash parameter values.",
+    "Do not construct order, user, chat, address, invoice, payment or redirect parameters.",
+    "For seller pages, record only a site/profile alias, not the real account or store identity.",
+    "Static and module routes are not coverage targets for live probing.",
+    "Shell/container routes stop at boundary identification unless the embedded target is separately reviewed."
+  ],
+  "rows": [
+    {
+      "pageId": "www.home",
+      "surface": "www",
+      "routePattern": "/",
+      "routeShapeForLogging": "https://www.goofish.com/",
+      "family": "public-discovery",
+      "layer": "M0",
+      "evidence": "Live + Static",
+      "readiness": "R0",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D3_LOW_RISK_LIVE",
+      "batchId": "B1_LOW_RISK_LIVE_STRUCTURE",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "canOpenDirectly": true,
+      "contextRequirement": "PUBLIC_DIRECT",
+      "parameters": [],
+      "parameterRiskSummary": [],
+      "missingContextAction": "open-read-structure-only",
+      "allowedContextSources": [
+        "direct-route",
+        "current-browser-profile"
+      ],
+      "allowedRead": [
+        "open",
+        "search",
+        "browse channels",
+        "read public card structure"
+      ],
+      "waitForAnchors": [
+        "search box",
+        "channel entries",
+        "recommended item cards",
+        "sidebar tools"
+      ],
+      "defaultActionGate": "G0",
+      "stopPoints": [
+        "message entry",
+        "publish entry",
+        "order entry"
+      ],
+      "outputRule": "save route shape, parameter names, parameter risk, anchors, field labels, button labels and stop categories only; never save concrete parameter values"
+    },
+    {
+      "pageId": "www.search",
+      "surface": "www",
+      "routePattern": "/search?q=...",
+      "routeShapeForLogging": "https://www.goofish.com/search?q=...",
+      "family": "public-discovery",
+      "layer": "M0",
+      "evidence": "Live + Static",
+      "readiness": "R0",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D3_LOW_RISK_LIVE",
+      "batchId": "B1_LOW_RISK_LIVE_STRUCTURE",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "canOpenDirectly": true,
+      "contextRequirement": "PUBLIC_OR_NEUTRAL_QUERY_ALLOWED",
+      "parameters": [
+        {
+          "name": "q",
+          "riskRuleId": "search-query-param",
+          "risk": "public-search-context",
+          "action": "DROP_VALUE_KEEP_INTENT_CATEGORY",
+          "valuePolicy": "drop-value-keep-name-and-risk-only",
+          "requiredForMeaning": false
+        }
+      ],
+      "parameterRiskSummary": [
+        "search-query-param"
+      ],
+      "missingContextAction": "allow-neutral-query-or-user-keyword-but-drop-value",
+      "allowedContextSources": [
+        "neutral-test-keyword",
+        "user-provided-keyword",
+        "visible-search-control"
+      ],
+      "allowedRead": [
+        "change keyword",
+        "change price range",
+        "change sort",
+        "read item-card structure"
+      ],
+      "waitForAnchors": [
+        "query box",
+        "sort controls",
+        "price inputs",
+        "filter tags",
+        "item cards",
+        "pagination"
+      ],
+      "defaultActionGate": "G0",
+      "stopPoints": [
+        "unstable location panel",
+        "collect",
+        "contact",
+        "purchase"
+      ],
+      "outputRule": "save route shape, parameter names, parameter risk, anchors, field labels, button labels and stop categories only; never save concrete parameter values"
+    },
+    {
+      "pageId": "www.machFeeds",
+      "surface": "www",
+      "routePattern": "/mach-feeds?machId=...&publishTimes=...",
+      "routeShapeForLogging": "https://www.goofish.com/mach-feeds?machId=...&publishTimes=...",
+      "family": "public-discovery",
+      "layer": "M0",
+      "evidence": "Live + Static",
+      "readiness": "R0",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D3_LOW_RISK_LIVE",
+      "batchId": "B1_LOW_RISK_LIVE_STRUCTURE",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "canOpenDirectly": true,
+      "contextRequirement": "VISIBLE_LINK_OR_ROUTE_SHAPE_ONLY",
+      "parameters": [
+        {
+          "name": "machId",
+          "riskRuleId": "entry-context-param",
+          "risk": "route-entry-context",
+          "action": "READ_ROUTE_SHAPE_ONLY",
+          "valuePolicy": "drop-value-keep-name-and-risk-only",
+          "requiredForMeaning": false
+        },
+        {
+          "name": "publishTimes",
+          "riskRuleId": "entry-context-param",
+          "risk": "route-entry-context",
+          "action": "READ_ROUTE_SHAPE_ONLY",
+          "valuePolicy": "drop-value-keep-name-and-risk-only",
+          "requiredForMeaning": false
+        }
+      ],
+      "parameterRiskSummary": [
+        "entry-context-param"
+      ],
+      "missingContextAction": "use-visible-link-or-route-shape-drop-values",
+      "allowedContextSources": [
+        "visible-navigation-link",
+        "route-shape-only"
+      ],
+      "allowedRead": [
+        "read channel feed structure"
+      ],
+      "waitForAnchors": [
+        "channel title",
+        "waterfall feed",
+        "item-card links"
+      ],
+      "defaultActionGate": "G0",
+      "stopPoints": [
+        "collect",
+        "contact",
+        "purchase"
+      ],
+      "outputRule": "save route shape, parameter names, parameter risk, anchors, field labels, button labels and stop categories only; never save concrete parameter values"
+    },
+    {
+      "pageId": "www.item",
+      "surface": "www",
+      "routePattern": "/item?id=...&categoryId=...",
+      "routeShapeForLogging": "https://www.goofish.com/item?id=...&categoryId=...",
+      "family": "item-detail",
+      "layer": "M0/M3",
+      "evidence": "Live + Static",
+      "readiness": "R0/R3",
+      "liveCoverage": "requires-user-context",
+      "deepeningQueue": "D4_REQUIRES_USER_CONTEXT",
+      "batchId": "B4_USER_CONTEXT_REQUIRED_PASS",
+      "entryMode": "USER_CONTEXT_REQUIRED",
+      "canOpenDirectly": false,
+      "contextRequirement": "USER_PROVIDED_CONTEXT_ONLY",
+      "parameters": [
+        {
+          "name": "id",
+          "riskRuleId": "item-id-param",
+          "risk": "item-context",
+          "action": "REQUIRES_USER_CONTEXT_IF_NOT_PUBLIC_DETAIL",
+          "valuePolicy": "drop-value-keep-name-and-risk-only",
+          "requiredForMeaning": true
+        },
+        {
+          "name": "categoryId",
+          "riskRuleId": "entry-context-param",
+          "risk": "route-entry-context",
+          "action": "READ_ROUTE_SHAPE_ONLY",
+          "valuePolicy": "drop-value-keep-name-and-risk-only",
+          "requiredForMeaning": true
+        }
+      ],
+      "parameterRiskSummary": [
+        "item-id-param",
+        "entry-context-param"
+      ],
+      "missingContextAction": "stop-and-request-user-provided-url-or-business-context",
+      "allowedContextSources": [
+        "user-provided-url",
+        "user-described-current-business-context",
+        "visible-link-after-user-confirmation"
+      ],
+      "allowedRead": [
+        "read public item structure",
+        "draft question text"
+      ],
+      "waitForAnchors": [
+        "image area",
+        "price area",
+        "assurance labels",
+        "seller card",
+        "action buttons",
+        "recommendations"
+      ],
+      "defaultActionGate": "G1",
+      "stopPoints": [
+        "collect",
+        "chat",
+        "buy now",
+        "downshelf",
+        "delete"
+      ],
+      "outputRule": "save route shape, parameter names, parameter risk, anchors, field labels, button labels and stop categories only; never save concrete parameter values"
+    },
+    {
+      "pageId": "www.personalOther",
+      "surface": "www",
+      "routePattern": "/personal?userId=...",
+      "routeShapeForLogging": "https://www.goofish.com/personal?userId=...",
+      "family": "public-profile",
+      "layer": "M0/M1",
+      "evidence": "Live + Static",
+      "readiness": "R0/R3",
+      "liveCoverage": "requires-user-context",
+      "deepeningQueue": "D4_REQUIRES_USER_CONTEXT",
+      "batchId": "B4_USER_CONTEXT_REQUIRED_PASS",
+      "entryMode": "USER_CONTEXT_REQUIRED",
+      "canOpenDirectly": false,
+      "contextRequirement": "USER_PROVIDED_CONTEXT_ONLY",
+      "parameters": [
+        {
+          "name": "userId",
+          "riskRuleId": "user-param",
+          "risk": "account-identity",
+          "action": "REQUIRES_USER_CONTEXT_AND_REDACTION",
+          "valuePolicy": "drop-value-keep-name-and-risk-only",
+          "requiredForMeaning": true
+        }
+      ],
+      "parameterRiskSummary": [
+        "user-param"
+      ],
+      "missingContextAction": "stop-and-request-user-provided-url-or-business-context",
+      "allowedContextSources": [
+        "user-provided-url",
+        "user-described-current-business-context",
+        "visible-link-after-user-confirmation"
+      ],
+      "allowedRead": [
+        "read public profile structure"
+      ],
+      "waitForAnchors": [
+        "public profile block",
+        "credit area",
+        "item list",
+        "follow/contact entries"
+      ],
+      "defaultActionGate": "G1",
+      "stopPoints": [
+        "follow",
+        "contact",
+        "purchase"
+      ],
+      "outputRule": "save route shape, parameter names, parameter risk, anchors, field labels, button labels and stop categories only; never save concrete parameter values"
+    },
+    {
+      "pageId": "www.personalSelf",
+      "surface": "www",
+      "routePattern": "/personal",
+      "routeShapeForLogging": "https://www.goofish.com/personal",
+      "family": "buyer-account",
+      "layer": "M1/M2",
+      "evidence": "Live + Static",
+      "readiness": "R1/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D3_LOW_RISK_LIVE",
+      "batchId": "B1_LOW_RISK_LIVE_STRUCTURE",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "canOpenDirectly": true,
+      "contextRequirement": "CURRENT_PROFILE_DIRECT_READ",
+      "parameters": [],
+      "parameterRiskSummary": [],
+      "missingContextAction": "open-read-structure-only",
+      "allowedContextSources": [
+        "direct-route",
+        "current-browser-profile"
+      ],
+      "allowedRead": [
+        "read current profile structure",
+        "read listing status categories"
+      ],
+      "waitForAnchors": [
+        "left navigation",
+        "home tab",
+        "item/credit/manage tabs",
+        "filters"
+      ],
+      "defaultActionGate": "G1",
+      "stopPoints": [
+        "edit profile",
+        "manage item",
+        "downshelf",
+        "delete"
+      ],
+      "outputRule": "save route shape, parameter names, parameter risk, anchors, field labels, button labels and stop categories only; never save concrete parameter values"
+    },
+    {
+      "pageId": "www.collection",
+      "surface": "www",
+      "routePattern": "/collection",
+      "routeShapeForLogging": "https://www.goofish.com/collection",
+      "family": "buyer-account",
+      "layer": "M1/M3",
+      "evidence": "Live + Static",
+      "readiness": "R1/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D3_LOW_RISK_LIVE",
+      "batchId": "B1_LOW_RISK_LIVE_STRUCTURE",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "canOpenDirectly": true,
+      "contextRequirement": "CURRENT_PROFILE_DIRECT_READ",
+      "parameters": [],
+      "parameterRiskSummary": [],
+      "missingContextAction": "open-read-structure-only",
+      "allowedContextSources": [
+        "direct-route",
+        "current-browser-profile"
+      ],
+      "allowedRead": [
+        "read collection structure"
+      ],
+      "waitForAnchors": [
+        "collection tab",
+        "item cards",
+        "uncollect button",
+        "want button"
+      ],
+      "defaultActionGate": "G1",
+      "stopPoints": [
+        "uncollect",
+        "want",
+        "contact"
+      ],
+      "outputRule": "save route shape, parameter names, parameter risk, anchors, field labels, button labels and stop categories only; never save concrete parameter values"
+    },
+    {
+      "pageId": "www.bought",
+      "surface": "www",
+      "routePattern": "/bought",
+      "routeShapeForLogging": "https://www.goofish.com/bought",
+      "family": "buyer-trade",
+      "layer": "M1/M3",
+      "evidence": "Live + Static",
+      "readiness": "R1/R4",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "batchId": "B3_HIGH_RISK_LIVE_REDACTED_PASS",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "canOpenDirectly": true,
+      "contextRequirement": "CURRENT_PROFILE_DIRECT_READ",
+      "parameters": [],
+      "parameterRiskSummary": [],
+      "missingContextAction": "open-read-structure-only",
+      "allowedContextSources": [
+        "direct-route",
+        "current-browser-profile"
+      ],
+      "allowedRead": [
+        "read order status categories",
+        "read button structure"
+      ],
+      "waitForAnchors": [
+        "order tabs",
+        "order cards",
+        "more menu",
+        "logistics record",
+        "snapshot entry"
+      ],
+      "defaultActionGate": "G1",
+      "stopPoints": [
+        "confirm receipt",
+        "refund",
+        "review",
+        "delete",
+        "complaint"
+      ],
+      "outputRule": "save route shape, parameter names, parameter risk, anchors, field labels, button labels and stop categories only; never save concrete parameter values"
+    },
+    {
+      "pageId": "www.orderDetail",
+      "surface": "www",
+      "routePattern": "/order-detail?orderId=...",
+      "routeShapeForLogging": "https://www.goofish.com/order-detail?orderId=...",
+      "family": "buyer-trade",
+      "layer": "M3",
+      "evidence": "Live + Static",
+      "readiness": "R1/R4",
+      "liveCoverage": "requires-user-context",
+      "deepeningQueue": "D4_REQUIRES_USER_CONTEXT",
+      "batchId": "B4_USER_CONTEXT_REQUIRED_PASS",
+      "entryMode": "USER_CONTEXT_REQUIRED",
+      "canOpenDirectly": false,
+      "contextRequirement": "USER_PROVIDED_CONTEXT_ONLY",
+      "parameters": [
+        {
+          "name": "orderId",
+          "riskRuleId": "order-id-param",
+          "risk": "trade-private",
+          "action": "REQUIRES_USER_CONTEXT_AND_REDACTION",
+          "valuePolicy": "drop-value-keep-name-and-risk-only",
+          "requiredForMeaning": true
+        }
+      ],
+      "parameterRiskSummary": [
+        "order-id-param"
+      ],
+      "missingContextAction": "stop-and-request-user-provided-url-or-business-context",
+      "allowedContextSources": [
+        "user-provided-url",
+        "user-described-current-business-context",
+        "visible-link-after-user-confirmation"
+      ],
+      "allowedRead": [
+        "read field names",
+        "read status-node categories"
+      ],
+      "waitForAnchors": [
+        "status nodes",
+        "order field labels",
+        "logistics module",
+        "after-sale entry"
+      ],
+      "defaultActionGate": "G1",
+      "stopPoints": [
+        "any order-state change",
+        "real order value logging"
+      ],
+      "outputRule": "save route shape, parameter names, parameter risk, anchors, field labels, button labels and stop categories only; never save concrete parameter values"
+    },
+    {
+      "pageId": "www.createOrder",
+      "surface": "www",
+      "routePattern": "/create-order?itemId=...",
+      "routeShapeForLogging": "https://www.goofish.com/create-order?itemId=...",
+      "family": "buyer-trade",
+      "layer": "M3/M5",
+      "evidence": "Live + Static",
+      "readiness": "R4",
+      "liveCoverage": "requires-user-context",
+      "deepeningQueue": "D4_REQUIRES_USER_CONTEXT",
+      "batchId": "B4_USER_CONTEXT_REQUIRED_PASS",
+      "entryMode": "USER_CONTEXT_REQUIRED",
+      "canOpenDirectly": false,
+      "contextRequirement": "USER_PROVIDED_CONTEXT_ONLY",
+      "parameters": [
+        {
+          "name": "itemId",
+          "riskRuleId": "item-id-param",
+          "risk": "item-context",
+          "action": "REQUIRES_USER_CONTEXT_IF_NOT_PUBLIC_DETAIL",
+          "valuePolicy": "drop-value-keep-name-and-risk-only",
+          "requiredForMeaning": true
+        }
+      ],
+      "parameterRiskSummary": [
+        "item-id-param"
+      ],
+      "missingContextAction": "stop-and-request-user-provided-url-or-business-context",
+      "allowedContextSources": [
+        "user-provided-url",
+        "user-described-current-business-context",
+        "visible-link-after-user-confirmation"
+      ],
+      "allowedRead": [
+        "build pre-order checklist from field names"
+      ],
+      "waitForAnchors": [
+        "sku",
+        "quantity",
+        "address fields",
+        "price-detail block",
+        "payment area",
+        "scan-to-pay fallback"
+      ],
+      "defaultActionGate": "G1",
+      "stopPoints": [
+        "submit order",
+        "pay",
+        "change address",
+        "bind account",
+        "verify identity"
+      ],
+      "outputRule": "save route shape, parameter names, parameter risk, anchors, field labels, button labels and stop categories only; never save concrete parameter values"
+    },
+    {
+      "pageId": "www.paySuccess",
+      "surface": "www",
+      "routePattern": "/pay-success?orderId=...&itemId=...",
+      "routeShapeForLogging": "https://www.goofish.com/pay-success?orderId=...&itemId=...",
+      "family": "buyer-trade",
+      "layer": "M3",
+      "evidence": "Static Only",
+      "readiness": "R4",
+      "liveCoverage": "static-only",
+      "deepeningQueue": "D5_STATIC_ONLY",
+      "batchId": "B5_STATIC_EVIDENCE_PASS",
+      "entryMode": "STATIC_EVIDENCE_ONLY",
+      "canOpenDirectly": false,
+      "contextRequirement": "STATIC_DESCRIPTION_ONLY",
+      "parameters": [
+        {
+          "name": "orderId",
+          "riskRuleId": "order-id-param",
+          "risk": "trade-private",
+          "action": "REQUIRES_USER_CONTEXT_AND_REDACTION",
+          "valuePolicy": "drop-value-keep-name-and-risk-only",
+          "requiredForMeaning": true
+        },
+        {
+          "name": "itemId",
+          "riskRuleId": "item-id-param",
+          "risk": "item-context",
+          "action": "REQUIRES_USER_CONTEXT_IF_NOT_PUBLIC_DETAIL",
+          "valuePolicy": "drop-value-keep-name-and-risk-only",
+          "requiredForMeaning": true
+        }
+      ],
+      "parameterRiskSummary": [
+        "order-id-param",
+        "item-id-param"
+      ],
+      "missingContextAction": "do-not-open-for-coverage-describe-static-signal",
+      "allowedContextSources": [
+        "static-bundle-evidence",
+        "existing-route-index"
+      ],
+      "allowedRead": [
+        "identify result page structure"
+      ],
+      "waitForAnchors": [
+        "payment result structure",
+        "order-detail entry",
+        "recommendations"
+      ],
+      "defaultActionGate": "G1",
+      "stopPoints": [
+        "trigger payment for testing"
+      ],
+      "outputRule": "save route shape, parameter names, parameter risk, anchors, field labels, button labels and stop categories only; never save concrete parameter values"
+    },
+    {
+      "pageId": "www.publish",
+      "surface": "www",
+      "routePattern": "/publish",
+      "routeShapeForLogging": "https://www.goofish.com/publish",
+      "family": "draft-input",
+      "layer": "M2/M3",
+      "evidence": "Live + Static",
+      "readiness": "R2/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D2_FORM_AND_SHELL_LIVE",
+      "batchId": "B2_FORM_AND_SHELL_LIVE_PASS",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "canOpenDirectly": true,
+      "contextRequirement": "CURRENT_PROFILE_DIRECT_READ",
+      "parameters": [],
+      "parameterRiskSummary": [],
+      "missingContextAction": "open-read-structure-only",
+      "allowedContextSources": [
+        "direct-route",
+        "current-browser-profile"
+      ],
+      "allowedRead": [
+        "draft listing text",
+        "check required field categories"
+      ],
+      "waitForAnchors": [
+        "image/video uploader",
+        "description",
+        "category",
+        "properties",
+        "sku",
+        "price",
+        "location",
+        "shipping settings"
+      ],
+      "defaultActionGate": "G2",
+      "stopPoints": [
+        "upload",
+        "save draft",
+        "publish",
+        "edit existing item"
+      ],
+      "outputRule": "save route shape, parameter names, parameter risk, anchors, field labels, button labels and stop categories only; never save concrete parameter values"
+    },
+    {
+      "pageId": "www.publishScene",
+      "surface": "www",
+      "routePattern": "/publish?scene=xyPcMainPublish",
+      "routeShapeForLogging": "https://www.goofish.com/publish?scene=xyPcMainPublish",
+      "family": "draft-input",
+      "layer": "M2/M3",
+      "evidence": "Static Only",
+      "readiness": "R2/R3",
+      "liveCoverage": "static-only",
+      "deepeningQueue": "D5_STATIC_ONLY",
+      "batchId": "B5_STATIC_EVIDENCE_PASS",
+      "entryMode": "STATIC_EVIDENCE_ONLY",
+      "canOpenDirectly": false,
+      "contextRequirement": "STATIC_DESCRIPTION_ONLY",
+      "parameters": [
+        {
+          "name": "scene",
+          "riskRuleId": "scene-source-param",
+          "risk": "tracking-or-entry-context",
+          "action": "READ_ROUTE_SHAPE_ONLY",
+          "valuePolicy": "drop-value-keep-name-and-risk-only",
+          "requiredForMeaning": false
+        }
+      ],
+      "parameterRiskSummary": [
+        "scene-source-param"
+      ],
+      "missingContextAction": "do-not-open-for-coverage-describe-static-signal",
+      "allowedContextSources": [
+        "static-bundle-evidence",
+        "existing-route-index"
+      ],
+      "allowedRead": [
+        "identify publish entry shape"
+      ],
+      "waitForAnchors": [
+        "publish scene parameter",
+        "publish form fields"
+      ],
+      "defaultActionGate": "G2",
+      "stopPoints": [
+        "save",
+        "publish"
+      ],
+      "outputRule": "save route shape, parameter names, parameter risk, anchors, field labels, button labels and stop categories only; never save concrete parameter values"
+    },
+    {
+      "pageId": "www.publishEdit",
+      "surface": "www",
+      "routePattern": "/publish?scene=xyPcMainPublish&itemId=...",
+      "routeShapeForLogging": "https://www.goofish.com/publish?scene=xyPcMainPublish&itemId=...",
+      "family": "draft-input",
+      "layer": "M2/M3",
+      "evidence": "Static Only",
+      "readiness": "R3/R4",
+      "liveCoverage": "static-only",
+      "deepeningQueue": "D5_STATIC_ONLY",
+      "batchId": "B5_STATIC_EVIDENCE_PASS",
+      "entryMode": "STATIC_EVIDENCE_ONLY",
+      "canOpenDirectly": false,
+      "contextRequirement": "STATIC_DESCRIPTION_ONLY",
+      "parameters": [
+        {
+          "name": "scene",
+          "riskRuleId": "scene-source-param",
+          "risk": "tracking-or-entry-context",
+          "action": "READ_ROUTE_SHAPE_ONLY",
+          "valuePolicy": "drop-value-keep-name-and-risk-only",
+          "requiredForMeaning": false
+        },
+        {
+          "name": "itemId",
+          "riskRuleId": "item-id-param",
+          "risk": "item-context",
+          "action": "REQUIRES_USER_CONTEXT_IF_NOT_PUBLIC_DETAIL",
+          "valuePolicy": "drop-value-keep-name-and-risk-only",
+          "requiredForMeaning": true
+        }
+      ],
+      "parameterRiskSummary": [
+        "scene-source-param",
+        "item-id-param"
+      ],
+      "missingContextAction": "do-not-open-for-coverage-describe-static-signal",
+      "allowedContextSources": [
+        "static-bundle-evidence",
+        "existing-route-index"
+      ],
+      "allowedRead": [
+        "identify edit risk"
+      ],
+      "waitForAnchors": [
+        "item context parameter",
+        "publish/edit form fields"
+      ],
+      "defaultActionGate": "G2",
+      "stopPoints": [
+        "overwrite existing item",
+        "save",
+        "publish"
+      ],
+      "outputRule": "save route shape, parameter names, parameter risk, anchors, field labels, button labels and stop categories only; never save concrete parameter values"
+    },
+    {
+      "pageId": "www.im",
+      "surface": "www",
+      "routePattern": "/im",
+      "routeShapeForLogging": "https://www.goofish.com/im",
+      "family": "message",
+      "layer": "M1/M2/M3",
+      "evidence": "Live + Static",
+      "readiness": "R1/R2/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D2_FORM_AND_SHELL_LIVE",
+      "batchId": "B2_FORM_AND_SHELL_LIVE_PASS",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "canOpenDirectly": true,
+      "contextRequirement": "CURRENT_PROFILE_DIRECT_READ",
+      "parameters": [],
+      "parameterRiskSummary": [],
+      "missingContextAction": "open-read-structure-only",
+      "allowedContextSources": [
+        "direct-route",
+        "current-browser-profile"
+      ],
+      "allowedRead": [
+        "read message-frame structure",
+        "draft message text"
+      ],
+      "waitForAnchors": [
+        "empty state",
+        "session list",
+        "input area",
+        "toolbar",
+        "item/order card tools",
+        "file tool"
+      ],
+      "defaultActionGate": "G2",
+      "stopPoints": [
+        "read specific private chat",
+        "send",
+        "send card",
+        "upload file"
+      ],
+      "outputRule": "save route shape, parameter names, parameter risk, anchors, field labels, button labels and stop categories only; never save concrete parameter values"
+    },
+    {
+      "pageId": "www.imItem",
+      "surface": "www",
+      "routePattern": "/im?itemId=...&peerUserId=...",
+      "routeShapeForLogging": "https://www.goofish.com/im?itemId=...&peerUserId=...",
+      "family": "message",
+      "layer": "M1/M3",
+      "evidence": "Deep/Param",
+      "readiness": "R3/R4",
+      "liveCoverage": "requires-user-context",
+      "deepeningQueue": "D4_REQUIRES_USER_CONTEXT",
+      "batchId": "B4_USER_CONTEXT_REQUIRED_PASS",
+      "entryMode": "USER_CONTEXT_REQUIRED",
+      "canOpenDirectly": false,
+      "contextRequirement": "USER_PROVIDED_CONTEXT_ONLY",
+      "parameters": [
+        {
+          "name": "itemId",
+          "riskRuleId": "item-id-param",
+          "risk": "item-context",
+          "action": "REQUIRES_USER_CONTEXT_IF_NOT_PUBLIC_DETAIL",
+          "valuePolicy": "drop-value-keep-name-and-risk-only",
+          "requiredForMeaning": true
+        },
+        {
+          "name": "peerUserId",
+          "riskRuleId": "user-param",
+          "risk": "account-identity",
+          "action": "REQUIRES_USER_CONTEXT_AND_REDACTION",
+          "valuePolicy": "drop-value-keep-name-and-risk-only",
+          "requiredForMeaning": true
+        }
+      ],
+      "parameterRiskSummary": [
+        "item-id-param",
+        "user-param"
+      ],
+      "missingContextAction": "stop-and-request-user-provided-url-or-business-context",
+      "allowedContextSources": [
+        "user-provided-url",
+        "user-described-current-business-context",
+        "visible-link-after-user-confirmation"
+      ],
+      "allowedRead": [
+        "identify item-linked chat entry"
+      ],
+      "waitForAnchors": [
+        "item-linked chat parameters",
+        "input area"
+      ],
+      "defaultActionGate": "G2",
+      "stopPoints": [
+        "read specific conversation",
+        "send"
+      ],
+      "outputRule": "save route shape, parameter names, parameter risk, anchors, field labels, button labels and stop categories only; never save concrete parameter values"
+    },
+    {
+      "pageId": "www.account",
+      "surface": "www",
+      "routePattern": "/account",
+      "routeShapeForLogging": "https://www.goofish.com/account",
+      "family": "identity",
+      "layer": "M1/M5",
+      "evidence": "Live + Static",
+      "readiness": "R1/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "batchId": "B3_HIGH_RISK_LIVE_REDACTED_PASS",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "canOpenDirectly": true,
+      "contextRequirement": "CURRENT_PROFILE_DIRECT_READ",
+      "parameters": [],
+      "parameterRiskSummary": [],
+      "missingContextAction": "open-read-structure-only",
+      "allowedContextSources": [
+        "direct-route",
+        "current-browser-profile"
+      ],
+      "allowedRead": [
+        "read module names and status categories"
+      ],
+      "waitForAnchors": [
+        "basic info module",
+        "stay signed in",
+        "notice switch",
+        "verification entry",
+        "security center"
+      ],
+      "defaultActionGate": "G4",
+      "stopPoints": [
+        "toggle notice",
+        "verify identity",
+        "switch account",
+        "logout"
+      ],
+      "outputRule": "save route shape, parameter names, parameter risk, anchors, field labels, button labels and stop categories only; never save concrete parameter values"
+    },
+    {
+      "pageId": "www.accountApi",
+      "surface": "www",
+      "routePattern": "/account/api",
+      "routeShapeForLogging": "https://www.goofish.com/account/api",
+      "family": "internal-module",
+      "layer": "M6",
+      "evidence": "Internal/Module",
+      "readiness": "R5",
+      "liveCoverage": "static-only",
+      "deepeningQueue": "D5_STATIC_ONLY",
+      "batchId": "B5_STATIC_EVIDENCE_PASS",
+      "entryMode": "INTERNAL_OR_MODULE_ONLY",
+      "canOpenDirectly": false,
+      "contextRequirement": "STATIC_DESCRIPTION_ONLY",
+      "parameters": [],
+      "parameterRiskSummary": [],
+      "missingContextAction": "do-not-open-for-coverage-describe-static-signal",
+      "allowedContextSources": [
+        "static-bundle-evidence",
+        "existing-route-index"
+      ],
+      "allowedRead": [
+        "treat as non-page evidence"
+      ],
+      "waitForAnchors": [
+        "module path"
+      ],
+      "defaultActionGate": "G4",
+      "stopPoints": [
+        "direct call",
+        "page navigation"
+      ],
+      "outputRule": "save route shape, parameter names, parameter risk, anchors, field labels, button labels and stop categories only; never save concrete parameter values"
+    },
+    {
+      "pageId": "www.feedback",
+      "surface": "www",
+      "routePattern": "/feedback?from=...",
+      "routeShapeForLogging": "https://www.goofish.com/feedback?from=...",
+      "family": "draft-input",
+      "layer": "M2/M3",
+      "evidence": "Live + Static",
+      "readiness": "R2/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D2_FORM_AND_SHELL_LIVE",
+      "batchId": "B2_FORM_AND_SHELL_LIVE_PASS",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "canOpenDirectly": true,
+      "contextRequirement": "READ_ROUTE_SHAPE_ONLY",
+      "parameters": [
+        {
+          "name": "from",
+          "riskRuleId": "scene-source-param",
+          "risk": "tracking-or-entry-context",
+          "action": "READ_ROUTE_SHAPE_ONLY",
+          "valuePolicy": "drop-value-keep-name-and-risk-only",
+          "requiredForMeaning": false
+        }
+      ],
+      "parameterRiskSummary": [
+        "scene-source-param"
+      ],
+      "missingContextAction": "open-read-structure-only",
+      "allowedContextSources": [
+        "direct-route",
+        "current-browser-profile"
+      ],
+      "allowedRead": [
+        "draft feedback text"
+      ],
+      "waitForAnchors": [
+        "feedback type",
+        "source page option",
+        "text area",
+        "screenshot upload",
+        "submit"
+      ],
+      "defaultActionGate": "G2",
+      "stopPoints": [
+        "upload screenshot",
+        "submit"
+      ],
+      "outputRule": "save route shape, parameter names, parameter risk, anchors, field labels, button labels and stop categories only; never save concrete parameter values"
+    },
+    {
+      "pageId": "www.changelog",
+      "surface": "www",
+      "routePattern": "/changelog",
+      "routeShapeForLogging": "https://www.goofish.com/changelog",
+      "family": "public-content",
+      "layer": "M0",
+      "evidence": "Live Only",
+      "readiness": "R0",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D3_LOW_RISK_LIVE",
+      "batchId": "B1_LOW_RISK_LIVE_STRUCTURE",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "canOpenDirectly": true,
+      "contextRequirement": "PUBLIC_DIRECT",
+      "parameters": [],
+      "parameterRiskSummary": [],
+      "missingContextAction": "open-read-structure-only",
+      "allowedContextSources": [
+        "direct-route",
+        "current-browser-profile"
+      ],
+      "allowedRead": [
+        "read public content structure"
+      ],
+      "waitForAnchors": [
+        "update-log title",
+        "feature entries"
+      ],
+      "defaultActionGate": "G0",
+      "stopPoints": [],
+      "outputRule": "save route shape, parameter names, parameter risk, anchors, field labels, button labels and stop categories only; never save concrete parameter values"
+    },
+    {
+      "pageId": "www.login",
+      "surface": "www",
+      "routePattern": "/login",
+      "routeShapeForLogging": "https://www.goofish.com/login",
+      "family": "identity",
+      "layer": "M5",
+      "evidence": "Live + Static",
+      "readiness": "R5",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D2_FORM_AND_SHELL_LIVE",
+      "batchId": "B2_FORM_AND_SHELL_LIVE_PASS",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "canOpenDirectly": true,
+      "contextRequirement": "CURRENT_PROFILE_DIRECT_READ",
+      "parameters": [],
+      "parameterRiskSummary": [],
+      "missingContextAction": "open-read-structure-only",
+      "allowedContextSources": [
+        "direct-route",
+        "current-browser-profile"
+      ],
+      "allowedRead": [
+        "open login page"
+      ],
+      "waitForAnchors": [
+        "login method",
+        "scan container",
+        "verification entry",
+        "redirect parameter"
+      ],
+      "defaultActionGate": "G4",
+      "stopPoints": [
+        "scan",
+        "enter verification code",
+        "bypass risk control"
+      ],
+      "outputRule": "save route shape, parameter names, parameter risk, anchors, field labels, button labels and stop categories only; never save concrete parameter values"
+    },
+    {
+      "pageId": "www.loginRedirect",
+      "surface": "www",
+      "routePattern": "/login?spm=...&redirectURL=...",
+      "routeShapeForLogging": "https://www.goofish.com/login?spm=...&redirectURL=...",
+      "family": "identity",
+      "layer": "M5",
+      "evidence": "Static Only",
+      "readiness": "R5",
+      "liveCoverage": "static-only",
+      "deepeningQueue": "D5_STATIC_ONLY",
+      "batchId": "B5_STATIC_EVIDENCE_PASS",
+      "entryMode": "STATIC_EVIDENCE_ONLY",
+      "canOpenDirectly": false,
+      "contextRequirement": "STATIC_DESCRIPTION_ONLY",
+      "parameters": [
+        {
+          "name": "spm",
+          "riskRuleId": "scene-source-param",
+          "risk": "tracking-or-entry-context",
+          "action": "READ_ROUTE_SHAPE_ONLY",
+          "valuePolicy": "drop-value-keep-name-and-risk-only",
+          "requiredForMeaning": false
+        },
+        {
+          "name": "redirectURL",
+          "riskRuleId": "redirect-param",
+          "risk": "external-or-embedded-target",
+          "action": "SHELL_BOUNDARY_ONLY",
+          "valuePolicy": "drop-value-keep-name-and-risk-only",
+          "requiredForMeaning": true
+        }
+      ],
+      "parameterRiskSummary": [
+        "scene-source-param",
+        "redirect-param"
+      ],
+      "missingContextAction": "do-not-open-for-coverage-describe-static-signal",
+      "allowedContextSources": [
+        "static-bundle-evidence",
+        "existing-route-index"
+      ],
+      "allowedRead": [
+        "identify login redirect shape"
+      ],
+      "waitForAnchors": [
+        "redirect parameter"
+      ],
+      "defaultActionGate": "G4",
+      "stopPoints": [
+        "change login parameters",
+        "bypass risk control"
+      ],
+      "outputRule": "save route shape, parameter names, parameter risk, anchors, field labels, button labels and stop categories only; never save concrete parameter values"
+    },
+    {
+      "pageId": "www.findAccount",
+      "surface": "www",
+      "routePattern": "/find-account",
+      "routeShapeForLogging": "https://www.goofish.com/find-account",
+      "family": "identity",
+      "layer": "M5",
+      "evidence": "Static Only",
+      "readiness": "R5",
+      "liveCoverage": "static-only",
+      "deepeningQueue": "D5_STATIC_ONLY",
+      "batchId": "B5_STATIC_EVIDENCE_PASS",
+      "entryMode": "STATIC_EVIDENCE_ONLY",
+      "canOpenDirectly": false,
+      "contextRequirement": "STATIC_DESCRIPTION_ONLY",
+      "parameters": [],
+      "parameterRiskSummary": [],
+      "missingContextAction": "do-not-open-for-coverage-describe-static-signal",
+      "allowedContextSources": [
+        "static-bundle-evidence",
+        "existing-route-index"
+      ],
+      "allowedRead": [
+        "identify page type"
+      ],
+      "waitForAnchors": [
+        "account recovery placeholder",
+        "redirect behavior"
+      ],
+      "defaultActionGate": "G4",
+      "stopPoints": [
+        "recover account"
+      ],
+      "outputRule": "save route shape, parameter names, parameter risk, anchors, field labels, button labels and stop categories only; never save concrete parameter values"
+    },
+    {
+      "pageId": "www.selectAccount",
+      "surface": "www",
+      "routePattern": "/select-account",
+      "routeShapeForLogging": "https://www.goofish.com/select-account",
+      "family": "identity",
+      "layer": "M5",
+      "evidence": "Static Only",
+      "readiness": "R5",
+      "liveCoverage": "static-only",
+      "deepeningQueue": "D5_STATIC_ONLY",
+      "batchId": "B5_STATIC_EVIDENCE_PASS",
+      "entryMode": "STATIC_EVIDENCE_ONLY",
+      "canOpenDirectly": false,
+      "contextRequirement": "STATIC_DESCRIPTION_ONLY",
+      "parameters": [],
+      "parameterRiskSummary": [],
+      "missingContextAction": "do-not-open-for-coverage-describe-static-signal",
+      "allowedContextSources": [
+        "static-bundle-evidence",
+        "existing-route-index"
+      ],
+      "allowedRead": [
+        "identify page type"
+      ],
+      "waitForAnchors": [
+        "account selection placeholder",
+        "redirect behavior"
+      ],
+      "defaultActionGate": "G4",
+      "stopPoints": [
+        "switch account"
+      ],
+      "outputRule": "save route shape, parameter names, parameter risk, anchors, field labels, button labels and stop categories only; never save concrete parameter values"
+    },
+    {
+      "pageId": "www.loginValidation",
+      "surface": "www",
+      "routePattern": "/login-validation",
+      "routeShapeForLogging": "https://www.goofish.com/login-validation",
+      "family": "identity",
+      "layer": "M5",
+      "evidence": "Static Only",
+      "readiness": "R5",
+      "liveCoverage": "static-only",
+      "deepeningQueue": "D5_STATIC_ONLY",
+      "batchId": "B5_STATIC_EVIDENCE_PASS",
+      "entryMode": "STATIC_EVIDENCE_ONLY",
+      "canOpenDirectly": false,
+      "contextRequirement": "STATIC_DESCRIPTION_ONLY",
+      "parameters": [],
+      "parameterRiskSummary": [],
+      "missingContextAction": "do-not-open-for-coverage-describe-static-signal",
+      "allowedContextSources": [
+        "static-bundle-evidence",
+        "existing-route-index"
+      ],
+      "allowedRead": [
+        "identify page type"
+      ],
+      "waitForAnchors": [
+        "login validation placeholder"
+      ],
+      "defaultActionGate": "G4",
+      "stopPoints": [
+        "enter verification code"
+      ],
+      "outputRule": "save route shape, parameter names, parameter risk, anchors, field labels, button labels and stop categories only; never save concrete parameter values"
+    },
+    {
+      "pageId": "www.commonVideo",
+      "surface": "www",
+      "routePattern": "/common-video",
+      "routeShapeForLogging": "https://www.goofish.com/common-video",
+      "family": "public-content",
+      "layer": "M0/M6",
+      "evidence": "Static Only",
+      "readiness": "R0/R4",
+      "liveCoverage": "static-only",
+      "deepeningQueue": "D5_STATIC_ONLY",
+      "batchId": "B5_STATIC_EVIDENCE_PASS",
+      "entryMode": "STATIC_EVIDENCE_ONLY",
+      "canOpenDirectly": false,
+      "contextRequirement": "STATIC_DESCRIPTION_ONLY",
+      "parameters": [],
+      "parameterRiskSummary": [],
+      "missingContextAction": "do-not-open-for-coverage-describe-static-signal",
+      "allowedContextSources": [
+        "static-bundle-evidence",
+        "existing-route-index"
+      ],
+      "allowedRead": [
+        "read activity/video container structure"
+      ],
+      "waitForAnchors": [
+        "video container",
+        "title/material config",
+        "playback controls"
+      ],
+      "defaultActionGate": "G0",
+      "stopPoints": [
+        "play proactively",
+        "download",
+        "capture video"
+      ],
+      "outputRule": "save route shape, parameter names, parameter risk, anchors, field labels, button labels and stop categories only; never save concrete parameter values"
+    },
+    {
+      "pageId": "www.commonVideoLayout",
+      "surface": "www",
+      "routePattern": "/common-video/layout",
+      "routeShapeForLogging": "https://www.goofish.com/common-video/layout",
+      "family": "internal-module",
+      "layer": "M6",
+      "evidence": "Internal/Module",
+      "readiness": "R5",
+      "liveCoverage": "static-only",
+      "deepeningQueue": "D5_STATIC_ONLY",
+      "batchId": "B5_STATIC_EVIDENCE_PASS",
+      "entryMode": "INTERNAL_OR_MODULE_ONLY",
+      "canOpenDirectly": false,
+      "contextRequirement": "STATIC_DESCRIPTION_ONLY",
+      "parameters": [],
+      "parameterRiskSummary": [],
+      "missingContextAction": "do-not-open-for-coverage-describe-static-signal",
+      "allowedContextSources": [
+        "static-bundle-evidence",
+        "existing-route-index"
+      ],
+      "allowedRead": [
+        "treat as static evidence"
+      ],
+      "waitForAnchors": [
+        "layout package path"
+      ],
+      "defaultActionGate": "G4",
+      "stopPoints": [
+        "page navigation"
+      ],
+      "outputRule": "save route shape, parameter names, parameter risk, anchors, field labels, button labels and stop categories only; never save concrete parameter values"
+    },
+    {
+      "pageId": "www.upgradeBrowser",
+      "surface": "www",
+      "routePattern": "/upgrade-browser",
+      "routeShapeForLogging": "https://www.goofish.com/upgrade-browser",
+      "family": "public-content",
+      "layer": "M0/M6",
+      "evidence": "Static Only",
+      "readiness": "R0/R3",
+      "liveCoverage": "static-only",
+      "deepeningQueue": "D5_STATIC_ONLY",
+      "batchId": "B5_STATIC_EVIDENCE_PASS",
+      "entryMode": "STATIC_EVIDENCE_ONLY",
+      "canOpenDirectly": false,
+      "contextRequirement": "STATIC_DESCRIPTION_ONLY",
+      "parameters": [],
+      "parameterRiskSummary": [],
+      "missingContextAction": "do-not-open-for-coverage-describe-static-signal",
+      "allowedContextSources": [
+        "static-bundle-evidence",
+        "existing-route-index"
+      ],
+      "allowedRead": [
+        "read recommendation structure"
+      ],
+      "waitForAnchors": [
+        "browser recommendation list",
+        "download entry"
+      ],
+      "defaultActionGate": "G0",
+      "stopPoints": [
+        "download",
+        "install"
+      ],
+      "outputRule": "save route shape, parameter names, parameter risk, anchors, field labels, button labels and stop categories only; never save concrete parameter values"
+    },
+    {
+      "pageId": "www.playground",
+      "surface": "www",
+      "routePattern": "/playground",
+      "routeShapeForLogging": "https://www.goofish.com/playground",
+      "family": "internal-test",
+      "layer": "M6",
+      "evidence": "Static Only",
+      "readiness": "R4/R5",
+      "liveCoverage": "static-only",
+      "deepeningQueue": "D5_STATIC_ONLY",
+      "batchId": "B5_STATIC_EVIDENCE_PASS",
+      "entryMode": "STATIC_EVIDENCE_ONLY",
+      "canOpenDirectly": false,
+      "contextRequirement": "STATIC_DESCRIPTION_ONLY",
+      "parameters": [],
+      "parameterRiskSummary": [],
+      "missingContextAction": "do-not-open-for-coverage-describe-static-signal",
+      "allowedContextSources": [
+        "static-bundle-evidence",
+        "existing-route-index"
+      ],
+      "allowedRead": [
+        "static identification only"
+      ],
+      "waitForAnchors": [
+        "internal test entry",
+        "login/upload/qr/payment test controls"
+      ],
+      "defaultActionGate": "G4",
+      "stopPoints": [
+        "visit proactively",
+        "trigger test action"
+      ],
+      "outputRule": "save route shape, parameter names, parameter risk, anchors, field labels, button labels and stop categories only; never save concrete parameter values"
+    },
+    {
+      "pageId": "www.yhbCreateOrder",
+      "surface": "www",
+      "routePattern": "create-order-yhb package",
+      "routeShapeForLogging": "create-order-yhb package",
+      "family": "buyer-trade",
+      "layer": "M3",
+      "evidence": "Static Only",
+      "readiness": "R4",
+      "liveCoverage": "static-only",
+      "deepeningQueue": "D5_STATIC_ONLY",
+      "batchId": "B5_STATIC_EVIDENCE_PASS",
+      "entryMode": "STATIC_EVIDENCE_ONLY",
+      "canOpenDirectly": false,
+      "contextRequirement": "STATIC_DESCRIPTION_ONLY",
+      "parameters": [],
+      "parameterRiskSummary": [],
+      "missingContextAction": "do-not-open-for-coverage-describe-static-signal",
+      "allowedContextSources": [
+        "static-bundle-evidence",
+        "existing-route-index"
+      ],
+      "allowedRead": [
+        "record structure and risk"
+      ],
+      "waitForAnchors": [
+        "YHB order render fields",
+        "YHB order create interface"
+      ],
+      "defaultActionGate": "G1",
+      "stopPoints": [
+        "create YHB order"
+      ],
+      "outputRule": "save route shape, parameter names, parameter risk, anchors, field labels, button labels and stop categories only; never save concrete parameter values"
+    },
+    {
+      "pageId": "www.yhbOrderDetail",
+      "surface": "www",
+      "routePattern": "order-detail-yhb package",
+      "routeShapeForLogging": "order-detail-yhb package",
+      "family": "buyer-trade",
+      "layer": "M3",
+      "evidence": "Static Only",
+      "readiness": "R4",
+      "liveCoverage": "static-only",
+      "deepeningQueue": "D5_STATIC_ONLY",
+      "batchId": "B5_STATIC_EVIDENCE_PASS",
+      "entryMode": "STATIC_EVIDENCE_ONLY",
+      "canOpenDirectly": false,
+      "contextRequirement": "STATIC_DESCRIPTION_ONLY",
+      "parameters": [],
+      "parameterRiskSummary": [],
+      "missingContextAction": "do-not-open-for-coverage-describe-static-signal",
+      "allowedContextSources": [
+        "static-bundle-evidence",
+        "existing-route-index"
+      ],
+      "allowedRead": [
+        "read report/status capability shape"
+      ],
+      "waitForAnchors": [
+        "report fields",
+        "dispute fields",
+        "review-related fields"
+      ],
+      "defaultActionGate": "G1",
+      "stopPoints": [
+        "after-sale action",
+        "review action"
+      ],
+      "outputRule": "save route shape, parameter names, parameter risk, anchors, field labels, button labels and stop categories only; never save concrete parameter values"
+    },
+    {
+      "pageId": "seller.dataOverview",
+      "surface": "seller",
+      "routePattern": "#/seller-data/data",
+      "routeShapeForLogging": "https://seller.goofish.com/?site=<site-alias>#/seller-data/data",
+      "family": "seller-data",
+      "layer": "M4",
+      "evidence": "Live + Static",
+      "readiness": "R1/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D3_LOW_RISK_LIVE",
+      "batchId": "B1_LOW_RISK_LIVE_STRUCTURE",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "canOpenDirectly": true,
+      "contextRequirement": "PROFILE_OR_SITE_ALIAS_ONLY",
+      "parameters": [
+        {
+          "name": "site",
+          "riskRuleId": "seller-site-param",
+          "risk": "seller-site-context",
+          "action": "USE_PROFILE_ALIAS_ONLY",
+          "valuePolicy": "drop-value-keep-name-and-risk-only",
+          "requiredForMeaning": false
+        }
+      ],
+      "parameterRiskSummary": [
+        "seller-site-param"
+      ],
+      "missingContextAction": "open-read-structure-only",
+      "allowedContextSources": [
+        "direct-route",
+        "current-browser-profile"
+      ],
+      "allowedRead": [
+        "read metric field names and module names"
+      ],
+      "waitForAnchors": [
+        "date controls",
+        "metric cards",
+        "trend charts",
+        "info popovers"
+      ],
+      "defaultActionGate": "G1",
+      "stopPoints": [
+        "record real numbers",
+        "export",
+        "download"
+      ],
+      "outputRule": "save route shape, parameter names, parameter risk, anchors, field labels, button labels and stop categories only; never save concrete parameter values"
+    },
+    {
+      "pageId": "seller.commodityData",
+      "surface": "seller",
+      "routePattern": "#/seller-data/commodity",
+      "routeShapeForLogging": "https://seller.goofish.com/?site=<site-alias>#/seller-data/commodity",
+      "family": "seller-data",
+      "layer": "M4",
+      "evidence": "Live + Static",
+      "readiness": "R1/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D2_FORM_AND_SHELL_LIVE",
+      "batchId": "B2_FORM_AND_SHELL_LIVE_PASS",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "canOpenDirectly": true,
+      "contextRequirement": "PROFILE_OR_SITE_ALIAS_ONLY",
+      "parameters": [
+        {
+          "name": "site",
+          "riskRuleId": "seller-site-param",
+          "risk": "seller-site-context",
+          "action": "USE_PROFILE_ALIAS_ONLY",
+          "valuePolicy": "drop-value-keep-name-and-risk-only",
+          "requiredForMeaning": false
+        }
+      ],
+      "parameterRiskSummary": [
+        "seller-site-param"
+      ],
+      "missingContextAction": "open-read-structure-only",
+      "allowedContextSources": [
+        "direct-route",
+        "current-browser-profile"
+      ],
+      "allowedRead": [
+        "read headers and filters"
+      ],
+      "waitForAnchors": [
+        "search",
+        "date",
+        "commodity table",
+        "metric columns",
+        "pagination",
+        "download"
+      ],
+      "defaultActionGate": "G1",
+      "stopPoints": [
+        "download item detail"
+      ],
+      "outputRule": "save route shape, parameter names, parameter risk, anchors, field labels, button labels and stop categories only; never save concrete parameter values"
+    },
+    {
+      "pageId": "seller.fanData",
+      "surface": "seller",
+      "routePattern": "#/seller-data/fanData",
+      "routeShapeForLogging": "https://seller.goofish.com/?site=<site-alias>#/seller-data/fanData",
+      "family": "seller-data",
+      "layer": "M4",
+      "evidence": "Live + Static",
+      "readiness": "R1/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D3_LOW_RISK_LIVE",
+      "batchId": "B1_LOW_RISK_LIVE_STRUCTURE",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "canOpenDirectly": true,
+      "contextRequirement": "PROFILE_OR_SITE_ALIAS_ONLY",
+      "parameters": [
+        {
+          "name": "site",
+          "riskRuleId": "seller-site-param",
+          "risk": "seller-site-context",
+          "action": "USE_PROFILE_ALIAS_ONLY",
+          "valuePolicy": "drop-value-keep-name-and-risk-only",
+          "requiredForMeaning": false
+        }
+      ],
+      "parameterRiskSummary": [
+        "seller-site-param"
+      ],
+      "missingContextAction": "open-read-structure-only",
+      "allowedContextSources": [
+        "direct-route",
+        "current-browser-profile"
+      ],
+      "allowedRead": [
+        "read profile module names"
+      ],
+      "waitForAnchors": [
+        "date",
+        "fan metrics",
+        "profile distributions",
+        "region/user-group modules"
+      ],
+      "defaultActionGate": "G1",
+      "stopPoints": [
+        "record real audience numbers",
+        "export"
+      ],
+      "outputRule": "save route shape, parameter names, parameter risk, anchors, field labels, button labels and stop categories only; never save concrete parameter values"
+    },
+    {
+      "pageId": "seller.customerServiceData",
+      "surface": "seller",
+      "routePattern": "#/seller-data/customerService",
+      "routeShapeForLogging": "https://seller.goofish.com/?site=<site-alias>#/seller-data/customerService",
+      "family": "seller-data",
+      "layer": "M4",
+      "evidence": "Live + Static",
+      "readiness": "R1/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D2_FORM_AND_SHELL_LIVE",
+      "batchId": "B2_FORM_AND_SHELL_LIVE_PASS",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "canOpenDirectly": true,
+      "contextRequirement": "PROFILE_OR_SITE_ALIAS_ONLY",
+      "parameters": [
+        {
+          "name": "site",
+          "riskRuleId": "seller-site-param",
+          "risk": "seller-site-context",
+          "action": "USE_PROFILE_ALIAS_ONLY",
+          "valuePolicy": "drop-value-keep-name-and-risk-only",
+          "requiredForMeaning": false
+        }
+      ],
+      "parameterRiskSummary": [
+        "seller-site-param"
+      ],
+      "missingContextAction": "open-read-structure-only",
+      "allowedContextSources": [
+        "direct-route",
+        "current-browser-profile"
+      ],
+      "allowedRead": [
+        "read headers and satisfaction field names"
+      ],
+      "waitForAnchors": [
+        "consultation metrics",
+        "satisfaction fields",
+        "customer-service table",
+        "export"
+      ],
+      "defaultActionGate": "G1",
+      "stopPoints": [
+        "export customer-service detail"
+      ],
+      "outputRule": "save route shape, parameter names, parameter risk, anchors, field labels, button labels and stop categories only; never save concrete parameter values"
+    },
+    {
+      "pageId": "seller.itemPublish",
+      "surface": "seller",
+      "routePattern": "#/seller-item/publish",
+      "routeShapeForLogging": "https://seller.goofish.com/?site=<site-alias>#/seller-item/publish",
+      "family": "seller-item",
+      "layer": "M2/M4",
+      "evidence": "Live + Static",
+      "readiness": "R2/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D2_FORM_AND_SHELL_LIVE",
+      "batchId": "B2_FORM_AND_SHELL_LIVE_PASS",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "canOpenDirectly": true,
+      "contextRequirement": "PROFILE_OR_SITE_ALIAS_ONLY",
+      "parameters": [
+        {
+          "name": "site",
+          "riskRuleId": "seller-site-param",
+          "risk": "seller-site-context",
+          "action": "USE_PROFILE_ALIAS_ONLY",
+          "valuePolicy": "drop-value-keep-name-and-risk-only",
+          "requiredForMeaning": false
+        }
+      ],
+      "parameterRiskSummary": [
+        "seller-site-param"
+      ],
+      "missingContextAction": "open-read-structure-only",
+      "allowedContextSources": [
+        "direct-route",
+        "current-browser-profile"
+      ],
+      "allowedRead": [
+        "draft item listing"
+      ],
+      "waitForAnchors": [
+        "image/video uploader",
+        "title/description",
+        "category",
+        "sku",
+        "price",
+        "stock",
+        "shipping settings"
+      ],
+      "defaultActionGate": "G2",
+      "stopPoints": [
+        "upload",
+        "save",
+        "publish"
+      ],
+      "outputRule": "save route shape, parameter names, parameter risk, anchors, field labels, button labels and stop categories only; never save concrete parameter values"
+    },
+    {
+      "pageId": "seller.goodsManage",
+      "surface": "seller",
+      "routePattern": "#/seller-item/goods-manage",
+      "routeShapeForLogging": "https://seller.goofish.com/?site=<site-alias>#/seller-item/goods-manage",
+      "family": "seller-item",
+      "layer": "M4",
+      "evidence": "Live + Static",
+      "readiness": "R1/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D2_FORM_AND_SHELL_LIVE",
+      "batchId": "B2_FORM_AND_SHELL_LIVE_PASS",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "canOpenDirectly": true,
+      "contextRequirement": "PROFILE_OR_SITE_ALIAS_ONLY",
+      "parameters": [
+        {
+          "name": "site",
+          "riskRuleId": "seller-site-param",
+          "risk": "seller-site-context",
+          "action": "USE_PROFILE_ALIAS_ONLY",
+          "valuePolicy": "drop-value-keep-name-and-risk-only",
+          "requiredForMeaning": false
+        }
+      ],
+      "parameterRiskSummary": [
+        "seller-site-param"
+      ],
+      "missingContextAction": "open-read-structure-only",
+      "allowedContextSources": [
+        "direct-route",
+        "current-browser-profile"
+      ],
+      "allowedRead": [
+        "read filters and headers"
+      ],
+      "waitForAnchors": [
+        "status tabs",
+        "search/filter",
+        "item table",
+        "bulk actions",
+        "operation column"
+      ],
+      "defaultActionGate": "G2",
+      "stopPoints": [
+        "edit",
+        "copy",
+        "adjust price",
+        "shelf changes",
+        "delete"
+      ],
+      "outputRule": "save route shape, parameter names, parameter risk, anchors, field labels, button labels and stop categories only; never save concrete parameter values"
+    },
+    {
+      "pageId": "seller.postTemplate",
+      "surface": "seller",
+      "routePattern": "#/seller-item/post-temple",
+      "routeShapeForLogging": "https://seller.goofish.com/?site=<site-alias>#/seller-item/post-temple",
+      "family": "seller-item",
+      "layer": "M4",
+      "evidence": "Live + Static",
+      "readiness": "R1/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D2_FORM_AND_SHELL_LIVE",
+      "batchId": "B2_FORM_AND_SHELL_LIVE_PASS",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "canOpenDirectly": true,
+      "contextRequirement": "PROFILE_OR_SITE_ALIAS_ONLY",
+      "parameters": [
+        {
+          "name": "site",
+          "riskRuleId": "seller-site-param",
+          "risk": "seller-site-context",
+          "action": "USE_PROFILE_ALIAS_ONLY",
+          "valuePolicy": "drop-value-keep-name-and-risk-only",
+          "requiredForMeaning": false
+        }
+      ],
+      "parameterRiskSummary": [
+        "seller-site-param"
+      ],
+      "missingContextAction": "open-read-structure-only",
+      "allowedContextSources": [
+        "direct-route",
+        "current-browser-profile"
+      ],
+      "allowedRead": [
+        "read template field names"
+      ],
+      "waitForAnchors": [
+        "template list",
+        "create entry",
+        "operation column",
+        "delete/default confirmation"
+      ],
+      "defaultActionGate": "G2",
+      "stopPoints": [
+        "create",
+        "edit",
+        "delete",
+        "set default"
+      ],
+      "outputRule": "save route shape, parameter names, parameter risk, anchors, field labels, button labels and stop categories only; never save concrete parameter values"
+    },
+    {
+      "pageId": "seller.postTemplateCreate",
+      "surface": "seller",
+      "routePattern": "#/seller-item/post-temple/create",
+      "routeShapeForLogging": "https://seller.goofish.com/?site=<site-alias>#/seller-item/post-temple/create",
+      "family": "seller-item",
+      "layer": "M4",
+      "evidence": "Live + Static",
+      "readiness": "R2/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D2_FORM_AND_SHELL_LIVE",
+      "batchId": "B2_FORM_AND_SHELL_LIVE_PASS",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "canOpenDirectly": true,
+      "contextRequirement": "PROFILE_OR_SITE_ALIAS_ONLY",
+      "parameters": [
+        {
+          "name": "site",
+          "riskRuleId": "seller-site-param",
+          "risk": "seller-site-context",
+          "action": "USE_PROFILE_ALIAS_ONLY",
+          "valuePolicy": "drop-value-keep-name-and-risk-only",
+          "requiredForMeaning": false
+        }
+      ],
+      "parameterRiskSummary": [
+        "seller-site-param"
+      ],
+      "missingContextAction": "open-read-structure-only",
+      "allowedContextSources": [
+        "direct-route",
+        "current-browser-profile"
+      ],
+      "allowedRead": [
+        "draft template fields"
+      ],
+      "waitForAnchors": [
+        "template name",
+        "shipping location",
+        "billing mode",
+        "region modal",
+        "save"
+      ],
+      "defaultActionGate": "G2",
+      "stopPoints": [
+        "save real template"
+      ],
+      "outputRule": "save route shape, parameter names, parameter risk, anchors, field labels, button labels and stop categories only; never save concrete parameter values"
+    },
+    {
+      "pageId": "seller.orderManage",
+      "surface": "seller",
+      "routePattern": "#/seller-trade/order-manage",
+      "routeShapeForLogging": "https://seller.goofish.com/?site=<site-alias>#/seller-trade/order-manage",
+      "family": "seller-trade",
+      "layer": "M3/M4",
+      "evidence": "Live + Static",
+      "readiness": "R1/R4",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "batchId": "B3_HIGH_RISK_LIVE_REDACTED_PASS",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "canOpenDirectly": true,
+      "contextRequirement": "PROFILE_OR_SITE_ALIAS_ONLY",
+      "parameters": [
+        {
+          "name": "site",
+          "riskRuleId": "seller-site-param",
+          "risk": "seller-site-context",
+          "action": "USE_PROFILE_ALIAS_ONLY",
+          "valuePolicy": "drop-value-keep-name-and-risk-only",
+          "requiredForMeaning": false
+        }
+      ],
+      "parameterRiskSummary": [
+        "seller-site-param"
+      ],
+      "missingContextAction": "open-read-structure-only",
+      "allowedContextSources": [
+        "direct-route",
+        "current-browser-profile"
+      ],
+      "allowedRead": [
+        "read order-status categories and headers"
+      ],
+      "waitForAnchors": [
+        "order-status tabs",
+        "search conditions",
+        "date",
+        "order table",
+        "operation column"
+      ],
+      "defaultActionGate": "G1",
+      "stopPoints": [
+        "ship",
+        "change logistics",
+        "remark",
+        "contact",
+        "view funds"
+      ],
+      "outputRule": "save route shape, parameter names, parameter risk, anchors, field labels, button labels and stop categories only; never save concrete parameter values"
+    },
+    {
+      "pageId": "seller.orderDetail",
+      "surface": "seller",
+      "routePattern": "#/seller-trade/order-manage/order-detail?orderId=...",
+      "routeShapeForLogging": "https://seller.goofish.com/?site=<site-alias>#/seller-trade/order-manage/order-detail?orderId=...",
+      "family": "seller-trade",
+      "layer": "M3/M4",
+      "evidence": "Deep/Param",
+      "readiness": "R1/R4",
+      "liveCoverage": "requires-user-context",
+      "deepeningQueue": "D4_REQUIRES_USER_CONTEXT",
+      "batchId": "B4_USER_CONTEXT_REQUIRED_PASS",
+      "entryMode": "USER_CONTEXT_REQUIRED",
+      "canOpenDirectly": false,
+      "contextRequirement": "USER_PROVIDED_CONTEXT_ONLY",
+      "parameters": [
+        {
+          "name": "site",
+          "riskRuleId": "seller-site-param",
+          "risk": "seller-site-context",
+          "action": "USE_PROFILE_ALIAS_ONLY",
+          "valuePolicy": "drop-value-keep-name-and-risk-only",
+          "requiredForMeaning": true
+        },
+        {
+          "name": "orderId",
+          "riskRuleId": "order-id-param",
+          "risk": "trade-private",
+          "action": "REQUIRES_USER_CONTEXT_AND_REDACTION",
+          "valuePolicy": "drop-value-keep-name-and-risk-only",
+          "requiredForMeaning": true
+        }
+      ],
+      "parameterRiskSummary": [
+        "seller-site-param",
+        "order-id-param"
+      ],
+      "missingContextAction": "stop-and-request-user-provided-url-or-business-context",
+      "allowedContextSources": [
+        "user-provided-url",
+        "user-described-current-business-context",
+        "visible-link-after-user-confirmation"
+      ],
+      "allowedRead": [
+        "read field names after user-provided context"
+      ],
+      "waitForAnchors": [
+        "status nodes",
+        "logistics",
+        "address-modification area",
+        "trade messages",
+        "operation buttons"
+      ],
+      "defaultActionGate": "G1",
+      "stopPoints": [
+        "guess order id",
+        "order action"
+      ],
+      "outputRule": "save route shape, parameter names, parameter risk, anchors, field labels, button labels and stop categories only; never save concrete parameter values"
+    },
+    {
+      "pageId": "seller.refundManage",
+      "surface": "seller",
+      "routePattern": "#/seller-trade/refund-manage",
+      "routeShapeForLogging": "https://seller.goofish.com/?site=<site-alias>#/seller-trade/refund-manage",
+      "family": "seller-trade",
+      "layer": "M3/M4",
+      "evidence": "Live + Static",
+      "readiness": "R1/R4",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "batchId": "B3_HIGH_RISK_LIVE_REDACTED_PASS",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "canOpenDirectly": true,
+      "contextRequirement": "PROFILE_OR_SITE_ALIAS_ONLY",
+      "parameters": [
+        {
+          "name": "site",
+          "riskRuleId": "seller-site-param",
+          "risk": "seller-site-context",
+          "action": "USE_PROFILE_ALIAS_ONLY",
+          "valuePolicy": "drop-value-keep-name-and-risk-only",
+          "requiredForMeaning": false
+        }
+      ],
+      "parameterRiskSummary": [
+        "seller-site-param"
+      ],
+      "missingContextAction": "open-read-structure-only",
+      "allowedContextSources": [
+        "direct-route",
+        "current-browser-profile"
+      ],
+      "allowedRead": [
+        "read refund status and field names"
+      ],
+      "waitForAnchors": [
+        "refund type",
+        "status filter",
+        "reason",
+        "logistics",
+        "operation column"
+      ],
+      "defaultActionGate": "G1",
+      "stopPoints": [
+        "agree refund",
+        "refuse refund",
+        "compensate",
+        "confirm receipt"
+      ],
+      "outputRule": "save route shape, parameter names, parameter risk, anchors, field labels, button labels and stop categories only; never save concrete parameter values"
+    },
+    {
+      "pageId": "seller.evaluationManage",
+      "surface": "seller",
+      "routePattern": "#/seller-trade/evaluation-manage",
+      "routeShapeForLogging": "https://seller.goofish.com/?site=<site-alias>#/seller-trade/evaluation-manage",
+      "family": "seller-trade",
+      "layer": "M3/M4",
+      "evidence": "Live + Static",
+      "readiness": "R1/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "batchId": "B3_HIGH_RISK_LIVE_REDACTED_PASS",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "canOpenDirectly": true,
+      "contextRequirement": "PROFILE_OR_SITE_ALIAS_ONLY",
+      "parameters": [
+        {
+          "name": "site",
+          "riskRuleId": "seller-site-param",
+          "risk": "seller-site-context",
+          "action": "USE_PROFILE_ALIAS_ONLY",
+          "valuePolicy": "drop-value-keep-name-and-risk-only",
+          "requiredForMeaning": false
+        }
+      ],
+      "parameterRiskSummary": [
+        "seller-site-param"
+      ],
+      "missingContextAction": "open-read-structure-only",
+      "allowedContextSources": [
+        "direct-route",
+        "current-browser-profile"
+      ],
+      "allowedRead": [
+        "read evaluation fields",
+        "draft reply text"
+      ],
+      "waitForAnchors": [
+        "evaluation filters",
+        "evaluation table",
+        "batch review",
+        "report/contact"
+      ],
+      "defaultActionGate": "G1",
+      "stopPoints": [
+        "review",
+        "report",
+        "contact"
+      ],
+      "outputRule": "save route shape, parameter names, parameter risk, anchors, field labels, button labels and stop categories only; never save concrete parameter values"
+    },
+    {
+      "pageId": "seller.complaintManage",
+      "surface": "seller",
+      "routePattern": "#/seller-trade/complaint-manage",
+      "routeShapeForLogging": "https://seller.goofish.com/?site=<site-alias>#/seller-trade/complaint-manage",
+      "family": "seller-trade",
+      "layer": "M3/M4",
+      "evidence": "Live + Static",
+      "readiness": "R1/R4",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "batchId": "B3_HIGH_RISK_LIVE_REDACTED_PASS",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "canOpenDirectly": true,
+      "contextRequirement": "PROFILE_OR_SITE_ALIAS_ONLY",
+      "parameters": [
+        {
+          "name": "site",
+          "riskRuleId": "seller-site-param",
+          "risk": "seller-site-context",
+          "action": "USE_PROFILE_ALIAS_ONLY",
+          "valuePolicy": "drop-value-keep-name-and-risk-only",
+          "requiredForMeaning": false
+        }
+      ],
+      "parameterRiskSummary": [
+        "seller-site-param"
+      ],
+      "missingContextAction": "open-read-structure-only",
+      "allowedContextSources": [
+        "direct-route",
+        "current-browser-profile"
+      ],
+      "allowedRead": [
+        "read complaint status",
+        "draft appeal/proof text"
+      ],
+      "waitForAnchors": [
+        "complaint status",
+        "complaint table",
+        "detail/proof entry"
+      ],
+      "defaultActionGate": "G1",
+      "stopPoints": [
+        "submit proof",
+        "revoke",
+        "refuse",
+        "submit material"
+      ],
+      "outputRule": "save route shape, parameter names, parameter risk, anchors, field labels, button labels and stop categories only; never save concrete parameter values"
+    },
+    {
+      "pageId": "seller.refundAddress",
+      "surface": "seller",
+      "routePattern": "#/seller-trade/refund-address",
+      "routeShapeForLogging": "https://seller.goofish.com/?site=<site-alias>#/seller-trade/refund-address",
+      "family": "seller-trade",
+      "layer": "M4",
+      "evidence": "Live + Static",
+      "readiness": "R1/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "batchId": "B3_HIGH_RISK_LIVE_REDACTED_PASS",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "canOpenDirectly": true,
+      "contextRequirement": "PROFILE_OR_SITE_ALIAS_ONLY",
+      "parameters": [
+        {
+          "name": "site",
+          "riskRuleId": "seller-site-param",
+          "risk": "seller-site-context",
+          "action": "USE_PROFILE_ALIAS_ONLY",
+          "valuePolicy": "drop-value-keep-name-and-risk-only",
+          "requiredForMeaning": false
+        }
+      ],
+      "parameterRiskSummary": [
+        "seller-site-param"
+      ],
+      "missingContextAction": "open-read-structure-only",
+      "allowedContextSources": [
+        "direct-route",
+        "current-browser-profile"
+      ],
+      "allowedRead": [
+        "read address table headers"
+      ],
+      "waitForAnchors": [
+        "address table",
+        "default status",
+        "operation column",
+        "add/edit/delete"
+      ],
+      "defaultActionGate": "G1",
+      "stopPoints": [
+        "add address",
+        "edit address",
+        "delete address"
+      ],
+      "outputRule": "save route shape, parameter names, parameter risk, anchors, field labels, button labels and stop categories only; never save concrete parameter values"
+    },
+    {
+      "pageId": "seller.incomeBill",
+      "surface": "seller",
+      "routePattern": "#/seller-finance/income-bill",
+      "routeShapeForLogging": "https://seller.goofish.com/?site=<site-alias>#/seller-finance/income-bill",
+      "family": "seller-finance",
+      "layer": "M4",
+      "evidence": "Live + Static",
+      "readiness": "R1/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "batchId": "B3_HIGH_RISK_LIVE_REDACTED_PASS",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "canOpenDirectly": true,
+      "contextRequirement": "PROFILE_OR_SITE_ALIAS_ONLY",
+      "parameters": [
+        {
+          "name": "site",
+          "riskRuleId": "seller-site-param",
+          "risk": "seller-site-context",
+          "action": "USE_PROFILE_ALIAS_ONLY",
+          "valuePolicy": "drop-value-keep-name-and-risk-only",
+          "requiredForMeaning": false
+        }
+      ],
+      "parameterRiskSummary": [
+        "seller-site-param"
+      ],
+      "missingContextAction": "open-read-structure-only",
+      "allowedContextSources": [
+        "direct-route",
+        "current-browser-profile"
+      ],
+      "allowedRead": [
+        "read income field names"
+      ],
+      "waitForAnchors": [
+        "month/day/detail tabs",
+        "date",
+        "business type",
+        "bill table",
+        "export/download"
+      ],
+      "defaultActionGate": "G1",
+      "stopPoints": [
+        "export",
+        "historical download",
+        "download full detail"
+      ],
+      "outputRule": "save route shape, parameter names, parameter risk, anchors, field labels, button labels and stop categories only; never save concrete parameter values"
+    },
+    {
+      "pageId": "seller.expenseBill",
+      "surface": "seller",
+      "routePattern": "#/seller-finance/expense-bill",
+      "routeShapeForLogging": "https://seller.goofish.com/?site=<site-alias>#/seller-finance/expense-bill",
+      "family": "seller-finance",
+      "layer": "M4",
+      "evidence": "Live + Static",
+      "readiness": "R1/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "batchId": "B3_HIGH_RISK_LIVE_REDACTED_PASS",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "canOpenDirectly": true,
+      "contextRequirement": "PROFILE_OR_SITE_ALIAS_ONLY",
+      "parameters": [
+        {
+          "name": "site",
+          "riskRuleId": "seller-site-param",
+          "risk": "seller-site-context",
+          "action": "USE_PROFILE_ALIAS_ONLY",
+          "valuePolicy": "drop-value-keep-name-and-risk-only",
+          "requiredForMeaning": false
+        }
+      ],
+      "parameterRiskSummary": [
+        "seller-site-param"
+      ],
+      "missingContextAction": "open-read-structure-only",
+      "allowedContextSources": [
+        "direct-route",
+        "current-browser-profile"
+      ],
+      "allowedRead": [
+        "read expense field names"
+      ],
+      "waitForAnchors": [
+        "month/day/detail tabs",
+        "expense type",
+        "bill table",
+        "export/download"
+      ],
+      "defaultActionGate": "G1",
+      "stopPoints": [
+        "export",
+        "download"
+      ],
+      "outputRule": "save route shape, parameter names, parameter risk, anchors, field labels, button labels and stop categories only; never save concrete parameter values"
+    },
+    {
+      "pageId": "seller.invoiceApply",
+      "surface": "seller",
+      "routePattern": "#/seller-finance/invoice-apply",
+      "routeShapeForLogging": "https://seller.goofish.com/?site=<site-alias>#/seller-finance/invoice-apply",
+      "family": "seller-finance",
+      "layer": "M4",
+      "evidence": "Live + Static",
+      "readiness": "R1/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "batchId": "B3_HIGH_RISK_LIVE_REDACTED_PASS",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "canOpenDirectly": true,
+      "contextRequirement": "PROFILE_OR_SITE_ALIAS_ONLY",
+      "parameters": [
+        {
+          "name": "site",
+          "riskRuleId": "seller-site-param",
+          "risk": "seller-site-context",
+          "action": "USE_PROFILE_ALIAS_ONLY",
+          "valuePolicy": "drop-value-keep-name-and-risk-only",
+          "requiredForMeaning": false
+        }
+      ],
+      "parameterRiskSummary": [
+        "seller-site-param"
+      ],
+      "missingContextAction": "open-read-structure-only",
+      "allowedContextSources": [
+        "direct-route",
+        "current-browser-profile"
+      ],
+      "allowedRead": [
+        "read invoice fields and button names"
+      ],
+      "waitForAnchors": [
+        "pending/applied/legacy tabs",
+        "business type",
+        "apply",
+        "export"
+      ],
+      "defaultActionGate": "G1",
+      "stopPoints": [
+        "apply invoice",
+        "export"
+      ],
+      "outputRule": "save route shape, parameter names, parameter risk, anchors, field labels, button labels and stop categories only; never save concrete parameter values"
+    },
+    {
+      "pageId": "seller.basicInfo",
+      "surface": "seller",
+      "routePattern": "#/seller-finance/basic-info",
+      "routeShapeForLogging": "https://seller.goofish.com/?site=<site-alias>#/seller-finance/basic-info",
+      "family": "seller-finance",
+      "layer": "M4/M5",
+      "evidence": "Live + Static",
+      "readiness": "R1/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "batchId": "B3_HIGH_RISK_LIVE_REDACTED_PASS",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "canOpenDirectly": true,
+      "contextRequirement": "PROFILE_OR_SITE_ALIAS_ONLY",
+      "parameters": [
+        {
+          "name": "site",
+          "riskRuleId": "seller-site-param",
+          "risk": "seller-site-context",
+          "action": "USE_PROFILE_ALIAS_ONLY",
+          "valuePolicy": "drop-value-keep-name-and-risk-only",
+          "requiredForMeaning": false
+        }
+      ],
+      "parameterRiskSummary": [
+        "seller-site-param"
+      ],
+      "missingContextAction": "open-read-structure-only",
+      "allowedContextSources": [
+        "direct-route",
+        "current-browser-profile"
+      ],
+      "allowedRead": [
+        "read field names only"
+      ],
+      "waitForAnchors": [
+        "invoice entity form",
+        "edit/save"
+      ],
+      "defaultActionGate": "G1",
+      "stopPoints": [
+        "modify entity data"
+      ],
+      "outputRule": "save route shape, parameter names, parameter risk, anchors, field labels, button labels and stop categories only; never save concrete parameter values"
+    },
+    {
+      "pageId": "seller.subAccount",
+      "surface": "seller",
+      "routePattern": "#/seller-account/sub-account",
+      "routeShapeForLogging": "https://seller.goofish.com/?site=<site-alias>#/seller-account/sub-account",
+      "family": "seller-account",
+      "layer": "M4/M5",
+      "evidence": "Live + Static",
+      "readiness": "R1/R4",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "batchId": "B3_HIGH_RISK_LIVE_REDACTED_PASS",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "canOpenDirectly": true,
+      "contextRequirement": "PROFILE_OR_SITE_ALIAS_ONLY",
+      "parameters": [
+        {
+          "name": "site",
+          "riskRuleId": "seller-site-param",
+          "risk": "seller-site-context",
+          "action": "USE_PROFILE_ALIAS_ONLY",
+          "valuePolicy": "drop-value-keep-name-and-risk-only",
+          "requiredForMeaning": false
+        }
+      ],
+      "parameterRiskSummary": [
+        "seller-site-param"
+      ],
+      "missingContextAction": "open-read-structure-only",
+      "allowedContextSources": [
+        "direct-route",
+        "current-browser-profile"
+      ],
+      "allowedRead": [
+        "read permission field names and status categories"
+      ],
+      "waitForAnchors": [
+        "sub-account table",
+        "role",
+        "status",
+        "routing config",
+        "new/disable/permission"
+      ],
+      "defaultActionGate": "G1",
+      "stopPoints": [
+        "create sub-account",
+        "disable account",
+        "change permission"
+      ],
+      "outputRule": "save route shape, parameter names, parameter risk, anchors, field labels, button labels and stop categories only; never save concrete parameter values"
+    },
+    {
+      "pageId": "seller.csDispatch",
+      "surface": "seller",
+      "routePattern": "#/im-cs-dispatch/customer-routing-service",
+      "routeShapeForLogging": "https://seller.goofish.com/?site=<site-alias>#/im-cs-dispatch/customer-routing-service",
+      "family": "seller-account",
+      "layer": "M4/M5",
+      "evidence": "Live + Static",
+      "readiness": "R1/R4",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "batchId": "B3_HIGH_RISK_LIVE_REDACTED_PASS",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "canOpenDirectly": true,
+      "contextRequirement": "PROFILE_OR_SITE_ALIAS_ONLY",
+      "parameters": [
+        {
+          "name": "site",
+          "riskRuleId": "seller-site-param",
+          "risk": "seller-site-context",
+          "action": "USE_PROFILE_ALIAS_ONLY",
+          "valuePolicy": "drop-value-keep-name-and-risk-only",
+          "requiredForMeaning": false
+        }
+      ],
+      "parameterRiskSummary": [
+        "seller-site-param"
+      ],
+      "missingContextAction": "open-read-structure-only",
+      "allowedContextSources": [
+        "direct-route",
+        "current-browser-profile"
+      ],
+      "allowedRead": [
+        "read routing rule structure"
+      ],
+      "waitForAnchors": [
+        "groups",
+        "reception scope",
+        "participating service agents",
+        "switch",
+        "save"
+      ],
+      "defaultActionGate": "G1",
+      "stopPoints": [
+        "save",
+        "enable/disable",
+        "create group"
+      ],
+      "outputRule": "save route shape, parameter names, parameter risk, anchors, field labels, button labels and stop categories only; never save concrete parameter values"
+    },
+    {
+      "pageId": "seller.securityCenter",
+      "surface": "seller",
+      "routePattern": "#/seller-sc/home",
+      "routeShapeForLogging": "https://seller.goofish.com/?site=<site-alias>#/seller-sc/home",
+      "family": "seller-security",
+      "layer": "M4",
+      "evidence": "Live + Static",
+      "readiness": "R1/R4",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "batchId": "B3_HIGH_RISK_LIVE_REDACTED_PASS",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "canOpenDirectly": true,
+      "contextRequirement": "PROFILE_OR_SITE_ALIAS_ONLY",
+      "parameters": [
+        {
+          "name": "site",
+          "riskRuleId": "seller-site-param",
+          "risk": "seller-site-context",
+          "action": "USE_PROFILE_ALIAS_ONLY",
+          "valuePolicy": "drop-value-keep-name-and-risk-only",
+          "requiredForMeaning": false
+        }
+      ],
+      "parameterRiskSummary": [
+        "seller-site-param"
+      ],
+      "missingContextAction": "open-read-structure-only",
+      "allowedContextSources": [
+        "direct-route",
+        "current-browser-profile"
+      ],
+      "allowedRead": [
+        "read violation field names and status categories"
+      ],
+      "waitForAnchors": [
+        "violation table",
+        "penalty status",
+        "appeal status",
+        "detail/appeal"
+      ],
+      "defaultActionGate": "G1",
+      "stopPoints": [
+        "view sensitive detail",
+        "appeal",
+        "process"
+      ],
+      "outputRule": "save route shape, parameter names, parameter risk, anchors, field labels, button labels and stop categories only; never save concrete parameter values"
+    },
+    {
+      "pageId": "seller.adHome",
+      "surface": "seller",
+      "routePattern": "#/seller-ad/home",
+      "routeShapeForLogging": "https://seller.goofish.com/?site=<site-alias>#/seller-ad/home",
+      "family": "seller-ad",
+      "layer": "M4",
+      "evidence": "Live + Static",
+      "readiness": "R1/R4",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "batchId": "B3_HIGH_RISK_LIVE_REDACTED_PASS",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "canOpenDirectly": true,
+      "contextRequirement": "PROFILE_OR_SITE_ALIAS_ONLY",
+      "parameters": [
+        {
+          "name": "site",
+          "riskRuleId": "seller-site-param",
+          "risk": "seller-site-context",
+          "action": "USE_PROFILE_ALIAS_ONLY",
+          "valuePolicy": "drop-value-keep-name-and-risk-only",
+          "requiredForMeaning": false
+        }
+      ],
+      "parameterRiskSummary": [
+        "seller-site-param"
+      ],
+      "missingContextAction": "open-read-structure-only",
+      "allowedContextSources": [
+        "direct-route",
+        "current-browser-profile"
+      ],
+      "allowedRead": [
+        "read promotion fields",
+        "draft plan idea"
+      ],
+      "waitForAnchors": [
+        "date",
+        "promotion metrics",
+        "plan entry",
+        "carousel controls"
+      ],
+      "defaultActionGate": "G1",
+      "stopPoints": [
+        "create plan",
+        "launch paid promotion"
+      ],
+      "outputRule": "save route shape, parameter names, parameter risk, anchors, field labels, button labels and stop categories only; never save concrete parameter values"
+    },
+    {
+      "pageId": "seller.notificationCenter",
+      "surface": "seller",
+      "routePattern": "#/notification-center",
+      "routeShapeForLogging": "https://seller.goofish.com/?site=<site-alias>#/notification-center",
+      "family": "seller-shell",
+      "layer": "M4",
+      "evidence": "Live + Static",
+      "readiness": "R1/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "batchId": "B3_HIGH_RISK_LIVE_REDACTED_PASS",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "canOpenDirectly": true,
+      "contextRequirement": "PROFILE_OR_SITE_ALIAS_ONLY",
+      "parameters": [
+        {
+          "name": "site",
+          "riskRuleId": "seller-site-param",
+          "risk": "seller-site-context",
+          "action": "USE_PROFILE_ALIAS_ONLY",
+          "valuePolicy": "drop-value-keep-name-and-risk-only",
+          "requiredForMeaning": false
+        }
+      ],
+      "parameterRiskSummary": [
+        "seller-site-param"
+      ],
+      "missingContextAction": "open-read-structure-only",
+      "allowedContextSources": [
+        "direct-route",
+        "current-browser-profile"
+      ],
+      "allowedRead": [
+        "read notification structure and categories"
+      ],
+      "waitForAnchors": [
+        "notification list",
+        "unread status",
+        "detail entry",
+        "mark read/clear unread"
+      ],
+      "defaultActionGate": "G1",
+      "stopPoints": [
+        "mark read",
+        "clear unread"
+      ],
+      "outputRule": "save route shape, parameter names, parameter risk, anchors, field labels, button labels and stop categories only; never save concrete parameter values"
+    },
+    {
+      "pageId": "seller.notificationApi",
+      "surface": "seller",
+      "routePattern": "#/notification-center/api*",
+      "routeShapeForLogging": "https://seller.goofish.com/?site=<site-alias>#/notification-center/api*",
+      "family": "internal-module",
+      "layer": "M6",
+      "evidence": "Static Only",
+      "readiness": "R5",
+      "liveCoverage": "static-only",
+      "deepeningQueue": "D5_STATIC_ONLY",
+      "batchId": "B5_STATIC_EVIDENCE_PASS",
+      "entryMode": "STATIC_EVIDENCE_ONLY",
+      "canOpenDirectly": false,
+      "contextRequirement": "STATIC_DESCRIPTION_ONLY",
+      "parameters": [
+        {
+          "name": "site",
+          "riskRuleId": "seller-site-param",
+          "risk": "seller-site-context",
+          "action": "USE_PROFILE_ALIAS_ONLY",
+          "valuePolicy": "drop-value-keep-name-and-risk-only",
+          "requiredForMeaning": false
+        }
+      ],
+      "parameterRiskSummary": [
+        "seller-site-param"
+      ],
+      "missingContextAction": "do-not-open-for-coverage-describe-static-signal",
+      "allowedContextSources": [
+        "static-bundle-evidence",
+        "existing-route-index"
+      ],
+      "allowedRead": [
+        "treat as non-page"
+      ],
+      "waitForAnchors": [
+        "internal API/interface module"
+      ],
+      "defaultActionGate": "G4",
+      "stopPoints": [
+        "direct call"
+      ],
+      "outputRule": "save route shape, parameter names, parameter risk, anchors, field labels, button labels and stop categories only; never save concrete parameter values"
+    },
+    {
+      "pageId": "seller.im",
+      "surface": "seller",
+      "routePattern": "#/im",
+      "routeShapeForLogging": "https://seller.goofish.com/?site=<site-alias>#/im",
+      "family": "seller-message",
+      "layer": "M3/M4",
+      "evidence": "Live + Static",
+      "readiness": "R1/R2/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "batchId": "B3_HIGH_RISK_LIVE_REDACTED_PASS",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "canOpenDirectly": true,
+      "contextRequirement": "PROFILE_OR_SITE_ALIAS_ONLY",
+      "parameters": [
+        {
+          "name": "site",
+          "riskRuleId": "seller-site-param",
+          "risk": "seller-site-context",
+          "action": "USE_PROFILE_ALIAS_ONLY",
+          "valuePolicy": "drop-value-keep-name-and-risk-only",
+          "requiredForMeaning": false
+        }
+      ],
+      "parameterRiskSummary": [
+        "seller-site-param"
+      ],
+      "missingContextAction": "open-read-structure-only",
+      "allowedContextSources": [
+        "direct-route",
+        "current-browser-profile"
+      ],
+      "allowedRead": [
+        "read frame",
+        "draft reply"
+      ],
+      "waitForAnchors": [
+        "session list",
+        "search",
+        "input area",
+        "toolbar",
+        "quick replies",
+        "file",
+        "transfer"
+      ],
+      "defaultActionGate": "G2",
+      "stopPoints": [
+        "read specific conversation",
+        "send",
+        "file upload",
+        "transfer"
+      ],
+      "outputRule": "save route shape, parameter names, parameter risk, anchors, field labels, button labels and stop categories only; never save concrete parameter values"
+    },
+    {
+      "pageId": "seller.imItem",
+      "surface": "seller",
+      "routePattern": "#/im?itemId=...",
+      "routeShapeForLogging": "https://seller.goofish.com/?site=<site-alias>#/im?itemId=...",
+      "family": "seller-message",
+      "layer": "M3/M4",
+      "evidence": "Deep/Param",
+      "readiness": "R3/R4",
+      "liveCoverage": "requires-user-context",
+      "deepeningQueue": "D4_REQUIRES_USER_CONTEXT",
+      "batchId": "B4_USER_CONTEXT_REQUIRED_PASS",
+      "entryMode": "USER_CONTEXT_REQUIRED",
+      "canOpenDirectly": false,
+      "contextRequirement": "USER_PROVIDED_CONTEXT_ONLY",
+      "parameters": [
+        {
+          "name": "site",
+          "riskRuleId": "seller-site-param",
+          "risk": "seller-site-context",
+          "action": "USE_PROFILE_ALIAS_ONLY",
+          "valuePolicy": "drop-value-keep-name-and-risk-only",
+          "requiredForMeaning": true
+        },
+        {
+          "name": "itemId",
+          "riskRuleId": "item-id-param",
+          "risk": "item-context",
+          "action": "REQUIRES_USER_CONTEXT_IF_NOT_PUBLIC_DETAIL",
+          "valuePolicy": "drop-value-keep-name-and-risk-only",
+          "requiredForMeaning": true
+        }
+      ],
+      "parameterRiskSummary": [
+        "seller-site-param",
+        "item-id-param"
+      ],
+      "missingContextAction": "stop-and-request-user-provided-url-or-business-context",
+      "allowedContextSources": [
+        "user-provided-url",
+        "user-described-current-business-context",
+        "visible-link-after-user-confirmation"
+      ],
+      "allowedRead": [
+        "identify entry shape"
+      ],
+      "waitForAnchors": [
+        "item-linked message parameter"
+      ],
+      "defaultActionGate": "G2",
+      "stopPoints": [
+        "guess parameter",
+        "send"
+      ],
+      "outputRule": "save route shape, parameter names, parameter risk, anchors, field labels, button labels and stop categories only; never save concrete parameter values"
+    },
+    {
+      "pageId": "seller.imDesktop",
+      "surface": "seller",
+      "routePattern": "#/im-desktop",
+      "routeShapeForLogging": "https://seller.goofish.com/?site=<site-alias>#/im-desktop",
+      "family": "seller-shell",
+      "layer": "M6",
+      "evidence": "Live + Static",
+      "readiness": "R5/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D1_HIGH_RISK_LIVE",
+      "batchId": "B3_HIGH_RISK_LIVE_REDACTED_PASS",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "canOpenDirectly": true,
+      "contextRequirement": "PROFILE_OR_SITE_ALIAS_ONLY",
+      "parameters": [
+        {
+          "name": "site",
+          "riskRuleId": "seller-site-param",
+          "risk": "seller-site-context",
+          "action": "USE_PROFILE_ALIAS_ONLY",
+          "valuePolicy": "drop-value-keep-name-and-risk-only",
+          "requiredForMeaning": false
+        }
+      ],
+      "parameterRiskSummary": [
+        "seller-site-param"
+      ],
+      "missingContextAction": "open-read-structure-only",
+      "allowedContextSources": [
+        "direct-route",
+        "current-browser-profile"
+      ],
+      "allowedRead": [
+        "read container structure"
+      ],
+      "waitForAnchors": [
+        "download/open client prompt"
+      ],
+      "defaultActionGate": "G1",
+      "stopPoints": [
+        "download",
+        "install",
+        "open"
+      ],
+      "outputRule": "save route shape, parameter names, parameter risk, anchors, field labels, button labels and stop categories only; never save concrete parameter values"
+    },
+    {
+      "pageId": "seller.download",
+      "surface": "seller",
+      "routePattern": "#/download",
+      "routeShapeForLogging": "https://seller.goofish.com/?site=<site-alias>#/download",
+      "family": "seller-shell",
+      "layer": "M6",
+      "evidence": "Static + Live entry",
+      "readiness": "R5/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D2_FORM_AND_SHELL_LIVE",
+      "batchId": "B2_FORM_AND_SHELL_LIVE_PASS",
+      "entryMode": "LIVE_ENTRY_BOUNDARY_READ",
+      "canOpenDirectly": true,
+      "contextRequirement": "PROFILE_OR_SITE_ALIAS_ONLY",
+      "parameters": [
+        {
+          "name": "site",
+          "riskRuleId": "seller-site-param",
+          "risk": "seller-site-context",
+          "action": "USE_PROFILE_ALIAS_ONLY",
+          "valuePolicy": "drop-value-keep-name-and-risk-only",
+          "requiredForMeaning": false
+        }
+      ],
+      "parameterRiskSummary": [
+        "seller-site-param"
+      ],
+      "missingContextAction": "identify-download-or-client-entry-only-do-not-download-or-install",
+      "allowedContextSources": [
+        "direct-route",
+        "current-browser-profile"
+      ],
+      "allowedRead": [
+        "read download entry"
+      ],
+      "waitForAnchors": [
+        "download button",
+        "client type"
+      ],
+      "defaultActionGate": "G1",
+      "stopPoints": [
+        "download",
+        "install"
+      ],
+      "outputRule": "save route shape, parameter names, parameter risk, anchors, field labels, button labels and stop categories only; never save concrete parameter values"
+    },
+    {
+      "pageId": "seller.selectSite",
+      "surface": "seller",
+      "routePattern": "#/select-site",
+      "routeShapeForLogging": "https://seller.goofish.com/?site=<site-alias>#/select-site",
+      "family": "seller-gate",
+      "layer": "M5",
+      "evidence": "Live + Static",
+      "readiness": "R5/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D2_FORM_AND_SHELL_LIVE",
+      "batchId": "B2_FORM_AND_SHELL_LIVE_PASS",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "canOpenDirectly": true,
+      "contextRequirement": "PROFILE_OR_SITE_ALIAS_ONLY",
+      "parameters": [
+        {
+          "name": "site",
+          "riskRuleId": "seller-site-param",
+          "risk": "seller-site-context",
+          "action": "USE_PROFILE_ALIAS_ONLY",
+          "valuePolicy": "drop-value-keep-name-and-risk-only",
+          "requiredForMeaning": false
+        }
+      ],
+      "parameterRiskSummary": [
+        "seller-site-param"
+      ],
+      "missingContextAction": "open-read-structure-only",
+      "allowedContextSources": [
+        "direct-route",
+        "current-browser-profile"
+      ],
+      "allowedRead": [
+        "read site-selection structure"
+      ],
+      "waitForAnchors": [
+        "site/identity list",
+        "selection button"
+      ],
+      "defaultActionGate": "G4",
+      "stopPoints": [
+        "switch site"
+      ],
+      "outputRule": "save route shape, parameter names, parameter risk, anchors, field labels, button labels and stop categories only; never save concrete parameter values"
+    },
+    {
+      "pageId": "seller.accountCheck",
+      "surface": "seller",
+      "routePattern": "#/account-check",
+      "routeShapeForLogging": "https://seller.goofish.com/?site=<site-alias>#/account-check",
+      "family": "seller-gate",
+      "layer": "M5",
+      "evidence": "Live + Static",
+      "readiness": "R5/R3",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D2_FORM_AND_SHELL_LIVE",
+      "batchId": "B2_FORM_AND_SHELL_LIVE_PASS",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "canOpenDirectly": true,
+      "contextRequirement": "PROFILE_OR_SITE_ALIAS_ONLY",
+      "parameters": [
+        {
+          "name": "site",
+          "riskRuleId": "seller-site-param",
+          "risk": "seller-site-context",
+          "action": "USE_PROFILE_ALIAS_ONLY",
+          "valuePolicy": "drop-value-keep-name-and-risk-only",
+          "requiredForMeaning": false
+        }
+      ],
+      "parameterRiskSummary": [
+        "seller-site-param"
+      ],
+      "missingContextAction": "open-read-structure-only",
+      "allowedContextSources": [
+        "direct-route",
+        "current-browser-profile"
+      ],
+      "allowedRead": [
+        "read gate structure"
+      ],
+      "waitForAnchors": [
+        "account check",
+        "continue",
+        "re-login",
+        "switch"
+      ],
+      "defaultActionGate": "G4",
+      "stopPoints": [
+        "continue",
+        "re-login",
+        "switch account"
+      ],
+      "outputRule": "save route shape, parameter names, parameter risk, anchors, field labels, button labels and stop categories only; never save concrete parameter values"
+    },
+    {
+      "pageId": "seller.accountCheckUser",
+      "surface": "seller",
+      "routePattern": "#/account-check?userNick=...",
+      "routeShapeForLogging": "https://seller.goofish.com/?site=<site-alias>#/account-check?userNick=...",
+      "family": "seller-gate",
+      "layer": "M5",
+      "evidence": "Deep/Param",
+      "readiness": "R5",
+      "liveCoverage": "requires-user-context",
+      "deepeningQueue": "D4_REQUIRES_USER_CONTEXT",
+      "batchId": "B4_USER_CONTEXT_REQUIRED_PASS",
+      "entryMode": "USER_CONTEXT_REQUIRED",
+      "canOpenDirectly": false,
+      "contextRequirement": "USER_PROVIDED_CONTEXT_ONLY",
+      "parameters": [
+        {
+          "name": "site",
+          "riskRuleId": "seller-site-param",
+          "risk": "seller-site-context",
+          "action": "USE_PROFILE_ALIAS_ONLY",
+          "valuePolicy": "drop-value-keep-name-and-risk-only",
+          "requiredForMeaning": true
+        },
+        {
+          "name": "userNick",
+          "riskRuleId": "user-param",
+          "risk": "account-identity",
+          "action": "REQUIRES_USER_CONTEXT_AND_REDACTION",
+          "valuePolicy": "drop-value-keep-name-and-risk-only",
+          "requiredForMeaning": true
+        }
+      ],
+      "parameterRiskSummary": [
+        "seller-site-param",
+        "user-param"
+      ],
+      "missingContextAction": "stop-and-request-user-provided-url-or-business-context",
+      "allowedContextSources": [
+        "user-provided-url",
+        "user-described-current-business-context",
+        "visible-link-after-user-confirmation"
+      ],
+      "allowedRead": [
+        "identify parameter shape"
+      ],
+      "waitForAnchors": [
+        "account-check parameter"
+      ],
+      "defaultActionGate": "G4",
+      "stopPoints": [
+        "guess real account name"
+      ],
+      "outputRule": "save route shape, parameter names, parameter risk, anchors, field labels, button labels and stop categories only; never save concrete parameter values"
+    },
+    {
+      "pageId": "seller.login",
+      "surface": "seller",
+      "routePattern": "#/login",
+      "routeShapeForLogging": "https://seller.goofish.com/?site=<site-alias>#/login",
+      "family": "seller-gate",
+      "layer": "M5",
+      "evidence": "Shell/Container",
+      "readiness": "R5",
+      "liveCoverage": "shell-boundary",
+      "deepeningQueue": "D6_SHELL_BOUNDARY",
+      "batchId": "B6_SHELL_BOUNDARY_PASS",
+      "entryMode": "SHELL_BOUNDARY_ONLY",
+      "canOpenDirectly": false,
+      "contextRequirement": "SHELL_IDENTIFICATION_ONLY",
+      "parameters": [
+        {
+          "name": "site",
+          "riskRuleId": "seller-site-param",
+          "risk": "seller-site-context",
+          "action": "USE_PROFILE_ALIAS_ONLY",
+          "valuePolicy": "drop-value-keep-name-and-risk-only",
+          "requiredForMeaning": false
+        }
+      ],
+      "parameterRiskSummary": [
+        "seller-site-param"
+      ],
+      "missingContextAction": "identify-shell-only-do-not-enter-target",
+      "allowedContextSources": [
+        "current-url-shape",
+        "shell-visible-state"
+      ],
+      "allowedRead": [
+        "open login container"
+      ],
+      "waitForAnchors": [
+        "login",
+        "scan",
+        "verification entry"
+      ],
+      "defaultActionGate": "G4",
+      "stopPoints": [
+        "scan",
+        "enter verification code"
+      ],
+      "outputRule": "save route shape, parameter names, parameter risk, anchors, field labels, button labels and stop categories only; never save concrete parameter values"
+    },
+    {
+      "pageId": "seller.noPermission",
+      "surface": "seller",
+      "routePattern": "#/no-permission",
+      "routeShapeForLogging": "https://seller.goofish.com/?site=<site-alias>#/no-permission",
+      "family": "seller-gate",
+      "layer": "M5",
+      "evidence": "Live + Static",
+      "readiness": "R5",
+      "liveCoverage": "observed-live",
+      "deepeningQueue": "D2_FORM_AND_SHELL_LIVE",
+      "batchId": "B2_FORM_AND_SHELL_LIVE_PASS",
+      "entryMode": "DIRECT_LIVE_READ_ONLY",
+      "canOpenDirectly": true,
+      "contextRequirement": "PROFILE_OR_SITE_ALIAS_ONLY",
+      "parameters": [
+        {
+          "name": "site",
+          "riskRuleId": "seller-site-param",
+          "risk": "seller-site-context",
+          "action": "USE_PROFILE_ALIAS_ONLY",
+          "valuePolicy": "drop-value-keep-name-and-risk-only",
+          "requiredForMeaning": false
+        }
+      ],
+      "parameterRiskSummary": [
+        "seller-site-param"
+      ],
+      "missingContextAction": "open-read-structure-only",
+      "allowedContextSources": [
+        "direct-route",
+        "current-browser-profile"
+      ],
+      "allowedRead": [
+        "record permission failure"
+      ],
+      "waitForAnchors": [
+        "no-permission message",
+        "return/jump controls"
+      ],
+      "defaultActionGate": "G4",
+      "stopPoints": [],
+      "outputRule": "save route shape, parameter names, parameter risk, anchors, field labels, button labels and stop categories only; never save concrete parameter values"
+    },
+    {
+      "pageId": "seller.iframe",
+      "surface": "seller",
+      "routePattern": "#/iframe?url=...",
+      "routeShapeForLogging": "https://seller.goofish.com/?site=<site-alias>#/iframe?url=...",
+      "family": "seller-shell",
+      "layer": "M6",
+      "evidence": "Shell/Container",
+      "readiness": "R5",
+      "liveCoverage": "shell-boundary",
+      "deepeningQueue": "D6_SHELL_BOUNDARY",
+      "batchId": "B6_SHELL_BOUNDARY_PASS",
+      "entryMode": "SHELL_BOUNDARY_ONLY",
+      "canOpenDirectly": false,
+      "contextRequirement": "SHELL_IDENTIFICATION_ONLY",
+      "parameters": [
+        {
+          "name": "site",
+          "riskRuleId": "seller-site-param",
+          "risk": "seller-site-context",
+          "action": "USE_PROFILE_ALIAS_ONLY",
+          "valuePolicy": "drop-value-keep-name-and-risk-only",
+          "requiredForMeaning": false
+        },
+        {
+          "name": "url",
+          "riskRuleId": "redirect-param",
+          "risk": "external-or-embedded-target",
+          "action": "SHELL_BOUNDARY_ONLY",
+          "valuePolicy": "drop-value-keep-name-and-risk-only",
+          "requiredForMeaning": true
+        }
+      ],
+      "parameterRiskSummary": [
+        "seller-site-param",
+        "redirect-param"
+      ],
+      "missingContextAction": "identify-shell-only-do-not-enter-target",
+      "allowedContextSources": [
+        "current-url-shape",
+        "shell-visible-state"
+      ],
+      "allowedRead": [
+        "identify container source"
+      ],
+      "waitForAnchors": [
+        "iframe source",
+        "loading/failure state"
+      ],
+      "defaultActionGate": "G1",
+      "stopPoints": [
+        "operate external page without separate review"
+      ],
+      "outputRule": "save route shape, parameter names, parameter risk, anchors, field labels, button labels and stop categories only; never save concrete parameter values"
+    },
+    {
+      "pageId": "seller.playground",
+      "surface": "seller",
+      "routePattern": "#/playground",
+      "routeShapeForLogging": "https://seller.goofish.com/?site=<site-alias>#/playground",
+      "family": "internal-test",
+      "layer": "M6",
+      "evidence": "Static Only",
+      "readiness": "R5/R4",
+      "liveCoverage": "static-only",
+      "deepeningQueue": "D5_STATIC_ONLY",
+      "batchId": "B5_STATIC_EVIDENCE_PASS",
+      "entryMode": "STATIC_EVIDENCE_ONLY",
+      "canOpenDirectly": false,
+      "contextRequirement": "STATIC_DESCRIPTION_ONLY",
+      "parameters": [
+        {
+          "name": "site",
+          "riskRuleId": "seller-site-param",
+          "risk": "seller-site-context",
+          "action": "USE_PROFILE_ALIAS_ONLY",
+          "valuePolicy": "drop-value-keep-name-and-risk-only",
+          "requiredForMeaning": false
+        }
+      ],
+      "parameterRiskSummary": [
+        "seller-site-param"
+      ],
+      "missingContextAction": "do-not-open-for-coverage-describe-static-signal",
+      "allowedContextSources": [
+        "static-bundle-evidence",
+        "existing-route-index"
+      ],
+      "allowedRead": [
+        "static identification only"
+      ],
+      "waitForAnchors": [
+        "test entry"
+      ],
+      "defaultActionGate": "G4",
+      "stopPoints": [
+        "visit proactively",
+        "trigger test action"
+      ],
+      "outputRule": "save route shape, parameter names, parameter risk, anchors, field labels, button labels and stop categories only; never save concrete parameter values"
+    }
+  ]
+}
