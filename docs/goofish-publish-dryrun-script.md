@@ -6,6 +6,8 @@ then stop before the final publish click.
 The script is intentionally conservative:
 
 - uploads at most 9 images, because Goofish accepts 9 item images;
+- parses `颜色：...` and size-table lines from the copy, then fills SKU specs;
+- fills each generated SKU with the item price and default stock `1`;
 - never clicks the final `发布` button;
 - uses the existing logged-in Chrome session on this Mac;
 - does not read or store cookies, tokens, orders, chats, or account secrets.
@@ -86,6 +88,21 @@ Evidence file:
 out/goofish-publish-dryrun-summary.json
 ```
 
+The SKU enhancement was separately verified with `--no-upload` on 2026-07-08:
+
+- parsed specs: `颜色 = 白色 / 黑色`, `尺码 = M / L / XL / XXL`;
+- generated SKU combinations: 8;
+- SKU price inputs filled: 8;
+- SKU stock inputs filled: 8;
+- condition `全新` selected: yes;
+- publish button present but not clicked.
+
+Evidence file:
+
+```bash
+out/goofish-publish-dryrun-no-upload-sku-summary.json
+```
+
 ## Useful flags
 
 ```bash
@@ -97,6 +114,11 @@ out/goofish-publish-dryrun-summary.json
                Explicitly enable the Chrome menu item required by this script.
 --max-images  Limit selected images. Default 9.
 --no-upload   Fill text/price/condition only; do not open file dialogs.
+--skip-sku-specs
+               Do not parse/fill color and size SKU specs from the copy.
+--sku-stock    Stock value to fill for each generated SKU. Default 1.
+--original-price
+               Optional original price to fill. Omitted by default.
 --skip-open   Use the current Chrome tab instead of opening /publish.
 --write-summary
                Write final run evidence as JSON after a successful dry run.

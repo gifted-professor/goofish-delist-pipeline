@@ -97,6 +97,7 @@ def open_publish_page() -> None:
         f'''
         tell application "Google Chrome"
           activate
+          if (count of windows) = 0 then make new window
           set URL of active tab of front window to "about:blank"
           delay 0.8
           set URL of active tab of front window to {json.dumps(PUBLISH_URL)}
@@ -144,6 +145,53 @@ def normalize_price(raw: str) -> str:
     return f"{float(match.group(0)):.2f}"
 
 
+def split_spec_values(raw: str) -> list[str]:
+    values: list[str] = []
+    for token in re.split(r"[\s,，、/]+", raw.strip()):
+        token = token.strip("：:;；")
+        if token and token not in values:
+            values.append(token)
+    return values
+
+
+def parse_colors(description: str) -> list[str]:
+    for line in description.splitlines():
+        match = re.search(r"颜色\s*[:：]\s*(.+)", line)
+        if match:
+            return split_spec_values(match.group(1))
+    return []
+
+
+def parse_sizes(description: str) -> list[str]:
+    size_pattern = re.compile(r"^(?:均码|XXS|XS|S|M|L|XL|XXL|XXXL|[2-9]XL)$", re.IGNORECASE)
+    for line in description.splitlines():
+        values = split_spec_values(line)
+        if len(values) >= 2 and all(size_pattern.match(value) for value in values):
+            return values
+    return []
+
+
+def parse_specs(description: str) -> dict[str, list[str]]:
+    specs: dict[str, list[str]] = {}
+    colors = parse_colors(description)
+    sizes = parse_sizes(description)
+    if colors:
+        specs["颜色"] = colors
+    if sizes:
+        specs["尺码"] = sizes
+    return specs
+
+
+def spec_combination_count(specs: dict[str, list[str]]) -> int:
+    count = 1
+    used = False
+    for values in specs.values():
+        if values:
+            used = True
+            count *= len(values)
+    return count if used else 0
+
+
 def resolve_package_file(package_dir: Path, raw_path: str | None, fallback_name: str) -> Path:
     if raw_path:
         path = Path(raw_path)
@@ -182,11 +230,14 @@ def load_item(package_dir: Path, max_images: int) -> tuple[str, str, list[Path]]
 
 def package_plan(package_dir: Path, max_images: int) -> dict[str, object]:
     description, price, images = load_item(package_dir, max_images)
+    specs = parse_specs(description)
     return {
         "package_dir": str(package_dir),
         "dry_run": True,
         "publish_url": PUBLISH_URL,
         "price": price,
+        "sku_specs": specs,
+        "sku_count": spec_combination_count(specs),
         "description_chars": len(description),
         "description_preview": description[:80],
         "max_images": max_images,
@@ -196,11 +247,12 @@ def package_plan(package_dir: Path, max_images: int) -> dict[str, object]:
     }
 
 
-def fill_text_and_price(description: str, price: str) -> None:
+def fill_text_and_price(description: str, price: str, original_price: str | None = None) -> None:
     js = f"""
     (() => {{
       const description = {json.dumps(description)};
       const price = {json.dumps(price)};
+      const originalPrice = {json.dumps(original_price)};
       const visible = (el) => {{
         const r = el.getBoundingClientRect();
         const s = getComputedStyle(el);
@@ -230,6 +282,13 @@ def fill_text_and_price(description: str, price: str) -> None:
         || inputs.find((el) => /0\\.00/.test((el.value || '') + ' ' + (el.getAttribute('placeholder') || '')));
       if (!priceInput) return 'missing price input';
       setNativeValue(priceInput, price);
+      if (originalPrice) {{
+        const originalPriceInput = inputs
+          .filter((el) => el !== priceInput)
+          .find((el) => (el.getAttribute('placeholder') || '') === '0.00' || /0\\.00/.test(el.value || ''));
+        if (!originalPriceInput) return 'missing original price input';
+        setNativeValue(originalPriceInput, originalPrice);
+      }}
       return 'filled';
     }})()
     """
@@ -422,6 +481,169 @@ def select_condition_new() -> None:
         raise RuntimeError(f"condition selection did not stick: {verify}")
 
 
+def add_sku_spec_type(spec_name: str) -> None:
+    js_add = """
+    (() => {
+      const btn = Array.from(document.querySelectorAll('button'))
+        .find((el) => (el.innerText || '').trim().startsWith('添加规格类型'));
+      if (!btn) return 'missing add button';
+      btn.scrollIntoView({ block: 'center' });
+      btn.click();
+      return 'clicked add';
+    })()
+    """
+    add_result = chrome_js(js_add)
+    if "clicked add" not in add_result:
+        raise RuntimeError(f"could not add SKU spec type row: {add_result}")
+    time.sleep(0.5)
+
+    js_open = """
+    (() => {
+      const visible = (el) => {
+        const r = el.getBoundingClientRect();
+        const s = getComputedStyle(el);
+        return r.width > 0 && r.height > 0 && s.visibility !== 'hidden' && s.display !== 'none';
+      };
+      const select = Array.from(document.querySelectorAll('.ant-select'))
+        .filter(visible)
+        .find((el) => (el.innerText || '').includes('请选择规格类型'));
+      if (!select) return 'missing spec select';
+      const target = select.querySelector('.ant-select-selector') || select;
+      target.scrollIntoView({ block: 'center' });
+      const fire = (type) => target.dispatchEvent(new MouseEvent(type, {
+        bubbles: true,
+        cancelable: true,
+        view: window,
+        button: 0,
+        buttons: 1
+      }));
+      target.focus && target.focus();
+      fire('pointerdown');
+      fire('mousedown');
+      fire('mouseup');
+      fire('click');
+      return 'opened';
+    })()
+    """
+    open_result = chrome_js(js_open)
+    if "opened" not in open_result:
+        raise RuntimeError(f"could not open SKU spec type dropdown: {open_result}")
+    time.sleep(0.5)
+
+    js_select = f"""
+    (() => {{
+      const specName = {json.dumps(spec_name)};
+      const visible = (el) => {{
+        const r = el.getBoundingClientRect();
+        const s = getComputedStyle(el);
+        return r.width > 0 && r.height > 0 && s.visibility !== 'hidden' && s.display !== 'none';
+      }};
+      const option = Array.from(document.querySelectorAll(
+        '.ant-select-dropdown:not(.ant-select-dropdown-hidden) .ant-select-item-option-content, ' +
+        '.ant-select-dropdown:not(.ant-select-dropdown-hidden) .ant-select-item'
+      )).find((el) => visible(el) && (el.innerText || '').trim() === specName);
+      if (!option) return 'missing option ' + specName;
+      const target = option.closest('.ant-select-item-option') || option;
+      target.click();
+      target.dispatchEvent(new MouseEvent('mousedown', {{ bubbles: true, cancelable: true, view: window }}));
+      target.dispatchEvent(new MouseEvent('mouseup', {{ bubbles: true, cancelable: true, view: window }}));
+      target.dispatchEvent(new MouseEvent('click', {{ bubbles: true, cancelable: true, view: window }}));
+      return 'selected ' + specName;
+    }})()
+    """
+    select_result = chrome_js(js_select)
+    if f"selected {spec_name}" not in select_result:
+        raise RuntimeError(f"could not select SKU spec type {spec_name}: {select_result}")
+    time.sleep(0.8)
+
+
+def fill_sku_spec_values(spec_name: str, values: list[str]) -> None:
+    for value in values:
+        js = f"""
+        (() => {{
+          const specName = {json.dumps(spec_name)};
+          const value = {json.dumps(value)};
+          const placeholder = '请输入具体的' + specName;
+          const setValue = (input, nextValue) => {{
+            const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set;
+            input.focus();
+            setter.call(input, nextValue);
+            input.dispatchEvent(new Event('input', {{ bubbles: true }}));
+            input.dispatchEvent(new Event('change', {{ bubbles: true }}));
+            input.dispatchEvent(new KeyboardEvent('keydown', {{ key: 'Enter', code: 'Enter', bubbles: true, cancelable: true }}));
+            input.dispatchEvent(new KeyboardEvent('keyup', {{ key: 'Enter', code: 'Enter', bubbles: true, cancelable: true }}));
+          }};
+          const inputs = Array.from(document.querySelectorAll('input'))
+            .filter((el) => el.placeholder === placeholder);
+          if (inputs.some((el) => el.value === value)) return 'exists ' + value;
+          const empty = inputs.find((el) => !el.value);
+          if (!empty) return 'missing empty input for ' + value;
+          setValue(empty, value);
+          return 'entered ' + value;
+        }})()
+        """
+        result = chrome_js(js)
+        if not any(token in result for token in (f"entered {value}", f"exists {value}")):
+            raise RuntimeError(f"could not enter SKU spec value {spec_name}={value}: {result}")
+        time.sleep(0.2)
+
+
+def fill_sku_table(price: str, stock: str) -> dict[str, int]:
+    js = f"""
+    (() => {{
+      const price = {json.dumps(price)};
+      const stock = {json.dumps(stock)};
+      const table = document.querySelector('.skuTableContainer--aPU8qInw') || document.querySelector('.ant-table-wrapper');
+      if (!table) return JSON.stringify({{ error: 'missing SKU table' }});
+      const setValue = (input, nextValue) => {{
+        const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set;
+        input.focus();
+        setter.call(input, nextValue);
+        input.dispatchEvent(new Event('input', {{ bubbles: true }}));
+        input.dispatchEvent(new Event('change', {{ bubbles: true }}));
+      }};
+      let prices = 0;
+      let stocks = 0;
+      for (const input of Array.from(table.querySelectorAll('input')).filter((el) => el.type === 'text')) {{
+        if (input.placeholder === '0.00') {{
+          setValue(input, price);
+          prices += 1;
+        }} else if (input.placeholder === '0') {{
+          setValue(input, stock);
+          stocks += 1;
+        }}
+      }}
+      return JSON.stringify({{ prices, stocks }});
+    }})()
+    """
+    result = parse_json_result(chrome_js(js))
+    if "error" in result:
+        raise RuntimeError(f"could not fill SKU table: {result['error']}")
+    return {
+        "prices": int(result.get("prices", 0)),
+        "stocks": int(result.get("stocks", 0)),
+    }
+
+
+def fill_sku_specs(specs: dict[str, list[str]], price: str, stock: str) -> dict[str, object]:
+    if not specs:
+        return {"enabled": False, "reason": "no parsed specs"}
+    for spec_name, values in specs.items():
+        if not values:
+            continue
+        add_sku_spec_type(spec_name)
+        fill_sku_spec_values(spec_name, values)
+    counts = fill_sku_table(price, stock)
+    return {
+        "enabled": True,
+        "specs": specs,
+        "sku_count": spec_combination_count(specs),
+        "filled_prices": counts["prices"],
+        "filled_stocks": counts["stocks"],
+        "stock": stock,
+    }
+
+
 def final_state() -> str:
     return chrome_js(
         """
@@ -430,12 +652,17 @@ def final_state() -> str:
           const uploaded = new Set(Array.from(document.images)
             .map((img) => img.src || '')
             .filter((src) => /-fleamarket\\.jpg_170x10000Q90\\.jpg_\\.webp/.test(src))).size;
+          const skuPriceInputsFilled = Array.from(document.querySelectorAll('.skuTableContainer--aPU8qInw input[placeholder="0.00"]')).filter((el) => el.value).length;
+          const skuStockInputsFilled = Array.from(document.querySelectorAll('.skuTableContainer--aPU8qInw input[placeholder="0"]')).filter((el) => el.value).length;
           return JSON.stringify({
             url: location.href,
             uploaded,
             hasDescription: text.includes('克罗心chromehearts'),
             hasConditionNew: text.includes('成色\\n全新') || text.includes('全新\\n尺码'),
-            hasPriceSignal: text.includes('¥83.64') || text.includes('85.00'),
+            hasPriceSignal: text.includes('¥83.64') || text.includes('85.00') || skuPriceInputsFilled > 0,
+            hasSkuSpecs: text.includes('颜色\\t尺码\\t价格\\t库存') || (text.includes('颜色') && text.includes('尺码') && text.includes('库存')),
+            skuPriceInputsFilled,
+            skuStockInputsFilled,
             hasPublishButton: text.includes('发布'),
             locationShanghai: text.includes('上海 黄浦区')
           });
@@ -551,6 +778,9 @@ def self_test() -> int:
     assert strip_emoji("85💰潮牌🎁 test").startswith("85潮牌")
     assert normalize_price("¥85") == "85.00"
     assert normalize_price("85.5 元") == "85.50"
+    sample_copy = "颜色：白色 黑色\nM    L    XL   XXL\n胸围  100  104  106   108"
+    assert parse_specs(sample_copy) == {"颜色": ["白色", "黑色"], "尺码": ["M", "L", "XL", "XXL"]}
+    assert spec_combination_count(parse_specs(sample_copy)) == 8
 
     with tempfile.TemporaryDirectory(prefix="goofish-publish-selftest-") as tmp:
         package_dir = Path(tmp)
@@ -591,6 +821,9 @@ def main() -> int:
     parser.add_argument("--write-summary", type=Path, help="write a JSON summary after a successful dry run")
     parser.add_argument("--max-images", type=int, default=9, help="maximum images to upload; Goofish currently accepts 9")
     parser.add_argument("--no-upload", action="store_true", help="fill text/price/condition only; do not open file upload dialogs")
+    parser.add_argument("--skip-sku-specs", action="store_true", help="do not parse/fill color and size SKU specs from the copy")
+    parser.add_argument("--sku-stock", default="1", help="stock value to fill for each generated SKU; default 1")
+    parser.add_argument("--original-price", help="optional original price to fill; omitted by default")
     parser.add_argument("--per-image-timeout", type=float, default=35.0)
     parser.add_argument("--skip-open", action="store_true", help="use the current Chrome tab instead of opening /publish")
     args = parser.parse_args()
@@ -617,19 +850,35 @@ def main() -> int:
     start = time.monotonic()
     plan = package_plan(args.package_dir, args.max_images)
     description, price, images = load_item(args.package_dir, args.max_images)
+    original_price = normalize_price(args.original_price) if args.original_price else None
+    specs = parse_specs(description)
+    plan["skip_sku_specs"] = args.skip_sku_specs
+    plan["sku_stock"] = args.sku_stock
+    plan["original_price"] = original_price
     print(f"[item] {args.package_dir}")
     print(f"[item] price={price} images={len(images)} dry_run=true")
+    if specs and not args.skip_sku_specs:
+        print(f"[sku] parsed specs={json.dumps(specs, ensure_ascii=False)} stock={args.sku_stock}")
+    elif args.skip_sku_specs:
+        print("[sku] skipped by --skip-sku-specs")
+    else:
+        print("[sku] no color/size specs parsed from copy")
 
     press_escape()
     if not args.skip_open:
         open_publish_page()
     wait_for_page_ready()
-    fill_text_and_price(description, price)
+    fill_text_and_price(description, price, original_price)
     if args.no_upload:
         print("[upload] skipped by --no-upload")
     else:
         upload_images_one_by_one(images, args.per_image_timeout)
     select_condition_new()
+    sku_result = {"enabled": False, "reason": "skipped"}
+    if not args.skip_sku_specs:
+        sku_result = fill_sku_specs(specs, price, args.sku_stock)
+        if sku_result.get("enabled"):
+            print(f"[sku] filled {sku_result['sku_count']} combinations prices={sku_result['filled_prices']} stocks={sku_result['filled_stocks']}")
 
     state = final_state()
     elapsed = time.monotonic() - start
@@ -642,6 +891,7 @@ def main() -> int:
                 "created_at": now_iso(),
                 "elapsed_seconds": round(elapsed, 1),
                 "plan": plan,
+                "sku_result": sku_result,
                 "final_state": parse_json_result(state),
             },
         )
