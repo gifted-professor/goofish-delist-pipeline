@@ -9,8 +9,10 @@ Chrome window plus macOS UI scripting for the native file picker.
 from __future__ import annotations
 
 import argparse
+import base64
 import datetime as dt
 import json
+import mimetypes
 import re
 import subprocess
 import sys
@@ -389,16 +391,64 @@ def wait_for_upload_count(expected: int, timeout: float) -> None:
     raise RuntimeError(f"timed out waiting for {expected} uploaded images; saw {uploaded_image_count()}")
 
 
-def upload_images_one_by_one(images: list[Path], per_image_timeout: float) -> None:
+def upload_image_via_file_input(image: Path) -> None:
+    mime = mimetypes.guess_type(str(image))[0] or "image/jpeg"
+    b64 = base64.b64encode(image.read_bytes()).decode("ascii")
+    js = f"""
+    (() => {{
+      const b64 = {json.dumps(b64)};
+      const name = {json.dumps(image.name)};
+      const mime = {json.dumps(mime)};
+      const binary = atob(b64);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i += 1) {{
+        bytes[i] = binary.charCodeAt(i);
+      }}
+      const file = new File([bytes], name, {{ type: mime, lastModified: Date.now() }});
+      const input = document.querySelector('input[type="file"]');
+      if (!input) return 'missing file input';
+      const transfer = new DataTransfer();
+      transfer.items.add(file);
+      input.files = transfer.files;
+      input.dispatchEvent(new Event('input', {{ bubbles: true }}));
+      input.dispatchEvent(new Event('change', {{ bubbles: true }}));
+      return 'dispatched ' + name;
+    }})()
+    """
+    result = chrome_js(js)
+    if "missing file input" in result:
+        raise RuntimeError(result)
+
+
+def upload_images_via_file_input(images: list[Path], per_image_timeout: float) -> None:
     existing = uploaded_image_count()
     if existing + len(images) > 9:
         raise RuntimeError(f"page already has {existing} images; cannot add {len(images)} more without exceeding 9")
     for index, image in enumerate(images, start=1):
-        print(f"[upload] {index}/{len(images)} {image.name}", flush=True)
+        print(f"[upload:file-input] {index}/{len(images)} {image.name}", flush=True)
+        upload_image_via_file_input(image)
+        wait_for_upload_count(existing + index, per_image_timeout)
+
+
+def upload_images_via_file_picker(images: list[Path], per_image_timeout: float) -> None:
+    existing = uploaded_image_count()
+    if existing + len(images) > 9:
+        raise RuntimeError(f"page already has {existing} images; cannot add {len(images)} more without exceeding 9")
+    for index, image in enumerate(images, start=1):
+        print(f"[upload:file-picker] {index}/{len(images)} {image.name}", flush=True)
         click_upload_button()
         time.sleep(0.7)
         choose_file_in_open_panel(image)
         wait_for_upload_count(existing + index, per_image_timeout)
+
+
+def upload_images(images: list[Path], per_image_timeout: float, mode: str) -> None:
+    if mode == "file-input":
+        upload_images_via_file_input(images, per_image_timeout)
+    elif mode == "file-picker":
+        upload_images_via_file_picker(images, per_image_timeout)
+    else:
+        raise ValueError(f"unknown upload mode: {mode}")
 
 
 def select_condition_new() -> None:
@@ -824,6 +874,12 @@ def main() -> int:
     parser.add_argument("--skip-sku-specs", action="store_true", help="do not parse/fill color and size SKU specs from the copy")
     parser.add_argument("--sku-stock", default="1", help="stock value to fill for each generated SKU; default 1")
     parser.add_argument("--original-price", help="optional original price to fill; omitted by default")
+    parser.add_argument(
+        "--upload-mode",
+        choices=["file-input", "file-picker"],
+        default="file-input",
+        help="image upload strategy; file-input injects browser File objects and avoids the macOS picker",
+    )
     parser.add_argument("--per-image-timeout", type=float, default=35.0)
     parser.add_argument("--skip-open", action="store_true", help="use the current Chrome tab instead of opening /publish")
     args = parser.parse_args()
@@ -855,6 +911,7 @@ def main() -> int:
     plan["skip_sku_specs"] = args.skip_sku_specs
     plan["sku_stock"] = args.sku_stock
     plan["original_price"] = original_price
+    plan["upload_mode"] = args.upload_mode
     print(f"[item] {args.package_dir}")
     print(f"[item] price={price} images={len(images)} dry_run=true")
     if specs and not args.skip_sku_specs:
@@ -872,7 +929,7 @@ def main() -> int:
     if args.no_upload:
         print("[upload] skipped by --no-upload")
     else:
-        upload_images_one_by_one(images, args.per_image_timeout)
+        upload_images(images, args.per_image_timeout, args.upload_mode)
     select_condition_new()
     sku_result = {"enabled": False, "reason": "skipped"}
     if not args.skip_sku_specs:

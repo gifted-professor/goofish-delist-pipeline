@@ -31,9 +31,10 @@ Current tested package:
 
 For low-token automation, Chrome must allow page JavaScript from Apple Events.
 This lets the script fill text, locate upload controls, and verify upload counts
-without repeatedly dumping the full screen state. The upload button itself is
-clicked through a real macOS coordinate click so Chrome opens the native file
-picker.
+without repeatedly dumping the full screen state. Image upload defaults to
+`file-input` mode: the script reads each local image, constructs a browser
+`File` object, assigns it to the hidden upload input, and dispatches the same
+events the page expects. This avoids fragile macOS file-picker coordinates.
 
 Enable it once in Chrome:
 
@@ -103,6 +104,16 @@ Evidence file:
 out/goofish-publish-dryrun-no-upload-sku-summary.json
 ```
 
+After switching upload to `file-input` mode, a full dry-run completed on
+2026-07-08 in 22.5 seconds:
+
+- upload mode: `file-input`;
+- final uploaded count: 9;
+- generated SKU combinations: 8;
+- SKU price inputs filled: 8;
+- SKU stock inputs filled: 8;
+- publish button present but not clicked.
+
 ## Useful flags
 
 ```bash
@@ -119,6 +130,8 @@ out/goofish-publish-dryrun-no-upload-sku-summary.json
 --sku-stock    Stock value to fill for each generated SKU. Default 1.
 --original-price
                Optional original price to fill. Omitted by default.
+--upload-mode  Image upload strategy. Default file-input. Use file-picker only
+               as a fallback for debugging the old macOS picker path.
 --skip-open   Use the current Chrome tab instead of opening /publish.
 --write-summary
                Write final run evidence as JSON after a successful dry run.
