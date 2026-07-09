@@ -73,6 +73,13 @@ CLICK_SOLD_JS = (
     'if(e.children.length===0&&t.indexOf("已售出")===0){e.click();return t}}return "nf"})()'
 )
 
+# 点「在售」筛选 chip。默认采集只需要在售商品，先切到这里可以避免滚动/枚举已售出卡片。
+CLICK_ONSALE_JS = (
+    '(function(){var a=document.querySelectorAll("*");for(var e of a){'
+    'var t=(e.innerText||"").trim();'
+    'if(e.children.length===0&&t.indexOf("在售")===0){e.click();return t}}return "nf"})()'
+)
+
 
 def collect_items_js():
     """枚举当前视图所有商品卡片（id/标题/价格/小刀价）。status 在 collect_list 里按是否已售出统一打标。"""
@@ -151,7 +158,7 @@ async def scroll_until(ws, target, tab_name):
     return prev
 
 
-async def collect_list(ws):
+async def collect_list(ws, userId=None):
     log("Navigating to personal page...")
     # 关键：被遮挡/后台的 Chrome 标签页 visibilityState=hidden，懒加载(IntersectionObserver)被节流，
     # 滚动加载不出新商品（曾把 153 件采成 20）。setFocusEmulationEnabled 让渲染器当页面有焦点/可见，
@@ -160,7 +167,10 @@ async def collect_list(ws):
         await cdp(ws, "Emulation.setFocusEmulationEnabled", {"enabled": True})
     except Exception as e:
         log(f"  ⚠ setFocusEmulationEnabled 失败: {e}")
-    await ev(ws, "window.location.href = 'https://www.goofish.com/personal'")
+    if userId:
+        await ev(ws, f"window.location.href = 'https://www.goofish.com/personal?userId={userId}'")
+    else:
+        await ev(ws, "window.location.href = 'https://www.goofish.com/personal'")
     await asyncio.sleep(6)
     title = await ev(ws, "document.title")
     vis = await ev(ws, "document.visibilityState")
@@ -174,6 +184,23 @@ async def collect_list(ws):
     log(f"店铺 chip: 在售={n_onsale} 已售出={n_sold}")
 
     all_items = {}
+
+    # 默认只采在售：先点「在售N」chip，再滚到在售目标数。
+    # 这比先滚「宝贝」总列表再排除已售出快很多，尤其已售出数量很大时。
+    if not INCLUDE_SOLD:
+        clicked = await ev(ws, CLICK_ONSALE_JS)
+        if clicked and clicked != "nf":
+            log(f"  已切到筛选: {clicked}")
+            await asyncio.sleep(3)
+            await scroll_until(ws, n_onsale, "在售")
+            raw = await ev(ws, collect_items_js())
+            for it in (json.loads(raw) if raw else []):
+                it["s"] = "在售"
+                all_items.setdefault(it["i"], it)
+            n_on = len(all_items)
+            log(f"  [在售] 采到 {n_on}（目标 {n_onsale}）")
+            return all_items, n_onsale, n_on
+        log("  ⚠ 找不到「在售」筛选 chip，回退到宝贝总列表采集")
 
     # 1) 默认「宝贝」视图 = 在售 + 已售出，滚到载满 (在售+已售出)
     baby_target = ((n_onsale or 0) + n_sold) or None
@@ -262,7 +289,7 @@ async def main():
     log(f"Tab: {tab.get('url', '')[:80]}")
 
     async with websockets.connect(tab["webSocketDebuggerUrl"], max_size=50*1024*1024) as ws:
-        all_items, n_onsale, n_on = await collect_list(ws)
+        all_items, n_onsale, n_on = await collect_list(ws, userId)
         total = len(all_items)
         log(f"\nTotal items to process: {total}")
         # ⚠ 完整性闸：采集残缺时绝不写文件，并以非零退出让 daily.sh 跳过该号。
@@ -382,8 +409,11 @@ if __name__ == "__main__":
                     help="CDP 调试端口；不填按 account-NN 推 9220+NN")
     ap.add_argument("--include-sold", action="store_true",
                     help="连「已售出」一起采；默认只采在售")
+    ap.add_argument("--userId", default=None,
+                    help="指定店铺 userId（用于借用其他浏览器采集指定店铺）")
     args = ap.parse_args()
     INCLUDE_SOLD = args.include_sold
+    userId = args.userId
     configure(args.account, derive_port(args.account, args.port))
     print(f"[account={ACCOUNT} port={CDP_PORT}] -> {os.path.basename(OUTPUT_JSON)}")
     asyncio.run(main())

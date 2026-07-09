@@ -21,8 +21,11 @@ import tempfile
 import time
 import unicodedata
 import urllib.error
+import urllib.parse
 import urllib.request
 from pathlib import Path
+
+from websockets.sync.client import connect as websocket_connect
 
 
 PUBLISH_URL = "https://www.goofish.com/publish"
@@ -30,6 +33,7 @@ DEFAULT_CPA_BASE_URL = "http://100.84.194.46:8317"
 DEFAULT_CPA_MODEL = "claude-sonnet-4-6"
 DEFAULT_CPA_API_KEY = "cliproxyapi-local"
 DEFAULT_SKU_STOCK = "20"
+MAX_LISTING_TITLE_CHARS = 15
 CHROME_JS_DISABLED_HINT = (
     "Chrome has disabled JavaScript from Apple Events. In Chrome, enable: "
     "View > Developer > Allow JavaScript from Apple Events, then run --doctor again."
@@ -49,6 +53,7 @@ MEASUREMENT_LABELS = {
     "身高",
 }
 SIZE_ORDER = ["XXS", "XS", "S", "M", "L", "XL", "XXL", "XXXL", "2XL", "3XL", "4XL", "5XL", "6XL", "7XL", "8XL", "9XL"]
+DISPLAY_SIZE_ORDER = ["XXS", "XS", "S", "M", "L", "XL", "2XL", "3XL", "4XL", "5XL", "6XL", "7XL", "8XL", "9XL"]
 BRAND_RULES = [
     {
         "patterns": [r"chrome\s*hearts", r"克罗心", r"\bCH\b"],
@@ -59,6 +64,21 @@ BRAND_RULES = [
         "patterns": [r"adidas", r"阿迪达斯", r"三叶草"],
         "query": "Adidas",
         "preferred": ["ADIDAS", "Adidas", "阿迪达斯"],
+    },
+    {
+        "patterns": [r"descente", r"迪桑特", r"D家"],
+        "query": "Descente",
+        "preferred": ["DESCENTE", "Descente", "迪桑特"],
+    },
+    {
+        "patterns": [r"\bfila\b", r"斐乐", r"F家"],
+        "query": "FILA",
+        "preferred": ["FILA", "Fila", "斐乐"],
+    },
+    {
+        "patterns": [r"kolon", r"可隆", r"K家"],
+        "query": "KOLON SPORT",
+        "preferred": ["KOLON SPORT", "KOLON", "可隆"],
     },
     {
         "patterns": [r"arc'?teryx", r"arcteryx", r"始祖鸟"],
@@ -80,6 +100,10 @@ BRAND_RULES = [
 
 class ChromeJavaScriptDisabled(RuntimeError):
     pass
+
+
+CDP_PORT: int | None = None
+CDP_TAB_ID: str | None = None
 
 
 def now_iso() -> str:
@@ -116,7 +140,89 @@ def paste() -> None:
     )
 
 
+def cdp_request(path: str, *, method: str = "GET") -> object:
+    assert CDP_PORT is not None
+    req = urllib.request.Request(f"http://127.0.0.1:{CDP_PORT}{path}", method=method)
+    with urllib.request.urlopen(req, timeout=10) as response:
+        return json.loads(response.read())
+
+
+def cdp_tabs() -> list[dict[str, object]]:
+    data = cdp_request("/json/list")
+    return data if isinstance(data, list) else []
+
+
+def cdp_tab_by_id(tab_id: str | None) -> dict[str, object] | None:
+    if not tab_id:
+        return None
+    for tab in cdp_tabs():
+        if tab.get("id") == tab_id and tab.get("type") == "page":
+            return tab
+    return None
+
+
+def cdp_current_tab() -> dict[str, object]:
+    tab = cdp_tab_by_id(CDP_TAB_ID)
+    if tab:
+        return tab
+    publish_tab = next((t for t in cdp_tabs() if t.get("type") == "page" and "goofish.com/publish" in str(t.get("url") or "")), None)
+    if publish_tab:
+        return publish_tab
+    page_tab = next((t for t in cdp_tabs() if t.get("type") == "page"), None)
+    if not page_tab:
+        raise RuntimeError(f"no page tab on CDP port {CDP_PORT}")
+    return page_tab
+
+
+def cdp_open_url(url: str, *, new_tab: bool) -> None:
+    global CDP_TAB_ID
+    if new_tab or not cdp_tab_by_id(CDP_TAB_ID):
+        encoded = urllib.parse.quote(url, safe=":/?=&%#")
+        tab = cdp_request(f"/json/new?{encoded}", method="PUT")
+        if isinstance(tab, dict):
+            CDP_TAB_ID = str(tab.get("id") or "")
+        return
+    tab = cdp_current_tab()
+    ws_url = str(tab["webSocketDebuggerUrl"])
+    with websocket_connect(ws_url, max_size=50 * 1024 * 1024) as ws:
+        ws.send(json.dumps({"id": 1, "method": "Page.navigate", "params": {"url": url}}))
+        while True:
+            msg = json.loads(ws.recv())
+            if msg.get("id") == 1:
+                return
+
+
+def cdp_eval(js: str, *, check: bool = True) -> str:
+    tab = cdp_current_tab()
+    ws_url = str(tab["webSocketDebuggerUrl"])
+    with websocket_connect(ws_url, max_size=50 * 1024 * 1024) as ws:
+        ws.send(json.dumps({
+            "id": 1,
+            "method": "Runtime.evaluate",
+            "params": {
+                "expression": js,
+                "returnByValue": True,
+                "awaitPromise": True,
+            },
+        }))
+        while True:
+            msg = json.loads(ws.recv())
+            if msg.get("id") != 1:
+                continue
+            if check and msg.get("error"):
+                raise RuntimeError(json.dumps(msg["error"], ensure_ascii=False))
+            result = msg.get("result", {})
+            if check and result.get("exceptionDetails"):
+                raise RuntimeError(json.dumps(result["exceptionDetails"], ensure_ascii=False)[:1000])
+            value = result.get("result", {}).get("value")
+            if value is None:
+                value = result.get("result", {}).get("description", "")
+            return "" if value is None else str(value)
+
+
 def chrome_js(js: str, *, check: bool = True) -> str:
+    if CDP_PORT is not None:
+        return cdp_eval(js, check=check)
     # Avoid embedding JS directly in AppleScript strings: non-ASCII text,
     # regular expressions, and backslashes are easy to misquote there.
     with tempfile.NamedTemporaryFile("w", encoding="utf-8", suffix=".js", delete=False) as temp:
@@ -143,7 +249,24 @@ def chrome_js(js: str, *, check: bool = True) -> str:
     return output
 
 
-def open_publish_page() -> None:
+def open_publish_page(*, new_tab: bool = False) -> None:
+    if CDP_PORT is not None:
+        cdp_open_url(PUBLISH_URL, new_tab=new_tab)
+        return
+    if new_tab:
+        osascript(
+            f'''
+            tell application "Google Chrome"
+              activate
+              if (count of windows) = 0 then make new window
+              set newTab to make new tab at end of tabs of front window with properties {{URL:"about:blank"}}
+              set active tab index of front window to (count of tabs of front window)
+              delay 0.8
+              set URL of newTab to {json.dumps(PUBLISH_URL)}
+            end tell
+            '''
+        )
+        return
     osascript(
         f'''
         tell application "Google Chrome"
@@ -158,6 +281,28 @@ def open_publish_page() -> None:
 
 
 def press_escape() -> None:
+    if CDP_PORT is not None:
+        try:
+            tab = cdp_current_tab()
+            with websocket_connect(str(tab["webSocketDebuggerUrl"]), max_size=50 * 1024 * 1024) as ws:
+                for idx, event_type in enumerate(["keyDown", "keyUp"], start=1):
+                    ws.send(json.dumps({
+                        "id": idx,
+                        "method": "Input.dispatchKeyEvent",
+                        "params": {
+                            "type": event_type,
+                            "key": "Escape",
+                            "code": "Escape",
+                            "windowsVirtualKeyCode": 27,
+                        },
+                    }))
+                    while True:
+                        msg = json.loads(ws.recv())
+                        if msg.get("id") == idx:
+                            break
+        except Exception:
+            pass
+        return
     osascript(
         '''
         tell application "System Events"
@@ -194,6 +339,13 @@ def normalize_price(raw: str) -> str:
     if not match:
         raise ValueError(f"could not parse price from {raw!r}")
     return f"{float(match.group(0)):.2f}"
+
+
+def listing_price_from_supplier_price(raw: str) -> str:
+    supplier_price = float(normalize_price(raw))
+    target = supplier_price / 0.7
+    rounded_to_ending_9 = int(((target + 1) / 10) + 0.5) * 10 - 1
+    return f"{max(rounded_to_ending_9, 9):.2f}"
 
 
 def same_price(left: str, right: str) -> bool:
@@ -305,7 +457,7 @@ def is_size_measurement_line(line: str) -> bool:
 
 
 def strip_leading_price_from_title(line: str, price: str) -> tuple[str, str | None]:
-    match = re.match(r"^\s*(?:[¥￥]\s*)?(\d+(?:\.\d+)?)\s*(.*)$", line)
+    match = re.match(r"^\s*(?:[¥￥]\s*)?(\d+(?:\.\d+)?)(?:\s*发)?\s*[，,、]?\s*(.*)$", line)
     if not match or not same_price(match.group(1), price):
         return line, None
     rest = match.group(2).strip()
@@ -321,7 +473,7 @@ def is_price_intro_line(line: str, price: str) -> bool:
         return False
     without_price = (line[: match.start()] + line[match.end() :]).strip()
     without_price = re.sub(r"[\s:：,，.。!！~-]+", "", without_price)
-    return without_price in {"", "上新", "新款", "现货", "到货", "补货", "特价", "推荐"}
+    return without_price in {"", "发", "上新", "新款", "现货", "到货", "补货", "特价", "推荐"}
 
 
 def clean_listing_description(raw_description: str, price: str) -> tuple[str, list[str]]:
@@ -379,6 +531,92 @@ def rule_extract_copy(raw_description: str, price: str) -> dict[str, object]:
     }
 
 
+def normalize_listing_brand_aliases(description: str) -> str:
+    """Use public-facing brand hints while keeping brand selection separate."""
+    replacements = [
+        (r"(?<![A-Za-z0-9])D家", "D家"),
+        (r"descente|迪桑特", "D家"),
+        (r"(?<![A-Za-z0-9])F家", "F家"),
+        (r"\bfila\b|斐乐", "F家"),
+        (r"(?<![A-Za-z0-9])K家", "K家"),
+        (r"kolon\s*sport|kolon|可隆", "K家"),
+    ]
+    text = description
+    for pattern, replacement in replacements:
+        text = re.sub(pattern, replacement, text, flags=re.IGNORECASE)
+    return text
+
+
+def compact_title_length(description: str) -> int:
+    return len(re.sub(r"\s+", "", description))
+
+
+def trim_listing_title(description: str) -> str:
+    text = normalize_listing_brand_aliases(description).strip()
+    text = re.sub(r"^\s*(?:[¥￥]\s*)?\d+(?:\.\d+)?\s*发\s*[，,、]?\s*", "", text)
+    text = re.sub(r"^\s*发\s*[，,、]?\s*", "", text)
+    text = re.split(r"[\n，,。；;！!]", text, maxsplit=1)[0].strip()
+    text = re.sub(r"\s+", "", text).strip("，,。；;！!")
+    if compact_title_length(text) <= MAX_LISTING_TITLE_CHARS:
+        return text
+
+    replacements = [
+        (r"男士|女士|男女同款|男女|男款|女款|情侣款", ""),
+        (r"26款|新款", ""),
+        (r"TRAINING综训系列|TRAINING系列|综训系列|RUNNING系列", ""),
+        (r"短袖T恤", "短袖"),
+    ]
+    candidate = text
+    for pattern, replacement in replacements:
+        candidate = re.sub(pattern, replacement, candidate, flags=re.IGNORECASE)
+    if compact_title_length(candidate) <= MAX_LISTING_TITLE_CHARS:
+        return candidate
+
+    lower = text.lower()
+    if "D家" in text and "防晒" in text and "polo" in lower:
+        return "D家凉感防晒POLO"
+    if "萨洛蒙" in text and "三座山" in text and "短袖" in text:
+        return "萨洛蒙三座山印花短袖"
+    if "阿迪达斯" in text and ("外套" in text or "夹克" in text):
+        return "阿迪达斯复古立领外套"
+
+    return text[:MAX_LISTING_TITLE_CHARS]
+
+
+def display_size_range(sizes: list[str]) -> str:
+    normalized = [normalize_size_token(str(size)) for size in sizes if str(size).strip()]
+    if not normalized:
+        return ""
+    unique: list[str] = []
+    for size in normalized:
+        if size not in unique:
+            unique.append(size)
+    if len(unique) == 1:
+        return unique[0]
+    if all(size in DISPLAY_SIZE_ORDER for size in unique):
+        indexes = [DISPLAY_SIZE_ORDER.index(size) for size in unique]
+        ordered = [size for _, size in sorted(zip(indexes, unique))]
+        if indexes == list(range(min(indexes), max(indexes) + 1)):
+            return f"{ordered[0]}-{ordered[-1]}"
+    return "/".join(unique)
+
+
+def build_goofish_description(title: str, specs: dict[str, object]) -> str:
+    lines = [f"【奥莱折扣】2折+ {trim_listing_title(title)}"]
+    raw_sizes = specs.get("尺码") if isinstance(specs, dict) else None
+    sizes = [str(value) for value in raw_sizes] if isinstance(raw_sizes, list) else []
+    size_text = display_size_range(sizes)
+    if size_text:
+        lines.append(f"尺码 {size_text}")
+    lines.extend(
+        [
+            "部分 断码 数量有限",
+            "主页均为实拍 需要的点击我想要咨询",
+        ]
+    )
+    return "\n".join(line for line in lines if line.strip())
+
+
 def json_from_model_text(text: str) -> dict[str, object]:
     stripped = text.strip()
     if stripped.startswith("```"):
@@ -424,6 +662,7 @@ def validate_copy_extraction(result: dict[str, object], fallback: dict[str, obje
         listing_description = str(fallback["listing_description"])
     if len(listing_description) > 1500:
         listing_description = listing_description[:1500].rstrip()
+    listing_description = trim_listing_title(listing_description)
     notes = result.get("notes")
     if isinstance(notes, list):
         normalized_notes = [str(note).strip() for note in notes if str(note).strip()]
@@ -434,6 +673,32 @@ def validate_copy_extraction(result: dict[str, object], fallback: dict[str, obje
 
     fallback_description = str(fallback.get("listing_description") or "").strip()
     fallback_first_line = next((line.strip() for line in fallback_description.splitlines() if line.strip()), "")
+    title_candidate_lines = [fallback_first_line]
+    removed_candidates = fallback.get("removed_description_lines", [])
+    if isinstance(removed_candidates, list):
+        title_candidate_lines.extend(str(line) for line in removed_candidates)
+    fallback_titles = [
+        trim_listing_title(line)
+        for line in title_candidate_lines
+        if str(line).strip()
+    ]
+    fallback_titles = [
+        title
+        for title in fallback_titles
+        if title and compact_title_length(title) <= MAX_LISTING_TITLE_CHARS
+        and re.search(r"[\u4e00-\u9fff]", title)
+        and not title.lower().startswith("leading")
+    ]
+    fallback_title = max(
+        fallback_titles,
+        key=lambda title: (
+            "短袖" in title,
+            "POLO" in title.upper(),
+            "衫" in title,
+            compact_title_length(title),
+        ),
+        default="",
+    )
     title_tokens = [
         token
         for token in re.findall(r"[A-Za-z][A-Za-z0-9-]{2,}|[\u4e00-\u9fff]{2,}", fallback_first_line)
@@ -442,8 +707,20 @@ def validate_copy_extraction(result: dict[str, object], fallback: dict[str, obje
     if fallback_first_line and fallback_first_line not in listing_description:
         has_title_signal = any(token.lower() in listing_description.lower() for token in title_tokens)
         if not has_title_signal:
-            listing_description = f"{fallback_first_line}\n{listing_description}".strip()
+            listing_description = fallback_title
             normalized_notes.append("model output omitted title/brand line; restored fallback title")
+    if (
+        fallback_title
+        and compact_title_length(fallback_title) <= MAX_LISTING_TITLE_CHARS
+        and (
+            ("短袖" in fallback_title and "短袖" not in listing_description)
+            or ("POLO" in fallback_title.upper() and "POLO" not in listing_description.upper())
+            or ("POLO衫" in fallback_title.upper() and "衫" not in listing_description)
+        )
+        and any(token in fallback_title.upper() for token in ("POLO", "T恤", "短袖"))
+    ):
+        listing_description = fallback_title
+        normalized_notes.append("restored richer short-sleeve product title from source")
 
     raw_price = str(result.get("price") or price).strip()
     try:
@@ -485,12 +762,12 @@ def cpa_extract_copy(
 ) -> dict[str, object]:
     system_prompt = (
         "你是闲鱼上架文案结构化助手。只输出 JSON，不要输出 markdown。"
-        "目标是把供货商原始文案拆成买家可见描述、价格、SKU 规格和被丢弃的供货字段。"
+        "目标是把供货商原始文案拆成买家可见短标题、价格、SKU 规格和被丢弃的供货字段。"
     )
     user_prompt = f"""
 请分析下面的供货商原始文案，返回严格 JSON：
 {{
-  "listing_description": "适合直接粘贴到闲鱼宝贝描述的中文文案，不要包含价格、颜色行、尺码列表、胸围肩宽衣长等尺码表",
+  "listing_description": "适合直接粘贴到闲鱼宝贝描述的商品短标题，15个字以内，不要包含价格、颜色行、尺码列表、胸围肩宽衣长等尺码表",
   "price": "数字价格，保留两位小数",
   "sku_specs": {{"颜色": ["..."], "尺码": ["..."]}},
   "removed_description_lines": ["从描述中移除但用于价格/SKU/尺码表的原文行"],
@@ -500,8 +777,11 @@ def cpa_extract_copy(
 规则：
 - 若开头出现类似“85💰标题”，且 85 与给定价格一致，则 85 是价格，不应进入 listing_description。
 - 颜色、尺码、胸围、肩宽、衣长、袖长、腰围、裤长等结构化信息不要进入 listing_description。
+- listing_description 必须是商品短标题，不是长段落；控制在 15 个字以内，例如“萨洛蒙三座山印花短袖”。
+- 公开买家标题里保留可识别但不直写全称的品牌提示：迪桑特/Descente/D家写作“D家”，斐乐/FILA/F家写作“F家”，可隆/KOLON/K家写作“K家”。
+- 品牌字段会另外结构化选择真实品牌，listing_description 只负责公开文案短标题。
 - 不要虚构商品卖点，不要改写品牌/型号事实。
-- 如果不确定某个字段，优先保守保留在 listing_description。
+- 如果不确定某个字段，优先保守输出品牌 + 品类 + 最核心卖点。
 
 给定价格：{price}
 原始文案：
@@ -599,16 +879,39 @@ def unique(values: list[str]) -> list[str]:
 def infer_category_preferences(description: str) -> list[str]:
     text = description.lower()
     prefs: list[str] = []
-    has_tshirt = bool(re.search(r"T恤|t恤|tee|短袖", description, re.IGNORECASE))
-    has_outer = bool(re.search(r"外套|夹克|冲锋衣|防晒衣|开衫|棒球服|风衣", description))
+
+    def category_flags(scope: str) -> dict[str, bool]:
+        return {
+            "tshirt": bool(re.search(r"T恤|t恤|tee|短袖", scope, re.IGNORECASE)),
+            "outer": bool(re.search(r"外套|夹克|冲锋衣|防晒衣|开衫|棒球服|风衣", scope)),
+            "shorts": bool(re.search(r"短裤|五分裤|训练裤", scope)),
+            "pants": bool(re.search(r"长裤|休闲裤|运动裤|梭织裤|直筒裤|速干裤", scope)),
+            "polo": bool(re.search(r"polo|POLO|polo衫", scope)),
+        }
+
+    primary_lines = [line.strip() for line in description.splitlines() if line.strip()][:4]
+    primary = "\n".join(primary_lines)
+    primary_flags = category_flags(primary)
+    full_flags = category_flags(description)
+
+    has_tshirt = primary_flags["tshirt"] or (not prefs and full_flags["tshirt"])
+    has_outer = primary_flags["outer"] or (not prefs and full_flags["outer"])
+    has_shorts = primary_flags["shorts"] or (not prefs and full_flags["shorts"])
+    has_pants = primary_flags["pants"] or (not prefs and full_flags["pants"] and not primary_flags["tshirt"] and not primary_flags["polo"])
+    has_polo = primary_flags["polo"] or (not prefs and full_flags["polo"])
+
+    if has_shorts:
+        prefs.extend(["运动短裤", "短裤", "速干裤"])
+    elif has_pants:
+        prefs.extend(["运动长裤", "休闲裤", "速干裤"])
+    if has_polo:
+        prefs.extend(["运动POLO衫", "运动polo衫", "运动T恤"])
     if has_tshirt:
         prefs.extend(["运动T恤", "速干衣", "文化衫"])
     elif has_outer:
         prefs.extend(["运动外套", "防晒衣", "速干衣"])
     if re.search(r"卫衣|帽衫", description):
         prefs.extend(["运动卫衣", "运动外套"])
-    if re.search(r"polo|POLO|polo衫", description):
-        prefs.extend(["运动polo衫", "运动T恤"])
     if re.search(r"衬衫", description):
         prefs.extend(["运动衬衫", "速干衣", "运动外套"])
     if not prefs and "chrome hearts" in text:
@@ -639,6 +942,164 @@ def resolve_package_file(package_dir: Path, raw_path: str | None, fallback_name:
 def image_files(image_dir: Path) -> list[Path]:
     allowed = {".jpg", ".jpeg", ".png", ".webp"}
     return sorted(path for path in image_dir.iterdir() if path.is_file() and path.suffix.lower() in allowed)
+
+
+def image_dimensions(path: Path) -> tuple[int, int] | None:
+    proc = run(["sips", "-g", "pixelWidth", "-g", "pixelHeight", str(path)], check=False)
+    if proc.returncode != 0:
+        return None
+    width_match = re.search(r"pixelWidth:\s*(\d+)", proc.stdout)
+    height_match = re.search(r"pixelHeight:\s*(\d+)", proc.stdout)
+    if not width_match or not height_match:
+        return None
+    return int(width_match.group(1)), int(height_match.group(1))
+
+
+def image_aspect(path: Path) -> float | None:
+    dimensions = image_dimensions(path)
+    if not dimensions:
+        return None
+    width, height = dimensions
+    return width / height if height else None
+
+
+def image_sequence_number(path: Path) -> int:
+    match = re.search(r"\d+", path.stem)
+    return int(match.group(0)) if match else 9999
+
+
+def classify_image_for_listing(path: Path) -> str:
+    """Classify SZWego feed images for Goofish ordering."""
+    dimensions = image_dimensions(path)
+    if not dimensions:
+        return "detail"
+    width, height = dimensions
+    if height <= 0:
+        return "detail"
+    aspect = width / height
+    if aspect >= 1.8:
+        return "size_chart"
+    if aspect >= 1.05:
+        return "overview"
+    sequence = image_sequence_number(path)
+    if sequence >= 11 and aspect >= 0.58:
+        return "overview_vertical"
+    return "detail"
+
+
+def ranked_image_files(image_dir: Path) -> list[Path]:
+    """Prefer product overview images as cover and keep size charts last."""
+    files = image_files(image_dir)
+
+    def rank(path: Path) -> tuple[int, int, str]:
+        image_type = classify_image_for_listing(path)
+        buckets = {
+            "overview": 0,
+            "overview_vertical": 1,
+            "detail": 2,
+            "size_chart": 3,
+        }
+        return (buckets.get(image_type, 2), image_sequence_number(path), path.name)
+
+    return sorted(files, key=rank)
+
+
+def selected_image_files(image_dir: Path, max_images: int) -> list[Path]:
+    ranked = ranked_image_files(image_dir)
+    size_charts = [path for path in ranked if classify_image_for_listing(path) == "size_chart"]
+    non_size_charts = [path for path in ranked if path not in size_charts]
+    if size_charts and max_images >= 2:
+        return non_size_charts[: max_images - 1] + [size_charts[0]]
+    return ranked[:max_images]
+
+
+def image_order_check(images: list[Path]) -> dict[str, object]:
+    if not images:
+        return {"passed": False, "reason": "no images"}
+    first_aspect = image_aspect(images[0])
+    last_aspect = image_aspect(images[-1]) if images else None
+    first_type = classify_image_for_listing(images[0])
+    last_type = classify_image_for_listing(images[-1])
+    return {
+        "passed": first_type in {"overview", "overview_vertical"} and (last_type == "size_chart" or last_aspect is None),
+        "expected_cover": str(images[0]),
+        "expected_cover_name": images[0].name,
+        "expected_cover_aspect": first_aspect,
+        "expected_cover_type": first_type,
+        "last_image": str(images[-1]),
+        "last_image_name": images[-1].name,
+        "last_image_aspect": last_aspect,
+        "last_image_type": last_type,
+        "selected_order": [path.name for path in images],
+    }
+
+
+def bmp_grays_from_image(path: Path, size: int = 16) -> list[int]:
+    with tempfile.TemporaryDirectory(prefix="goofish-img-hash-") as tmp:
+        bmp_path = Path(tmp) / "image.bmp"
+        proc = run(["sips", "-z", str(size), str(size), "-s", "format", "bmp", str(path), "--out", str(bmp_path)], check=False)
+        if proc.returncode != 0 or not bmp_path.exists():
+            raise RuntimeError(f"could not convert image for hashing: {path}: {proc.stderr.strip()}")
+        data = bmp_path.read_bytes()
+
+    if data[:2] != b"BM" or len(data) < 54:
+        raise RuntimeError(f"unsupported BMP output for hashing: {path}")
+    pixel_offset = int.from_bytes(data[10:14], "little")
+    dib_size = int.from_bytes(data[14:18], "little")
+    if dib_size < 40:
+        raise RuntimeError(f"unsupported BMP DIB header for hashing: {path}")
+    width = int.from_bytes(data[18:22], "little", signed=True)
+    height = int.from_bytes(data[22:26], "little", signed=True)
+    bits = int.from_bytes(data[28:30], "little")
+    compression = int.from_bytes(data[30:34], "little")
+    if width == 0 or height == 0 or bits != 24 or compression != 0:
+        raise RuntimeError(f"unsupported BMP format for hashing: {path}")
+
+    abs_width = abs(width)
+    abs_height = abs(height)
+    stride = ((abs_width * 3 + 3) // 4) * 4
+    top_down = height < 0
+    grays: list[int] = []
+    for y in range(abs_height):
+        source_y = y if top_down else abs_height - 1 - y
+        row_start = pixel_offset + source_y * stride
+        for x in range(abs_width):
+            offset = row_start + x * 3
+            if offset + 2 >= len(data):
+                raise RuntimeError(f"truncated BMP pixel data for hashing: {path}")
+            blue, green, red = data[offset], data[offset + 1], data[offset + 2]
+            grays.append((red * 299 + green * 587 + blue * 114) // 1000)
+    return grays
+
+
+def image_average_hash(path: Path, size: int = 16) -> str:
+    grays = bmp_grays_from_image(path, size)
+    if not grays:
+        raise RuntimeError(f"empty image hash input: {path}")
+    avg = sum(grays) / len(grays)
+    bits = "".join("1" if value >= avg else "0" for value in grays)
+    return f"{int(bits, 2):0{len(bits) // 4}x}"
+
+
+def hamming_distance_hex(left: str, right: str) -> int:
+    if len(left) != len(right):
+        raise ValueError("hashes have different lengths")
+    return bin(int(left, 16) ^ int(right, 16)).count("1")
+
+
+def download_image_to_temp(url: str) -> Path:
+    suffix = Path(urllib.parse.urlparse(url).path).suffix or ".jpg"
+    temp = tempfile.NamedTemporaryFile(prefix="goofish-remote-cover-", suffix=suffix, delete=False)
+    temp_path = Path(temp.name)
+    temp.close()
+    request = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+    try:
+        with urllib.request.urlopen(request, timeout=20) as response:
+            temp_path.write_bytes(response.read())
+    except Exception:
+        temp_path.unlink(missing_ok=True)
+        raise
+    return temp_path
 
 
 def load_item_details(
@@ -681,7 +1142,7 @@ def load_item_details(
     image_dir = package_dir / "images"
     if not image_dir.exists():
         raise FileNotFoundError(f"missing image directory: {image_dir}")
-    images = image_files(image_dir)[:max_images]
+    images = selected_image_files(image_dir, max_images)
     if not images:
         raise FileNotFoundError(f"no supported images found in {image_dir}")
     return {
@@ -700,9 +1161,10 @@ def load_item(package_dir: Path, max_images: int) -> tuple[str, str, list[Path]]
 
 
 def package_plan_from_item(package_dir: Path, max_images: int, item: dict[str, object], copy_extractor: str) -> dict[str, object]:
-    description = str(item["listing_description"])
+    listing_title = str(item["listing_description"])
     raw_description = str(item["raw_description"])
-    price = str(item["price"])
+    supplier_price = str(item["price"])
+    price = listing_price_from_supplier_price(supplier_price)
     images = item["images"]
     assert isinstance(images, list)
     extraction = item["copy_extraction"]
@@ -710,25 +1172,32 @@ def package_plan_from_item(package_dir: Path, max_images: int, item: dict[str, o
     specs = extraction.get("sku_specs")
     if not isinstance(specs, dict):
         specs = parse_specs(raw_description)
+    description = build_goofish_description(listing_title, specs)
     return {
         "package_dir": str(package_dir),
         "dry_run": True,
         "publish_url": PUBLISH_URL,
         "price": price,
+        "listing_price": price,
+        "supplier_price": supplier_price,
+        "price_rule": "supplier_price / 0.7, rounded to nearest price ending in 9",
         "copy_extractor": copy_extractor,
         "copy_extraction_source": extraction.get("source"),
         "copy_extraction_notes": extraction.get("notes", []),
         "sku_specs": specs,
         "sku_count": spec_combination_count(specs),
         "raw_description_chars": len(raw_description),
+        "listing_title": listing_title,
+        "listing_title_chars": compact_title_length(listing_title),
         "description_chars": len(description),
         "description_preview": description[:80],
         "removed_description_lines": item["removed_description_lines"],
-        "category_preferences": infer_category_preferences(description),
-        "brand_preference": infer_brand_preference(raw_description + "\n" + description),
+        "category_preferences": infer_category_preferences(raw_description + "\n" + listing_title),
+        "brand_preference": infer_brand_preference(raw_description + "\n" + listing_title),
         "max_images": max_images,
         "selected_image_count": len(images),
         "selected_images": [str(path) for path in images],
+        "image_order_check": image_order_check(images),
         "will_click_publish": False,
     }
 
@@ -1053,7 +1522,7 @@ def select_preferred_category(preferences: list[str]) -> dict[str, object]:
         .find((item) => visible(item) && cleanLines(item.innerText)[0] === '分类');
       if (!formItem) return JSON.stringify({{ error: 'missing category form item' }});
       const current = cleanLines(formItem.innerText).filter((line) => line !== '分类' && line !== '*').slice(-1)[0] || '';
-      if (preferences.includes(current)) return JSON.stringify({{ selected: current, previous: current, reason: 'already preferred' }});
+      if (current === preferences[0]) return JSON.stringify({{ selected: current, previous: current, reason: 'already top preference' }});
       const select = formItem.querySelector('.ant-select');
       const target = formItem.querySelector('.ant-select-selector') || select;
       if (!target) return JSON.stringify({{ error: 'missing category select', current }});
@@ -1519,6 +1988,330 @@ def final_state(expected_description: str) -> str:
     )
 
 
+def click_publish_button() -> dict[str, object]:
+    result = parse_json_result(
+        chrome_js(
+            """
+            (() => {
+              const visible = (el) => {
+                const r = el.getBoundingClientRect();
+                const s = getComputedStyle(el);
+                return r.width > 0 && r.height > 0 && s.visibility !== 'hidden' && s.display !== 'none';
+              };
+              const clean = (value) => (value || '').replace(/\\s+/g, ' ').trim();
+              const candidates = Array.from(document.querySelectorAll('button'))
+                .filter(visible)
+                .map((button) => ({ button, text: clean(button.innerText), rect: button.getBoundingClientRect() }))
+                .filter((item) => item.text === '发布' || item.text === '立即发布' || item.text === '确认发布');
+              candidates.sort((a, b) => (b.rect.width * b.rect.height) - (a.rect.width * a.rect.height));
+              const target = candidates[0];
+              if (!target) {
+                const buttons = Array.from(document.querySelectorAll('button')).filter(visible).map((button) => clean(button.innerText)).filter(Boolean);
+                return JSON.stringify({ clicked: false, reason: 'missing publish button', buttons });
+              }
+              target.button.scrollIntoView({ block: 'center' });
+              target.button.click();
+              target.button.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true, view: window }));
+              target.button.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, cancelable: true, view: window }));
+              target.button.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
+              return JSON.stringify({ clicked: true, text: target.text, url: location.href });
+            })()
+            """
+        )
+    )
+    if not result.get("clicked"):
+        raise RuntimeError(f"could not click publish button: {result}")
+    return result
+
+
+def click_publish_confirmation_if_present() -> dict[str, object]:
+    return parse_json_result(
+        chrome_js(
+            """
+            (() => {
+              const visible = (el) => {
+                const r = el.getBoundingClientRect();
+                const s = getComputedStyle(el);
+                return r.width > 0 && r.height > 0 && s.visibility !== 'hidden' && s.display !== 'none';
+              };
+              const clean = (value) => (value || '').replace(/\\s+/g, ' ').trim();
+              const overlayText = Array.from(document.querySelectorAll('.ant-modal, .ant-popover, .ant-message, .ant-notification'))
+                .filter(visible)
+                .map((node) => clean(node.innerText))
+                .filter(Boolean)
+                .join(' | ');
+              const buttons = Array.from(document.querySelectorAll('button'))
+                .filter(visible)
+                .map((button) => ({ button, text: clean(button.innerText), rect: button.getBoundingClientRect() }))
+                .filter((item) => item.text);
+              const target = buttons.find((item) => ['确认发布', '继续发布', '确定', '确认', '我知道了'].includes(item.text));
+              if (!target) {
+                return JSON.stringify({ clicked: false, overlayText, buttons: buttons.map((item) => item.text).slice(0, 20), url: location.href });
+              }
+              target.button.click();
+              target.button.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true, view: window }));
+              target.button.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, cancelable: true, view: window }));
+              target.button.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
+              return JSON.stringify({ clicked: true, text: target.text, overlayText, url: location.href });
+            })()
+            """
+        )
+    )
+
+
+def publish_observation() -> dict[str, object]:
+    return parse_json_result(
+        chrome_js(
+            """
+            (() => {
+              const clean = (value) => (value || '').replace(/\\s+/g, ' ').trim();
+              const text = clean(document.body.innerText);
+              const buttons = Array.from(document.querySelectorAll('button')).map((button) => clean(button.innerText)).filter(Boolean).slice(0, 30);
+              return JSON.stringify({
+                url: location.href,
+                title: document.title,
+                textSample: text.slice(0, 1200),
+                buttons,
+                successSignal: /发布成功|提交成功|上架成功|已发布|审核/.test(text) || /\\/item\\?id=/.test(location.href),
+                validationSignal: /不能为空|请选择|不能包含|错误|失败/.test(text)
+              });
+            })()
+            """
+        )
+    )
+
+
+def publish_current_page(timeout: float = 25.0) -> dict[str, object]:
+    click_result = click_publish_button()
+    confirmations: list[dict[str, object]] = []
+    deadline = time.monotonic() + timeout
+    time.sleep(1.5)
+    while time.monotonic() < deadline:
+        confirmation = click_publish_confirmation_if_present()
+        confirmations.append(confirmation)
+        if confirmation.get("clicked"):
+            time.sleep(1.5)
+            continue
+        break
+
+    observations: list[dict[str, object]] = []
+    while time.monotonic() < deadline:
+        observation = publish_observation()
+        observations.append(observation)
+        if observation.get("successSignal"):
+            break
+        if observation.get("validationSignal") and len(observations) >= 2:
+            break
+        time.sleep(2)
+    return {
+        "clicked": click_result,
+        "confirmations": confirmations,
+        "observations": observations,
+        "final": observations[-1] if observations else publish_observation(),
+    }
+
+
+def detail_primary_image() -> dict[str, object]:
+    return parse_json_result(
+        chrome_js(
+            """
+            (() => {
+              const visible = (el) => {
+                const r = el.getBoundingClientRect();
+                const s = getComputedStyle(el);
+                return r.width > 0 && r.height > 0 && s.visibility !== 'hidden' && s.display !== 'none';
+              };
+              const candidates = Array.from(document.images)
+                .filter(visible)
+                .map((img) => {
+                  const rect = img.getBoundingClientRect();
+                  return {
+                    src: img.currentSrc || img.src || '',
+                    naturalWidth: img.naturalWidth,
+                    naturalHeight: img.naturalHeight,
+                    renderedWidth: rect.width,
+                    renderedHeight: rect.height,
+                    area: rect.width * rect.height,
+                    className: String(img.className || ''),
+                    alt: img.alt || ''
+                  };
+                })
+                .filter((item) => item.src && !item.src.startsWith('data:'))
+                .filter((item) => !/avatar|static|icon|logo|head/i.test(item.src))
+                .filter((item) => item.renderedWidth >= 120 && item.renderedHeight >= 120)
+                .sort((a, b) => b.area - a.area);
+              return JSON.stringify({
+                url: location.href,
+                title: document.title,
+                primary: candidates[0] || null,
+                candidates: candidates.slice(0, 6)
+              });
+            })()
+            """
+        )
+    )
+
+
+def post_publish_cover_check(expected_cover: Path, threshold: int) -> dict[str, object]:
+    detail = detail_primary_image()
+    primary = detail.get("primary")
+    if not isinstance(primary, dict) or not primary.get("src"):
+        return {
+            "enabled": True,
+            "passed": False,
+            "reason": "missing primary image on detail page",
+            "detail": detail,
+            "expected_cover": str(expected_cover),
+            "threshold": threshold,
+        }
+
+    remote_path: Path | None = None
+    try:
+        expected_hash = image_average_hash(expected_cover)
+        remote_path = download_image_to_temp(str(primary["src"]))
+        published_hash = image_average_hash(remote_path)
+        distance = hamming_distance_hex(expected_hash, published_hash)
+        return {
+            "enabled": True,
+            "passed": distance <= threshold,
+            "reason": "cover hash within threshold" if distance <= threshold else "published cover does not match expected cover",
+            "expected_cover": str(expected_cover),
+            "expected_cover_name": expected_cover.name,
+            "published_cover_url": primary["src"],
+            "distance": distance,
+            "threshold": threshold,
+            "detail_url": detail.get("url"),
+            "detail_title": detail.get("title"),
+            "primary_image": primary,
+        }
+    except Exception as exc:
+        return {
+            "enabled": True,
+            "passed": False,
+            "reason": f"cover check failed: {exc}",
+            "expected_cover": str(expected_cover),
+            "published_cover_url": primary.get("src"),
+            "threshold": threshold,
+            "detail_url": detail.get("url"),
+            "detail_title": detail.get("title"),
+            "primary_image": primary,
+        }
+    finally:
+        if remote_path is not None:
+            remote_path.unlink(missing_ok=True)
+
+
+def click_seller_action(text: str) -> dict[str, object]:
+    return parse_json_result(
+        chrome_js(
+            """
+            (() => {
+              const actionText = __ACTION_TEXT__;
+              const visible = (el) => {
+                const r = el.getBoundingClientRect();
+                const s = getComputedStyle(el);
+                return r.width > 0 && r.height > 0 && s.visibility !== 'hidden' && s.display !== 'none';
+              };
+              const clean = (value) => (value || '').replace(/\\s+/g, ' ').trim();
+              const candidates = Array.from(document.querySelectorAll('button, [role="button"], div, span'))
+                .filter(visible)
+                .map((el) => ({ el, text: clean(el.innerText || el.textContent), rect: el.getBoundingClientRect(), cursor: getComputedStyle(el).cursor }))
+                .filter((item) => item.text === actionText);
+              candidates.sort((a, b) => {
+                const ac = a.cursor === 'pointer' ? 0 : 1;
+                const bc = b.cursor === 'pointer' ? 0 : 1;
+                if (ac !== bc) return ac - bc;
+                return (a.rect.width * a.rect.height) - (b.rect.width * b.rect.height);
+              });
+              const candidate = candidates[0];
+              if (!candidate) return JSON.stringify({ clicked: false, reason: 'missing action', actionText });
+              const target = candidate.el.closest('button') || candidate.el;
+              target.scrollIntoView({ block: 'center' });
+              const r = target.getBoundingClientRect();
+              for (const type of ['pointerover', 'mouseover', 'pointerdown', 'mousedown', 'pointerup', 'mouseup', 'click']) {
+                const event = type.startsWith('pointer')
+                  ? new PointerEvent(type, { bubbles: true, cancelable: true, view: window, pointerId: 1, pointerType: 'mouse', isPrimary: true, button: 0, buttons: type.includes('down') ? 1 : 0, clientX: r.x + r.width / 2, clientY: r.y + r.height / 2 })
+                  : new MouseEvent(type, { bubbles: true, cancelable: true, view: window, button: 0, buttons: type.includes('down') ? 1 : 0, clientX: r.x + r.width / 2, clientY: r.y + r.height / 2 });
+                target.dispatchEvent(event);
+              }
+              return JSON.stringify({ clicked: true, actionText, url: location.href });
+            })()
+            """.replace("__ACTION_TEXT__", json.dumps(text, ensure_ascii=False))
+        )
+    )
+
+
+def confirm_delist_if_present() -> dict[str, object]:
+    return parse_json_result(
+        chrome_js(
+            """
+            (() => {
+              const visible = (el) => {
+                const r = el.getBoundingClientRect();
+                const s = getComputedStyle(el);
+                return r.width > 0 && r.height > 0 && s.visibility !== 'hidden' && s.display !== 'none';
+              };
+              const clean = (value) => (value || '').replace(/\\s+/g, ' ').trim();
+              const overlay = Array.from(document.querySelectorAll('.ant-modal, .ant-popover, [role="dialog"]'))
+                .find((node) => visible(node) && clean(node.innerText).includes('确定要下架这个宝贝吗'));
+              if (!overlay) return JSON.stringify({ clicked: false, reason: 'missing delist confirmation' });
+              const candidates = Array.from(overlay.querySelectorAll('button, [role="button"], div, span'))
+                .filter(visible)
+                .map((el) => ({ el, text: clean(el.innerText || el.textContent), rect: el.getBoundingClientRect() }))
+                .filter((item) => item.text === '确定');
+              candidates.sort((a, b) => (a.rect.width * a.rect.height) - (b.rect.width * b.rect.height));
+              const candidate = candidates[0];
+              if (!candidate) return JSON.stringify({ clicked: false, reason: 'missing confirm button', overlayText: clean(overlay.innerText) });
+              const target = candidate.el.closest('button') || candidate.el;
+              const r = target.getBoundingClientRect();
+              for (const type of ['pointerdown', 'mousedown', 'pointerup', 'mouseup', 'click']) {
+                const event = type.startsWith('pointer')
+                  ? new PointerEvent(type, { bubbles: true, cancelable: true, view: window, pointerId: 1, pointerType: 'mouse', isPrimary: true, button: 0, buttons: type.includes('down') ? 1 : 0, clientX: r.x + r.width / 2, clientY: r.y + r.height / 2 })
+                  : new MouseEvent(type, { bubbles: true, cancelable: true, view: window, button: 0, buttons: type.includes('down') ? 1 : 0, clientX: r.x + r.width / 2, clientY: r.y + r.height / 2 });
+                target.dispatchEvent(event);
+              }
+              return JSON.stringify({ clicked: true, overlayText: clean(overlay.innerText) });
+            })()
+            """
+        )
+    )
+
+
+def delist_current_item(timeout: float = 15.0) -> dict[str, object]:
+    click_result = click_seller_action("下架")
+    if not click_result.get("clicked"):
+        return {"enabled": True, "success": False, "reason": "could not click delist", "click_result": click_result}
+    time.sleep(1)
+    confirm_result = confirm_delist_if_present()
+    if not confirm_result.get("clicked"):
+        return {"enabled": True, "success": False, "reason": "could not confirm delist", "click_result": click_result, "confirm_result": confirm_result}
+
+    deadline = time.monotonic() + timeout
+    observations: list[dict[str, object]] = []
+    while time.monotonic() < deadline:
+        observation = publish_observation()
+        observations.append(observation)
+        sample = str(observation.get("textSample") or "")
+        if "下架成功" in sample or "已下架" in sample:
+            return {
+                "enabled": True,
+                "success": True,
+                "click_result": click_result,
+                "confirm_result": confirm_result,
+                "final": observation,
+                "observations": observations,
+            }
+        time.sleep(1)
+    return {
+        "enabled": True,
+        "success": False,
+        "reason": "timed out waiting for delist confirmation",
+        "click_result": click_result,
+        "confirm_result": confirm_result,
+        "observations": observations,
+    }
+
+
 def parse_json_result(raw: str) -> dict[str, object]:
     try:
         return json.loads(raw)
@@ -1655,6 +2448,9 @@ def self_test() -> int:
     assert strip_emoji("85💰潮牌🎁 test").startswith("85潮牌")
     assert normalize_price("¥85") == "85.00"
     assert normalize_price("85.5 元") == "85.50"
+    assert listing_price_from_supplier_price("110") == "159.00"
+    assert listing_price_from_supplier_price("120") == "169.00"
+    assert listing_price_from_supplier_price("145") == "209.00"
     sample_copy = "颜色：白色 黑色\nM    L    XL   XXL\n胸围  100  104  106   108"
     assert parse_specs(sample_copy) == {"颜色": ["白色", "黑色"], "尺码": ["M", "L", "XL", "XXL"]}
     assert spec_combination_count(parse_specs(sample_copy)) == 8
@@ -1703,8 +2499,24 @@ def self_test() -> int:
         fallback,
         "85.00",
     )
-    assert str(validated["listing_description"]).startswith("潮牌 克罗心chromehearts")
+    validated_title = str(validated["listing_description"])
+    assert "克罗心" in validated_title or "chromehearts" in validated_title.lower()
+    assert compact_title_length(validated_title) <= MAX_LISTING_TITLE_CHARS
     assert "restored fallback title" in " ".join(validated["notes"])  # type: ignore[arg-type]
+    djia_title = trim_listing_title("D家 男士凉感防晒短袖POLO衫，TRAINING综训系列")
+    assert djia_title.startswith("D家")
+    assert "，" not in djia_title
+    assert compact_title_length(djia_title) <= MAX_LISTING_TITLE_CHARS
+    assert trim_listing_title("迪桑特 26款Ess吸湿速干防晒短袖T恤").startswith("D家")
+    assert trim_listing_title("FILA 运动夹克外套").startswith("F家")
+    assert trim_listing_title("可隆 户外防晒外套").startswith("K家")
+    templated = build_goofish_description(djia_title, {"尺码": ["M", "L", "XL", "2XL", "3XL"]})
+    assert templated.splitlines() == [
+        f"【奥莱折扣】2折+ {djia_title}",
+        "尺码 M-3XL",
+        "部分 断码 数量有限",
+        "主页均为实拍 需要的点击我想要咨询",
+    ]
 
     with tempfile.TemporaryDirectory(prefix="goofish-publish-selftest-") as tmp:
         package_dir = Path(tmp)
@@ -1726,6 +2538,8 @@ def self_test() -> int:
         plan = package_plan(package_dir, 9)
         assert plan["selected_image_count"] == 9
         assert plan["will_click_publish"] is False
+        assert plan["supplier_price"] == "85.00"
+        assert plan["listing_price"] == "119.00"
         assert plan["sku_specs"] == {"颜色": ["白色", "黑色"], "尺码": ["M", "L"]}
         assert plan["removed_description_lines"] == ["leading price: 85", "颜色：白色 黑色", "M L"]
 
@@ -1774,7 +2588,15 @@ def main() -> int:
     )
     parser.add_argument("--per-image-timeout", type=float, default=35.0)
     parser.add_argument("--skip-open", action="store_true", help="use the current Chrome tab instead of opening /publish")
+    parser.add_argument("--new-tab", action="store_true", help="open /publish in a new Chrome tab instead of reusing the active tab")
+    parser.add_argument("--cdp-port", type=int, default=None, help="target a Chrome remote-debugging port instead of AppleScript front-window Chrome")
+    parser.add_argument("--publish", action="store_true", help="click the final Goofish publish button after filling the form")
+    parser.add_argument("--skip-post-publish-check", action="store_true", help="do not verify the published detail page cover after --publish")
+    parser.add_argument("--post-publish-cover-threshold", type=int, default=80, help="maximum cover-image perceptual hash distance; default 80")
+    parser.add_argument("--auto-delist-on-check-fail", action="store_true", help="after --publish, automatically delist the item if post-publish cover check fails")
     args = parser.parse_args()
+    global CDP_PORT
+    CDP_PORT = args.cdp_port
 
     if args.max_images < 1 or args.max_images > 9:
         parser.error("--max-images must be between 1 and 9")
@@ -1831,8 +2653,8 @@ def main() -> int:
     )
     plan = package_plan_from_item(args.package_dir, args.max_images, item, args.copy_extractor)
     raw_description = str(item["raw_description"])
-    description = raw_description if args.keep_raw_description else str(item["listing_description"])
-    price = str(item["price"])
+    supplier_price = str(item["price"])
+    price = listing_price_from_supplier_price(supplier_price)
     images = item["images"]
     assert isinstance(images, list)
     original_price = normalize_price(args.original_price) if args.original_price else None
@@ -1841,6 +2663,8 @@ def main() -> int:
     specs = extraction.get("sku_specs")
     if not isinstance(specs, dict):
         specs = parse_specs(raw_description)
+    listing_title = str(item["listing_description"])
+    description = raw_description if args.keep_raw_description else build_goofish_description(listing_title, specs)
     plan["skip_sku_specs"] = args.skip_sku_specs
     plan["skip_category"] = args.skip_category
     plan["skip_brand"] = args.skip_brand
@@ -1848,8 +2672,16 @@ def main() -> int:
     plan["original_price"] = original_price
     plan["upload_mode"] = args.upload_mode
     plan["description_mode"] = "raw" if args.keep_raw_description else "clean"
+    plan["dry_run"] = not args.publish
+    plan["will_click_publish"] = args.publish
+    plan["post_publish_check_enabled"] = args.publish and not args.skip_post_publish_check
+    plan["auto_delist_on_check_fail"] = args.auto_delist_on_check_fail
     print(f"[item] {args.package_dir}")
-    print(f"[item] price={price} images={len(images)} description_mode={plan['description_mode']} dry_run=true")
+    plan["price"] = price
+    plan["listing_price"] = price
+    plan["supplier_price"] = supplier_price
+    plan["price_rule"] = "supplier_price / 0.7, rounded to nearest price ending in 9"
+    print(f"[item] supplier_price={supplier_price} listing_price={price} images={len(images)} description_mode={plan['description_mode']} dry_run={str(not args.publish).lower()}")
     print(f"[copy] extractor={extraction.get('source')}")
     for note in extraction.get("notes", []):
         print(f"[copy] note={note}")
@@ -1864,7 +2696,7 @@ def main() -> int:
 
     press_escape()
     if not args.skip_open:
-        open_publish_page()
+        open_publish_page(new_tab=args.new_tab)
     wait_for_page_ready()
     fill_text_and_price(description, price, original_price)
     category_result = {"enabled": False, "reason": "skipped"}
@@ -1874,14 +2706,14 @@ def main() -> int:
     else:
         upload_images(images, args.per_image_timeout, args.upload_mode)
     if not args.skip_category:
-        category_preferences = infer_category_preferences(description)
+        category_preferences = infer_category_preferences(raw_description + "\n" + listing_title)
         category_result = select_preferred_category_with_retry(category_preferences)
         if category_result.get("enabled"):
             print(f"[category] selected={category_result.get('selected')} previous={category_result.get('previous')}")
         else:
             print(f"[category] unchanged reason={category_result.get('reason')}")
     if not args.skip_brand:
-        brand_preference = infer_brand_preference(raw_description + "\n" + description)
+        brand_preference = infer_brand_preference(raw_description + "\n" + listing_title)
         brand_result = select_preferred_brand_with_retry(brand_preference)
         if brand_result.get("enabled"):
             print(f"[brand] selected={brand_result.get('selected')} query={brand_result.get('query')}")
@@ -1895,9 +2727,31 @@ def main() -> int:
             print(f"[sku] filled {sku_result['sku_count']} combinations prices={sku_result['filled_prices']} stocks={sku_result['filled_stocks']}")
 
     state = final_state(description)
+    publish_result: dict[str, object] = {"enabled": False, "reason": "dry-run"}
+    post_publish_check: dict[str, object] = {"enabled": False, "reason": "dry-run"}
+    auto_delist_result: dict[str, object] = {"enabled": False, "reason": "not requested"}
+    if args.publish:
+        print("[publish] clicking final publish button")
+        publish_result = publish_current_page()
+        print(f"[publish] result={json.dumps(publish_result.get('final', {}), ensure_ascii=False)}")
+        if args.skip_post_publish_check:
+            post_publish_check = {"enabled": False, "reason": "skipped"}
+        else:
+            expected_cover = images[0]
+            print(f"[postcheck] expected_cover={expected_cover.name}")
+            post_publish_check = post_publish_cover_check(expected_cover, args.post_publish_cover_threshold)
+            print(f"[postcheck] result={json.dumps(post_publish_check, ensure_ascii=False)}")
+            if not post_publish_check.get("passed") and args.auto_delist_on_check_fail:
+                print("[postcheck] failed; auto-delisting current item")
+                auto_delist_result = delist_current_item()
+                print(f"[postcheck] delist_result={json.dumps(auto_delist_result, ensure_ascii=False)}")
+
     elapsed = time.monotonic() - start
     print(f"[state] {state}")
-    print(f"[done] stopped before publish; elapsed={elapsed:.1f}s")
+    if args.publish:
+        print(f"[done] publish attempted; elapsed={elapsed:.1f}s")
+    else:
+        print(f"[done] stopped before publish; elapsed={elapsed:.1f}s")
     if args.write_summary:
         write_summary(
             args.write_summary,
@@ -1909,8 +2763,13 @@ def main() -> int:
                 "brand_result": brand_result,
                 "sku_result": sku_result,
                 "final_state": parse_json_result(state),
+                "publish_result": publish_result,
+                "post_publish_check": post_publish_check,
+                "auto_delist_result": auto_delist_result,
             },
         )
+    if args.publish and post_publish_check.get("enabled") and not post_publish_check.get("passed"):
+        return 3
     return 0
 
 

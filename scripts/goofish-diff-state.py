@@ -143,6 +143,8 @@ def main():
         # 公共字段每天刷新（幂等）
         entry["account"] = it.get("_account")
         entry["title"] = it.get("title")
+        if it.get("sellerName"):
+            entry["sellerName"] = it.get("sellerName")
         entry["url"] = it.get("url") or item_url(iid)
         entry["price"] = it.get("price")
         entry["directBuyPrice"] = it.get("directBuyPrice")

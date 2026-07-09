@@ -42,11 +42,12 @@ STORE_NAMES = {
 }
 
 ENV = {**os.environ, "LARK_CLI_NO_PROXY": "1"}
+IDENTITY = "user"
 
 
 def lark(args, json_body=None):
     """跑一条 lark-cli base 命令，返回解析后的 JSON envelope（失败抛异常）。"""
-    cmd = ["lark-cli", "base", *args, "--as", "user",
+    cmd = ["lark-cli", "base", *args, "--as", IDENTITY,
            "--base-token", BASE_TOKEN, "--table-id", TABLE_ID]
     if json_body is not None:
         cmd += ["--json", json.dumps(json_body, ensure_ascii=False)]
@@ -101,10 +102,11 @@ def field_payload(e, *, for_create):
     """台账 entry -> 飞书字段 map。for_create=True 时 null 显式保留；更新时省略 null（不清空旧值）。"""
     date = (e.get("lastUpdated") or "")[:10]
     acct = e.get("account") or "account-01"
+    store_name = e.get("sellerName") or STORE_NAMES.get(acct)
     fields = {
         "商品ID": e["itemId"],
         "闲鱼账号": acct,
-        "店铺名": STORE_NAMES.get(acct),
+        "店铺名": store_name,
         "商品标题": e.get("title"),
         "商品链接": e.get("url"),
         "价格": to_num(e.get("price")),
@@ -135,6 +137,7 @@ def select_items(state, mode, N, account=None):
 
 
 def main():
+    global IDENTITY
     ap = argparse.ArgumentParser()
     ap.add_argument("--mode", choices=["full", "suggestions"], default="suggestions",
                     help="full=全表镜像；suggestions=只推建议下架商品（默认）")
@@ -143,9 +146,12 @@ def main():
     ap.add_argument("--max", type=int, default=0, help="最多写多少条（0=不限），用于首次小批测试")
     ap.add_argument("--delay", type=float, default=0.3, help="逐条更新间隔秒（默认 0.3）")
     ap.add_argument("--account", default=None, help="只推某个账号（如 account-02）；默认全部")
+    ap.add_argument("--as", dest="identity", choices=["user", "bot"], default="user",
+                    help="飞书身份，默认 user；用户授权缺失但 bot 有表权限时可用 bot")
     ap.add_argument("--prune", action="store_true",
                     help="推完后删除同账号里不在「在售」集合的飞书行（卖掉/下架的）——固化只走在售")
     args = ap.parse_args()
+    IDENTITY = args.identity
 
     if not os.path.exists(STATE_FILE):
         sys.exit(f"找不到台账 {STATE_FILE}，请先跑 goofish-diff-state.py")

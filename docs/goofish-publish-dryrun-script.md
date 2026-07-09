@@ -12,7 +12,8 @@ The script is intentionally conservative:
 - searches/selects recognized brands such as `CHROME HEARTS`, `ADIDAS`,
   or `ARC'TERYX` when the brand field is available;
 - parses `颜色：...` and size-table lines from the original copy, then fills SKU specs;
-- fills each generated SKU with the item price and default stock `20`;
+- converts supplier cost to a Goofish listing price, then fills each generated
+  SKU with the listing price and default stock `20`;
 - never clicks the final `发布` button;
 - uses the existing logged-in Chrome session on this Mac;
 - does not read or store cookies, tokens, orders, chats, or account secrets.
@@ -30,8 +31,9 @@ python3 scripts/goofish-publish-dryrun-macos.py --write-summary out/goofish-publ
 
 The source `copy.goofish.txt` often contains supplier-only structure that should
 not be pasted into the public item description. By default the script now asks
-the local CPA chat-completions proxy to extract structured listing data, then
-falls back to deterministic rules if CPA is unavailable.
+the local CPA chat-completions proxy to extract structured listing data and a
+short buyer-facing item title, then falls back to deterministic rules if CPA is
+unavailable.
 
 Current tested CPA endpoint and model:
 
@@ -42,16 +44,56 @@ claude-sonnet-4-6
 
 The model extractor must return the same contract as the rule extractor:
 
-- buyer-facing `listing_description`;
-- normalized `price`;
+- buyer-facing `listing_description`, used as a short item title and kept near
+  15 characters;
+- normalized supplier `price`;
 - `sku_specs`, such as color and size values;
 - `removed_description_lines` for supplier-only rows.
 
-The deterministic fallback builds a cleaned buyer-facing description before
-filling the page:
+## Price rule
+
+`package.json` / source copy price is treated as supplier cost. The Goofish
+listing price is calculated as:
+
+```text
+listing_price = supplier_price / 0.7
+```
+
+Then it is rounded to the nearest price ending in `9`.
+
+Examples:
+
+```text
+110 / 0.7 = 157.14286 -> 159
+120 / 0.7 = 171.42857 -> 169
+145 / 0.7 = 207.14286 -> 209
+```
+
+Both the main price field and generated SKU price fields use `listing_price`.
+
+The deterministic fallback builds a cleaned buyer-facing title, then the page
+description is rendered through the fixed Goofish template:
+
+```text
+【奥莱折扣】2折+ {short title}
+尺码 {real size range}
+部分 断码 数量有限
+主页均为实拍 需要的点击我想要咨询
+```
+
+The title and size range are dynamic. The discount prefix and last two lines
+are fixed. The size range must come from the real parsed SKU sizes, such as
+`S-XL` or `M-3XL`.
+
+Before filling the page, the title extraction:
 
 - removes a leading price prefix when it matches `package.json` price, such as
   `85💰潮牌...` becoming `潮牌...`;
+- keeps recognizable public brand hints without writing some brand names in
+  full, such as `迪桑特` / `Descente` -> `D家`, `FILA` / `斐乐` -> `F家`,
+  and `KOLON` / `可隆` -> `K家`;
+- trims long supplier copy down to a compact product phrase, such as
+  `D家凉感防晒POLO`;
 - removes color lines such as `颜色：白色 黑色`;
 - removes size-list lines such as `M L XL XXL`;
 - removes measurement-table lines such as `胸围 / 肩宽 / 衣长 ...`;
@@ -103,6 +145,9 @@ Known mappings include:
 
 - `克罗心` / `Chrome Hearts` / `CH` -> `Chrome Hearts`, preferring `CHROME HEARTS`;
 - `Adidas` / `阿迪达斯` / `三叶草` -> `Adidas`;
+- `D家` / `迪桑特` / `DESCENTE` -> `Descente`;
+- `F家` / `斐乐` / `FILA` -> `FILA`;
+- `K家` / `可隆` / `KOLON` -> `KOLON SPORT`;
 - `始祖鸟` / `Arc'teryx` -> `Arc'teryx`;
 - `Nike` / `耐克` -> `Nike`;
 - `lululemon` / `露露乐蒙` -> `lululemon`.
@@ -234,10 +279,23 @@ After switching upload to `file-input` mode, a full dry-run completed on
 --upload-mode  Image upload strategy. Default file-input. Use file-picker only
                as a fallback for debugging the old macOS picker path.
 --skip-open   Use the current Chrome tab instead of opening /publish.
+--publish     Click the final Goofish publish button after filling the form.
+               After publishing, the script checks the detail-page cover image
+               against the expected local first image. A mismatch returns 3.
+--skip-post-publish-check
+               Skip the detail-page cover check after --publish.
+--post-publish-cover-threshold
+               Maximum perceptual hash distance for the cover check. Default 80.
+--auto-delist-on-check-fail
+               With --publish, automatically click 下架 and confirm if the
+               post-publish cover check fails. This never deletes the item.
 --write-summary
                Write final run evidence as JSON after a successful dry run.
 ```
 
 ## Safety boundary
 
-This is a draft preparation helper. Publishing remains a human action.
+By default this is a draft preparation helper and stops before publishing.
+Publishing requires the explicit `--publish` flag. Automatic delisting after a
+failed post-publish cover check requires the separate
+`--auto-delist-on-check-fail` flag.

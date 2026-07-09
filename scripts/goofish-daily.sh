@@ -19,7 +19,7 @@ cd "$(cd "$(dirname "$0")" && pwd)/.." || exit 1
 PY="${GOOFISH_PY:-/usr/bin/python3}"   # 默认 /usr/bin/python3（装了 websockets）；换机器可用 GOOFISH_PY 覆盖
 
 # 账号清单：slot:port（新增账号在这里加一行即可，端口约定 9220+NN）
-ACCOUNTS=( "account-01:9221" "account-03:9223" "account-04:9224" "account-05:9225" )
+ACCOUNTS=( "account-01:9221" "account-03:9223" "account-04:9224" )
 
 DAYS=5
 PUSH=0
@@ -42,11 +42,11 @@ for entry in "${ACCOUNTS[@]}"; do
   slot="${entry%%:*}"; port="${entry##*:}"
   [ -n "$ONLY" ] && [ "$ONLY" != "$slot" ] && continue
   if lsof -nP -iTCP:"$port" -sTCP:LISTEN >/dev/null 2>&1; then
-    echo "==== 采集 $slot (端口 $port) ===="
-    "$PY" scripts/goofish-collect-v3.py --account "$slot" --port "$port" || echo "⚠ $slot 采集异常（看上面日志）"
+    echo "==== 采集 ${slot} (端口 ${port}) ===="
+    "$PY" scripts/goofish-collect-v3.py --account "$slot" --port "$port" || echo "[!] ${slot} 采集异常（看上面日志）"
     ran=$((ran+1))
   else
-    echo "⏭  跳过 $slot：端口 $port 未监听。先按 runbook 启动 Chrome 并登录。"
+    echo "[SKIP] 跳过 ${slot}：端口 ${port} 未监听。先按 runbook 启动 Chrome 并登录。"
   fi
 done
 
@@ -56,14 +56,14 @@ if [ "$ran" -eq 0 ]; then
 fi
 
 TODAY="$(date +%F)"
-echo "==== 更新台账 + 建议清单（阈值 $DAYS，日期 $TODAY）===="
+echo "==== 更新台账 + 建议清单（阈值 ${DAYS}，日期 ${TODAY}）===="
 # 钉死「今天」：若今日所有号采集都失败/残缺（无今日文件），diff-state 会非零退出，
 # 不会去误处理昨天的旧文件；此时直接跳过推飞书，绝不在残缺数据上 prune 误删。
 if DIFF_OUT="$("$PY" scripts/goofish-diff-state.py --no-growth-days "$DAYS" --date "$TODAY" 2>&1)"; then
   echo "$DIFF_OUT"
 else
   echo "$DIFF_OUT"
-  echo "⚠ diff-state 未处理（今日无有效采集文件？），跳过推飞书。"
+  echo "[!] diff-state 未处理（今日无有效采集文件？），跳过推飞书。"
   exit 1
 fi
 
@@ -79,16 +79,19 @@ GONE=$(printf '%s' "$SUMMARY_LINE" | sed -nE 's/.*vanished=([0-9]+).*/\1/p'); GO
 CHANGED=$((NEW + GONE))
 DOW=$(date +%u)   # 1=周一
 
-# 决定推送模式：周一 / 强制 / 在售集合大变动 → 全量 --prune；否则只推建议清单
+# 每天全量同步：更新所有在售商品的最新浏览数/想要数/无增长天数
+# 只有周一才做剪枝（删除已售出/已下架的），避免平时误删
 REASON=""
 [ "$FULL_SYNC" -eq 1 ] && REASON="--full-sync 强制"
-[ -z "$REASON" ] && [ "$DOW" -eq 1 ] && REASON="周一全量"
-[ -z "$REASON" ] && [ "$CHANGED" -ge "$SYNC_THRESHOLD" ] && REASON="在售大变动(新增$NEW+消失$GONE>=$SYNC_THRESHOLD)"
+[ -z "$REASON" ] && [ "$DOW" -eq 1 ] && REASON="周一全量+剪枝"
 
 if [ -n "$REASON" ]; then
   echo "==== 全量同步飞书（在售镜像 + 剪枝，--apply）触发原因: $REASON ===="
   "$PY" scripts/goofish-push-feishu.py --mode full --prune --apply
 else
-  echo "==== 推飞书（建议清单，--apply）。在售变动 新增$NEW+消失$GONE < $SYNC_THRESHOLD，不全量 ===="
-  "$PY" scripts/goofish-push-feishu.py --mode suggestions --no-growth-days "$DAYS" --apply
+  echo "==== 全量同步飞书（在售镜像，不剪枝）。更新浏览数/想要数/无增长天数 ===="
+  "$PY" scripts/goofish-push-feishu.py --mode full --apply
 fi
+
+# 备用方案：用其他账号的浏览器采集指定店铺
+# 用法：bash scripts/goofish-daily.sh --borrow account-01 --target account-05
