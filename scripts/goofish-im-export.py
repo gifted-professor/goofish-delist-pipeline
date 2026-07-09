@@ -108,9 +108,16 @@ def redact_obj(obj: Any) -> Any:
     return obj
 
 
+def progress(args: argparse.Namespace, msg: str) -> None:
+    if getattr(args, "quiet", False):
+        return
+    ts = datetime.now().strftime("%H:%M:%S")
+    print(f"[{ts}] {msg}", file=sys.stderr, flush=True)
+
+
 def init_db(db_path: Path) -> sqlite3.Connection:
     db_path.parent.mkdir(parents=True, exist_ok=True)
-    conn = sqlite3.connect(db_path)
+    conn = sqlite3.connect(db_path, timeout=30)
     conn.execute("PRAGMA journal_mode=WAL")
     conn.execute("PRAGMA foreign_keys=ON")
     conn.executescript(
@@ -171,6 +178,17 @@ def init_db(db_path: Path) -> sqlite3.Connection:
 
         CREATE INDEX IF NOT EXISTS idx_messages_content_hash
           ON messages(account, content_hash);
+
+        CREATE TABLE IF NOT EXISTS conversation_scan_cursors (
+          account TEXT PRIMARY KEY,
+          updated_at TEXT NOT NULL,
+          scroll_top REAL,
+          scroll_height REAL,
+          client_height REAL,
+          last_conversation_key TEXT,
+          scanned_conversation_count INTEGER DEFAULT 0,
+          cursor_json TEXT
+        );
         """
     )
     columns = {row[1] for row in conn.execute("PRAGMA table_info(conversations)").fetchall()}
@@ -180,7 +198,21 @@ def init_db(db_path: Path) -> sqlite3.Connection:
 
 
 def latest_message_id_from_session_info(session_info: dict[str, Any]) -> str:
-    return str((session_info or {}).get("latestMessageId") or "").strip()
+    token = str((session_info or {}).get("latestMessageToken") or "").strip()
+    if token:
+        return f"token:{token}"
+    latest_message_id = str((session_info or {}).get("latestMessageId") or "").strip()
+    if latest_message_id and latest_message_id not in {"[NUMBER]", "[LONG_NUMBER]"}:
+        return f"token:{digest(latest_message_id, length=32)}"
+    return latest_message_id
+
+
+def session_info_with_tokens(session_info: dict[str, Any]) -> dict[str, Any]:
+    stored = dict(session_info or {})
+    latest_message_id = str(stored.get("latestMessageId") or "").strip()
+    if latest_message_id:
+        stored["latestMessageToken"] = digest(latest_message_id, length=32)
+    return stored
 
 
 def load_existing_conversation_state(db_path: Path, account: str) -> dict[str, str]:
@@ -212,6 +244,34 @@ def load_existing_conversation_state(db_path: Path, account: str) -> dict[str, s
             info = {}
         state[str(key)] = latest_message_id_from_session_info(info)
     return state
+
+
+def load_conversation_cursor(db_path: Path, account: str) -> dict[str, Any] | None:
+    if not db_path.exists():
+        return None
+    conn: sqlite3.Connection | None = None
+    try:
+        conn = sqlite3.connect(db_path)
+        row = conn.execute(
+            """
+            SELECT cursor_json
+            FROM conversation_scan_cursors
+            WHERE account=?
+            """,
+            (account,),
+        ).fetchone()
+    except sqlite3.Error:
+        return None
+    finally:
+        if conn:
+            conn.close()
+    if not row or not row[0]:
+        return None
+    try:
+        cursor = json.loads(row[0])
+    except json.JSONDecodeError:
+        return None
+    return cursor if isinstance(cursor, dict) else None
 
 
 def write_sqlite(
@@ -373,6 +433,36 @@ def write_sqlite(
             """,
             (inserted_conversations, inserted_messages, updated_messages, sync_run_id),
         )
+        cursor_payload = payload.get("conversationCursor")
+        if cursor_payload:
+            holder = cursor_payload.get("holder") or {}
+            cur.execute(
+                """
+                INSERT INTO conversation_scan_cursors (
+                  account, updated_at, scroll_top, scroll_height, client_height,
+                  last_conversation_key, scanned_conversation_count, cursor_json
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(account) DO UPDATE SET
+                  updated_at=excluded.updated_at,
+                  scroll_top=excluded.scroll_top,
+                  scroll_height=excluded.scroll_height,
+                  client_height=excluded.client_height,
+                  last_conversation_key=excluded.last_conversation_key,
+                  scanned_conversation_count=excluded.scanned_conversation_count,
+                  cursor_json=excluded.cursor_json
+                """,
+                (
+                    payload["account"],
+                    completed_at,
+                    holder.get("scrollTop"),
+                    holder.get("scrollHeight"),
+                    holder.get("clientHeight"),
+                    cursor_payload.get("lastConversationKey") or "",
+                    cursor_payload.get("scannedConversationCount") or 0,
+                    json.dumps(cursor_payload, ensure_ascii=False, sort_keys=True),
+                ),
+            )
         conn.commit()
         totals = conn.execute(
             """
@@ -393,6 +483,271 @@ def write_sqlite(
         }
     finally:
         conn.close()
+
+
+class SQLiteRunWriter:
+    def __init__(
+        self,
+        db_path: Path,
+        account: str,
+        port: int,
+        started_at: str,
+        json_path: Path,
+        jsonl_path: Path,
+    ) -> None:
+        self.db_path = db_path
+        self.account = account
+        self.conn = init_db(db_path)
+        self.inserted_conversations = 0
+        self.inserted_messages = 0
+        self.updated_messages = 0
+        self.cur = self.conn.cursor()
+        self.cur.execute(
+            """
+            INSERT INTO sync_runs (
+              account, port, started_at, json_path, jsonl_path,
+              conversation_count, message_count, error_count
+            )
+            VALUES (?, ?, ?, ?, ?, 0, 0, 0)
+            """,
+            (account, port, started_at, str(json_path), str(jsonl_path)),
+        )
+        self.sync_run_id = int(self.cur.lastrowid)
+        self.conn.commit()
+
+    def _refresh_run_counts(
+        self,
+        conversation_count: int | None = None,
+        message_count: int | None = None,
+        error_count: int | None = None,
+        completed_at: str | None = None,
+    ) -> None:
+        fields = [
+            "inserted_conversation_count=?",
+            "inserted_message_count=?",
+            "updated_message_count=?",
+        ]
+        values: list[Any] = [
+            self.inserted_conversations,
+            self.inserted_messages,
+            self.updated_messages,
+        ]
+        if conversation_count is not None:
+            fields.append("conversation_count=?")
+            values.append(conversation_count)
+        if message_count is not None:
+            fields.append("message_count=?")
+            values.append(message_count)
+        if error_count is not None:
+            fields.append("error_count=?")
+            values.append(error_count)
+        if completed_at is not None:
+            fields.append("completed_at=?")
+            values.append(completed_at)
+        values.append(self.sync_run_id)
+        self.conn.execute(
+            f"UPDATE sync_runs SET {', '.join(fields)} WHERE id=?",
+            values,
+        )
+
+    def save_cursor(self, cursor_payload: dict[str, Any] | None) -> None:
+        if not cursor_payload:
+            return
+        completed_at = datetime.now().isoformat()
+        holder = cursor_payload.get("holder") or {}
+        self.conn.execute(
+            """
+            INSERT INTO conversation_scan_cursors (
+              account, updated_at, scroll_top, scroll_height, client_height,
+              last_conversation_key, scanned_conversation_count, cursor_json
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(account) DO UPDATE SET
+              updated_at=excluded.updated_at,
+              scroll_top=excluded.scroll_top,
+              scroll_height=excluded.scroll_height,
+              client_height=excluded.client_height,
+              last_conversation_key=excluded.last_conversation_key,
+              scanned_conversation_count=excluded.scanned_conversation_count,
+              cursor_json=excluded.cursor_json
+            """,
+            (
+                self.account,
+                completed_at,
+                holder.get("scrollTop"),
+                holder.get("scrollHeight"),
+                holder.get("clientHeight"),
+                cursor_payload.get("lastConversationKey") or "",
+                cursor_payload.get("scannedConversationCount") or 0,
+                json.dumps(cursor_payload, ensure_ascii=False, sort_keys=True),
+            ),
+        )
+        self.conn.commit()
+
+    def upsert_conversation(self, conv: dict[str, Any]) -> dict[str, int | bool]:
+        completed_at = datetime.now().isoformat()
+        cur = self.conn.cursor()
+        cur.execute(
+            """
+            INSERT OR IGNORE INTO conversations (
+              account, conversation_key, first_seen_at, last_seen_at,
+              last_sync_run_id, title, summary, raw_list_text, session_info_json, last_conversation_index
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                self.account,
+                conv["conversationKey"],
+                completed_at,
+                completed_at,
+                self.sync_run_id,
+                conv.get("title") or "",
+                conv.get("summary") or "",
+                conv.get("rawListText") or "",
+                json.dumps(conv.get("sessionInfo") or {}, ensure_ascii=False, sort_keys=True),
+                conv.get("conversationIndex"),
+            ),
+        )
+        inserted_conversation = cur.rowcount == 1
+        if inserted_conversation:
+            self.inserted_conversations += 1
+        else:
+            cur.execute(
+                """
+                UPDATE conversations
+                SET last_seen_at=?,
+                    last_sync_run_id=?,
+                    title=?,
+                    summary=?,
+                    raw_list_text=?,
+                    session_info_json=?,
+                    last_conversation_index=?
+                WHERE account=? AND conversation_key=?
+                """,
+                (
+                    completed_at,
+                    self.sync_run_id,
+                    conv.get("title") or "",
+                    conv.get("summary") or "",
+                    conv.get("rawListText") or "",
+                    json.dumps(conv.get("sessionInfo") or {}, ensure_ascii=False, sort_keys=True),
+                    conv.get("conversationIndex"),
+                    self.account,
+                    conv["conversationKey"],
+                ),
+            )
+
+        inserted_messages = 0
+        updated_messages = 0
+        for msg_index, msg in enumerate(conv.get("messages") or []):
+            cur.execute(
+                """
+                INSERT OR IGNORE INTO messages (
+                  account, conversation_key, message_fingerprint,
+                  first_seen_at, last_seen_at, last_sync_run_id, message_index,
+                  role, kind, text, raw, class_hint, content_hash, duplicate_ordinal
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    self.account,
+                    conv["conversationKey"],
+                    msg["messageFingerprint"],
+                    completed_at,
+                    completed_at,
+                    self.sync_run_id,
+                    msg_index,
+                    msg.get("role") or "",
+                    msg.get("kind") or "",
+                    msg.get("text") or "",
+                    msg.get("raw") or "",
+                    msg.get("classHint") or "",
+                    msg.get("contentHash") or "",
+                    msg.get("duplicateOrdinal"),
+                ),
+            )
+            if cur.rowcount == 1:
+                inserted_messages += 1
+                self.inserted_messages += 1
+            else:
+                cur.execute(
+                    """
+                    UPDATE messages
+                    SET last_seen_at=?,
+                        last_sync_run_id=?,
+                        message_index=?,
+                        role=?,
+                        kind=?,
+                        text=?,
+                        raw=?,
+                        class_hint=?,
+                        content_hash=?,
+                        duplicate_ordinal=?
+                    WHERE account=? AND conversation_key=? AND message_fingerprint=?
+                    """,
+                    (
+                        completed_at,
+                        self.sync_run_id,
+                        msg_index,
+                        msg.get("role") or "",
+                        msg.get("kind") or "",
+                        msg.get("text") or "",
+                        msg.get("raw") or "",
+                        msg.get("classHint") or "",
+                        msg.get("contentHash") or "",
+                        msg.get("duplicateOrdinal"),
+                        self.account,
+                        conv["conversationKey"],
+                        msg["messageFingerprint"],
+                    ),
+                )
+                updated_messages += 1
+                self.updated_messages += 1
+
+        self._refresh_run_counts()
+        self.conn.commit()
+        return {
+            "insertedConversation": inserted_conversation,
+            "insertedMessages": inserted_messages,
+            "updatedMessages": updated_messages,
+        }
+
+    def finish(
+        self,
+        conversation_count: int,
+        message_count: int,
+        error_count: int,
+        cursor_payload: dict[str, Any] | None,
+    ) -> dict[str, Any]:
+        if cursor_payload:
+            self.save_cursor(cursor_payload)
+        self._refresh_run_counts(
+            conversation_count=conversation_count,
+            message_count=message_count,
+            error_count=error_count,
+            completed_at=datetime.now().isoformat(),
+        )
+        self.conn.commit()
+        totals = self.conn.execute(
+            """
+            SELECT
+              (SELECT count(*) FROM conversations WHERE account=?),
+              (SELECT count(*) FROM messages WHERE account=?)
+            """,
+            (self.account, self.account),
+        ).fetchone()
+        return {
+            "db": str(self.db_path),
+            "syncRunId": self.sync_run_id,
+            "insertedConversationCount": self.inserted_conversations,
+            "insertedMessageCount": self.inserted_messages,
+            "updatedMessageCount": self.updated_messages,
+            "totalConversationCount": int(totals[0]),
+            "totalMessageCount": int(totals[1]),
+        }
+
+    def close(self) -> None:
+        self.conn.close()
 
 
 class CDP:
@@ -626,6 +981,42 @@ SCROLL_CONVERSATIONS_JS = r"""
 """
 
 
+CONVERSATION_HOLDER_STATE_JS = r"""
+(() => {
+  const holder = document.querySelector('.rc-virtual-list-holder')
+    || [...document.querySelectorAll('*')].find(el => el.scrollHeight > el.clientHeight && /conversation|virtual-list/i.test(String(el.className || '')));
+  if (!holder) return { ok: false };
+  return {
+    ok: true,
+    scrollTop: holder.scrollTop,
+    scrollHeight: holder.scrollHeight,
+    clientHeight: holder.clientHeight,
+    atBottom: Math.ceil(holder.scrollTop + holder.clientHeight) >= holder.scrollHeight - 2
+  };
+})()
+"""
+
+
+def set_conversation_scroll_js(scroll_top: float) -> str:
+    return f"""
+(() => {{
+  const holder = document.querySelector('.rc-virtual-list-holder')
+    || [...document.querySelectorAll('*')].find(el => el.scrollHeight > el.clientHeight && /conversation|virtual-list/i.test(String(el.className || '')));
+  if (!holder) return {{ ok: false }};
+  const before = holder.scrollTop;
+  holder.scrollTop = Math.max(0, Math.min(holder.scrollHeight, {float(scroll_top)}));
+  holder.dispatchEvent(new Event('scroll', {{ bubbles: true }}));
+  return {{
+    ok: true,
+    before,
+    after: holder.scrollTop,
+    scrollHeight: holder.scrollHeight,
+    clientHeight: holder.clientHeight
+  }};
+}})()
+"""
+
+
 async def dispatch_message_wheel(cdp: CDP, session_id: str, delta_y: float) -> dict[str, Any]:
     target = await page_eval(cdp, session_id, MESSAGE_TARGET_JS, timeout=60)
     if not target or not target.get("ok"):
@@ -681,6 +1072,54 @@ async def collect_messages(cdp: CDP, session_id: str, max_scrolls: int, wait_s: 
     return rows
 
 
+async def conversation_holder_state(cdp: CDP, session_id: str) -> dict[str, Any]:
+    state = await page_eval(cdp, session_id, CONVERSATION_HOLDER_STATE_JS)
+    return state if isinstance(state, dict) else {"ok": False}
+
+
+async def restore_conversation_cursor(
+    cdp: CDP,
+    session_id: str,
+    cursor: dict[str, Any] | None,
+    max_scrolls: int,
+    wait_s: float,
+) -> dict[str, Any]:
+    if not cursor:
+        return {"attempted": False, "reason": "no-cursor"}
+    holder = cursor.get("holder") or {}
+    scroll_top = holder.get("scrollTop")
+    if scroll_top is None:
+        return {"attempted": False, "reason": "cursor-has-no-scroll-top"}
+
+    set_result = await page_eval(cdp, session_id, set_conversation_scroll_js(float(scroll_top)))
+    await asyncio.sleep(wait_s)
+    target_key = str(cursor.get("lastConversationKey") or "")
+    matched = False
+    visible_keys: list[str] = []
+
+    for attempt in range(max_scrolls + 1):
+        visible = await page_eval(cdp, session_id, VISIBLE_CONVERSATIONS_JS)
+        visible_keys = [conversation_key_for(conv) for conv in (visible or []) if not conv.get("isNotification")]
+        if target_key and target_key in visible_keys:
+            matched = True
+            break
+        if attempt >= max_scrolls:
+            break
+        scroll = await page_eval(cdp, session_id, SCROLL_CONVERSATIONS_JS)
+        if not scroll or not scroll.get("ok") or scroll.get("before") == scroll.get("after"):
+            break
+        await asyncio.sleep(wait_s)
+
+    return {
+        "attempted": True,
+        "matchedLastConversation": matched,
+        "lastConversationKey": target_key,
+        "setResult": set_result,
+        "holder": await conversation_holder_state(cdp, session_id),
+        "visibleConversationKeys": visible_keys[:12],
+    }
+
+
 async def run(args: argparse.Namespace) -> dict[str, Any]:
     account = args.account
     port = args.port or port_for_account(account)
@@ -691,16 +1130,28 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
     base = OUT_DIR / f"goofish-im-{account}-{stamp}"
+    json_path = base.with_suffix(".json")
+    jsonl_path = base.with_suffix(".jsonl")
     db_path = Path(args.db_path)
     existing_conversation_state = (
         {} if args.no_db or args.force_resync_existing else load_existing_conversation_state(db_path, account)
     )
+    saved_conversation_cursor = None if args.no_db else load_conversation_cursor(db_path, account)
+    db_writer = None if args.no_db else SQLiteRunWriter(db_path, account, port, started_at, json_path, jsonl_path)
 
     conversations: list[dict[str, Any]] = []
     flat_rows: list[dict[str, Any]] = []
     errors: list[dict[str, Any]] = []
     skipped_existing: list[dict[str, Any]] = []
     scanned_conversation_count = 0
+    conversation_cursor: dict[str, Any] | None = None
+    cursor_restore_result: dict[str, Any] | None = None
+    progress_every = max(1, args.progress_every)
+    progress(
+        args,
+        f"start account={account} port={port} max_conversations={args.max_conversations} "
+        f"resume={bool(args.resume_conversation_cursor)} db={'off' if args.no_db else db_path}",
+    )
 
     async with CDP(browser_ws) as cdp:
         target = (await cdp.cmd("Target.createTarget", {"url": GOOFISH_IM_URL}))["result"]["targetId"]
@@ -718,10 +1169,26 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
         if not page_state or "聊天" not in page_state.get("title", ""):
             raise RuntimeError(f"unexpected IM page state: {page_state}")
 
+        if args.resume_conversation_cursor:
+            cursor_restore_result = await restore_conversation_cursor(
+                cdp,
+                session_id,
+                saved_conversation_cursor,
+                args.cursor_restore_scrolls,
+                args.after_scroll_wait,
+            )
+            progress(
+                args,
+                "cursor restore attempted="
+                f"{cursor_restore_result.get('attempted')} matched="
+                f"{cursor_restore_result.get('matchedLastConversation')}",
+            )
+
         seen_conversations: set[str] = set()
         stagnant_scrolls = 0
         for _page in range(args.max_conversation_scrolls + 1):
             visible = await page_eval(cdp, session_id, VISIBLE_CONVERSATIONS_JS)
+            holder_state = await conversation_holder_state(cdp, session_id)
             for conv in visible or []:
                 if conv.get("isNotification"):
                     continue
@@ -732,6 +1199,15 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
                     break
                 seen_conversations.add(conv_key)
                 scanned_conversation_count += 1
+                conversation_cursor = {
+                    "schema": "goofish-im-conversation-cursor/v1",
+                    "account": account,
+                    "updatedAt": datetime.now().isoformat(),
+                    "lastConversationKey": conv_key,
+                    "scannedConversationCount": scanned_conversation_count,
+                    "holder": holder_state,
+                    "restore": cursor_restore_result,
+                }
                 latest_message_id = latest_message_id_from_session_info(conv.get("sessionInfo") or {})
                 existing_latest_message_id = existing_conversation_state.get(conv_key)
                 if existing_latest_message_id is not None and (
@@ -744,6 +1220,14 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
                             "reason": "already-in-db" if not existing_latest_message_id else "latest-message-unchanged",
                         }
                     )
+                    if db_writer:
+                        db_writer.save_cursor(redact_obj(conversation_cursor) if not args.no_redact else conversation_cursor)
+                    if len(skipped_existing) == 1 or len(skipped_existing) % progress_every == 0:
+                        progress(
+                            args,
+                            f"skip scanned={scanned_conversation_count} skipped={len(skipped_existing)} "
+                            f"processed={len(conversations)} key={conv_key[:8]}",
+                        )
                     continue
                 visible_index = conv["visibleIndex"]
                 clicked = await page_eval(
@@ -761,6 +1245,7 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
                 )
                 if not clicked:
                     errors.append({"conversationKey": conv_key, "error": "click failed"})
+                    progress(args, f"error click-failed scanned={scanned_conversation_count} key={conv_key[:8]}")
                     continue
                 await asyncio.sleep(args.after_click_wait)
                 try:
@@ -780,12 +1265,17 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
                     "title": conv.get("title") or "",
                     "summary": conv.get("summary") or "",
                     "rawListText": conv.get("rawText") or "",
-                    "sessionInfo": conv.get("sessionInfo") or {},
+                    "sessionInfo": session_info_with_tokens(conv.get("sessionInfo") or {}),
                     "messageCount": len(messages),
                     "messages": messages,
                 }
                 add_message_fingerprints(account, conv_key, messages)
                 conversations.append(record)
+                db_write = None
+                if db_writer:
+                    db_record = redact_obj(record) if not args.no_redact else record
+                    db_write = db_writer.upsert_conversation(db_record)
+                    db_writer.save_cursor(redact_obj(conversation_cursor) if not args.no_redact else conversation_cursor)
                 for msg_index, msg in enumerate(messages):
                     flat_rows.append(
                         {
@@ -797,6 +1287,21 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
                             "kind": msg.get("kind"),
                             "text": msg.get("text") or msg.get("raw") or "",
                         }
+                    )
+                if len(conversations) == 1 or len(conversations) % progress_every == 0:
+                    if db_write:
+                        write_bits = (
+                            f" insertedConv={int(bool(db_write['insertedConversation']))}"
+                            f" insertedMsg={db_write['insertedMessages']}"
+                            f" updatedMsg={db_write['updatedMessages']}"
+                        )
+                    else:
+                        write_bits = ""
+                    progress(
+                        args,
+                        f"processed={len(conversations)}/{args.max_conversations} "
+                        f"scanned={scanned_conversation_count} skipped={len(skipped_existing)} "
+                        f"messages={len(flat_rows)} errors={len(errors)} key={conv_key[:8]}{write_bits}",
                     )
             if len(conversations) >= args.max_conversations:
                 break
@@ -825,6 +1330,7 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
             "No messages were sent by this script.",
         ],
         "redacted": not args.no_redact,
+        "conversationCursor": conversation_cursor,
         "scannedConversationCount": scanned_conversation_count,
         "skippedExistingConversationCount": len(skipped_existing),
         "skippedExistingConversations": skipped_existing,
@@ -839,16 +1345,20 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
         flat_rows = redact_obj(flat_rows)
         db_payload = payload
 
-    json_path = base.with_suffix(".json")
-    jsonl_path = base.with_suffix(".jsonl")
     json_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
     with jsonl_path.open("w", encoding="utf-8") as f:
         for row in flat_rows:
             f.write(json.dumps(row, ensure_ascii=False) + "\n")
 
     db_result = None
-    if not args.no_db:
-        db_result = write_sqlite(Path(args.db_path), db_payload, started_at, json_path, jsonl_path)
+    if db_writer:
+        db_result = db_writer.finish(
+            conversation_count=db_payload["conversationCount"],
+            message_count=db_payload["messageCount"],
+            error_count=len(db_payload.get("errors") or []),
+            cursor_payload=db_payload.get("conversationCursor"),
+        )
+        db_writer.close()
 
     result = {
         "json": str(json_path),
@@ -858,6 +1368,8 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
         "conversationCount": len(conversations),
         "messageCount": len(flat_rows),
         "errorCount": len(errors),
+        "conversationCursorSaved": bool(conversation_cursor),
+        "conversationCursorRestored": bool(cursor_restore_result and cursor_restore_result.get("attempted")),
     }
     if db_result:
         result.update(db_result)
@@ -879,6 +1391,10 @@ def parse_args() -> argparse.Namespace:
     ap.add_argument("--db-path", default=str(OUT_DIR / "goofish-im.sqlite"))
     ap.add_argument("--no-db", action="store_true", help="Skip SQLite upsert.")
     ap.add_argument("--force-resync-existing", action="store_true", help="Deep-crawl conversations even when their latest message id is unchanged in SQLite.")
+    ap.add_argument("--resume-conversation-cursor", action="store_true", help="Start the left conversation list near the last saved scan cursor instead of the top.")
+    ap.add_argument("--cursor-restore-scrolls", type=int, default=4, help="Extra left-list scroll attempts while trying to make the saved cursor anchor visible.")
+    ap.add_argument("--progress-every", type=int, default=10, help="Print a redacted progress line every N processed or skipped conversations.")
+    ap.add_argument("--quiet", action="store_true", help="Suppress progress logs on stderr; stdout remains the final JSON result.")
     ap.add_argument("--no-redact", action="store_true", help="Keep raw phone/email/long-number patterns in exported text.")
     return ap.parse_args()
 
