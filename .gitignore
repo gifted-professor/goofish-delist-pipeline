@@ -8,6 +8,7 @@
 
 # 采集产物 + 真实经营数据（台账/指标/建议清单/备份/中间产物）
 /data/
+/out/
 
 # 采集断点、运行日志（含商品标题/价格等业务数据）
 .goofish-checkpoint-*
@@ -18,7 +19,6 @@
 # 杂项
 # ============================================================
 .venv-browser-use/
-out/browser-use-poc-conversation/
 __pycache__/
 *.pyc
 .DS_Store
