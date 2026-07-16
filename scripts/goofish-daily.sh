@@ -8,7 +8,7 @@
 #                                                 #   周一 或 在售集合大变动(新增+消失>=阈值) 自动升级为全量 --prune 同步
 #   bash scripts/goofish-daily.sh --full-sync     # 强制全量在售镜像 + 剪枝（任意天）
 #   bash scripts/goofish-daily.sh --sync-threshold 15   # 变动触发全量的阈值（默认 15）
-#   bash scripts/goofish-daily.sh --days 7        # 无增长阈值改 7
+#   bash scripts/goofish-daily.sh --days 7        # 临时把无增长阈值改为 7
 #   bash scripts/goofish-daily.sh --only account-05   # 只跑某个账号
 #
 # 账号没在线（端口没监听）会跳过并提示，不会自动登录——登录按 runbook 用户本人做。
@@ -18,10 +18,10 @@ set -u
 cd "$(cd "$(dirname "$0")" && pwd)/.." || exit 1
 PY="${GOOFISH_PY:-/usr/bin/python3}"   # 默认 /usr/bin/python3（装了 websockets）；换机器可用 GOOFISH_PY 覆盖
 
-# 账号清单：slot:port（新增账号在这里加一行即可，端口约定 9220+NN）
-ACCOUNTS=( "account-01:9221" "account-03:9223" "account-04:9224" )
+# 账号清单：slot:port（当前 Windows 绑定；新增账号不要凭 slot 猜端口）
+ACCOUNTS=( "account-01:9224" "account-04:9233" "account-05:9225" )
 
-DAYS=5
+DAYS=20
 PUSH=0
 FULL_SYNC=0
 SYNC_THRESHOLD=15

@@ -20,7 +20,12 @@ TODAY = datetime.now().strftime("%Y-%m-%d")
 
 # 这些在 __main__ 里按 --account / --port 赋值；默认 account-01 / 9221（向后兼容）
 ACCOUNT = "account-01"
-CDP_PORT = 9221
+CDP_PORT = 9224
+ACCOUNT_PORTS = {
+    "account-01": 9224,
+    "account-04": 9233,
+    "account-05": 9225,
+}
 INCLUDE_SOLD = False   # 默认只采在售；--include-sold 才连已售出一起采
 OUTPUT_JSON = OUTPUT_CSV = CHECKPOINT = LOG_FILE = None
 
@@ -29,8 +34,12 @@ def derive_port(account, port):
     """没显式给端口时，按 account-NN 推 9220+NN（account-01→9221）。"""
     if port is not None:
         return port
+    if account in ACCOUNT_PORTS:
+        return ACCOUNT_PORTS[account]
+    if account == "account-03":
+        raise SystemExit("account-03 当前未绑定物理 Profile，请先更新 runtime/account-bindings.json 或显式传入 --port")
     m = re.match(r"account-(\d+)$", account)
-    return 9220 + int(m.group(1)) if m else 9221
+    return 9220 + int(m.group(1)) if m else ACCOUNT_PORTS["account-01"]
 
 
 def configure(account, port):
@@ -406,7 +415,7 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser(description="闲鱼商品指标只读采集 v3")
     ap.add_argument("--account", default="account-01", help="账号槽位，默认 account-01")
     ap.add_argument("--port", type=int, default=None,
-                    help="CDP 调试端口；不填按 account-NN 推 9220+NN")
+                    help="CDP 调试端口；不填按当前账号绑定推导")
     ap.add_argument("--include-sold", action="store_true",
                     help="连「已售出」一起采；默认只采在售")
     ap.add_argument("--userId", default=None,

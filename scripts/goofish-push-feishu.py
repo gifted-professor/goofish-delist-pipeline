@@ -8,7 +8,7 @@ lark-cli 没有「按业务键 upsert」也没有「逐行不同值的批量更�
 
 两种模式：
   --mode full         全表镜像：把台账所有商品同步进飞书（重，约几百次写）
-  --mode suggestions  只推「在售 且 无增长 >= N」的建议商品（轻，默认）
+  --mode suggestions  只推「在售 且命中下架建议规则」的商品（轻，默认）
 
 安全：默认 --dry-run，只打印将要做什么，不写飞书。确认无误后加 --apply 才真正写。
 
@@ -36,6 +36,7 @@ STATUS_MAP = {"在售": "在售", "已售出": "已售出", "missing": "已下�
 # account 槽位 -> 飞书「店铺名」展示值（闲鱼页面原名；account-NN 仍是内部连接键）
 STORE_NAMES = {
     "account-01": "奥莱运动折扣捡漏",
+    "account-02": "Bape77777",
     "account-03": "小华潮牌店",
     "account-04": "小佳运动",
     "account-05": "皮皮运动",
@@ -115,6 +116,7 @@ def field_payload(e, *, for_create):
         "想要数": e.get("lastWant"),
         "小刀价数量": e.get("lastKnife"),
         "无增长天数": e.get("noGrowthDays"),
+        "下架权重": e.get("delistScore"),
         "在售状态": STATUS_MAP.get(e.get("status"), "在售"),
         "采集错误": e.get("lastError") or None,
         "采集时间": f"{date} 00:00:00" if date else None,
@@ -131,7 +133,7 @@ def select_items(state, mode, N, account=None):
     if mode == "suggestions":
         return [e for e in items
                 if e.get("status") == "在售" and not e.get("lastError")
-                and e.get("noGrowthDays", 0) >= N]
+                and (e.get("delistReasons") or e.get("noGrowthDays", 0) >= N)]
     # full 模式也只推「在售」——已售出/已下架不进飞书（策略：只走在售）。
     return [e for e in items if e.get("status") == "在售"]
 
@@ -141,7 +143,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--mode", choices=["full", "suggestions"], default="suggestions",
                     help="full=全表镜像；suggestions=只推建议下架商品（默认）")
-    ap.add_argument("--no-growth-days", type=int, default=5, help="suggestions 模式阈值（默认 5）")
+    ap.add_argument("--no-growth-days", type=int, default=20,
+                    help="兼容旧台账的无增长阈值（默认 20）")
     ap.add_argument("--apply", action="store_true", help="真正写飞书；不加则只 dry-run 预览")
     ap.add_argument("--max", type=int, default=0, help="最多写多少条（0=不限），用于首次小批测试")
     ap.add_argument("--delay", type=float, default=0.3, help="逐条更新间隔秒（默认 0.3）")
@@ -210,7 +213,7 @@ def main():
     # 新建（batch-create，200/批）
     ok_c = err_c = 0
     FIELDS = ["商品ID", "闲鱼账号", "店铺名", "商品标题", "商品链接", "价格", "直购价", "浏览数", "想要数",
-              "小刀价数量", "无增长天数", "在售状态", "采集错误", "采集时间"]
+              "小刀价数量", "无增长天数", "下架权重", "在售状态", "采集错误", "采集时间"]
     for b in range(0, len(to_create), 200):
         batch = to_create[b:b + 200]
         rows = [[field_payload(e, for_create=True)[k] for k in FIELDS] for e in batch]
