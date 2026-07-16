@@ -10,8 +10,8 @@
 ```
 每个闲鱼号（已登录的 Chrome，CDP 端口）
    → collect-v3 只读采「在售」商品的浏览/想要/小刀价   （data/goofish-account-item-metrics-<slot>-<date>.json）
-   → diff-state 对比昨天、记台账、判"连续 N 天无增长"     （data/goofish-item-state.json = 唯一真相）
-   → 建议清单 CSV（连续 ≥N 天零增长的在售品）            （data/goofish-delist-suggestions-<date>.csv）
+   → diff-state 对比、记台账、判下架规则                 （data/goofish-item-state.json = 唯一真相）
+   → 建议清单 CSV（低浏览量 / 连续无增长的在售品）       （data/goofish-delist-suggestions-<date>.csv）
    → push-feishu 同步「在售」到飞书 Base 表（展示+确认层），并剪掉卖掉/下架的
 ```
 
@@ -23,12 +23,12 @@
 
 | slot | CDP 端口 | 店铺名 | 在售件数（2026-06-23）|
 |---|---|---|---|
-| account-01 | 9221 | 奥莱运动折扣捡漏 | 459 |
-| account-03 | 9223 | 小华潮牌店 | 298 |
-| account-04 | 9224 | 小佳运动 | 11 |
+| account-01 | 9224 | 奥莱运动折扣捡漏 | 459 |
+| account-03 | 未绑定 | 小华潮牌店 | 298 |
+| account-04 | 9233 | 小佳运动 | 11 |
 | account-05 | 9225 | 皮皮运动 | 153 |
 
-- 端口约定 **9220 + NN**（account-01→9221，account-03→9223…）。
+- 当前 Windows 绑定：account-01→9224、account-04→9233、account-05→9225；小华 account-03 暂未绑定。以绑定表为准，不再按账号编号猜端口。
 - 每个号一个独立 Chrome user-data-dir：`.goofish-browser-profiles/<slot>`。
 - `account-NN` 是**内部连接键**（串采集文件名、台账主键、daily.sh、飞书「闲鱼账号」列）。**别改 slot 名**；改展示名只改飞书「店铺名」列 / `push-feishu.py` 的 `STORE_NAMES`。
 - account-02（Bape77777）已整体移除，不在清单内。
@@ -47,7 +47,7 @@
 - ✅ **路径**：已自适应，无需改（前提：整个项目目录一起搬过去）。
 - **Python**：新机器装 `python3 + websockets`，或设 `GOOFISH_PY`。
 - **lark-cli**：新机器装 lark-cli 并重做 `lark-cli auth login --domain base`（认证 token 是每台机器本地的）。
-- **⚠ 4 个登录好的 Chrome（CDP 端口 9221/9223/9224/9225）= 本质绑机器**：登录态在 `.goofish-browser-profiles/<slot>`（随目录搬走），但 CDP 端口必须由**跑在该机器上的 Chrome** 打开；**同一 profile 不能两机同时开**（profile 锁），两台机器只能轮流当采集机；换机器/IP 后闲鱼登录态可能失效要重扫码。
+- **⚠ 登录好的 Chrome（CDP 端口 9224/9225/9233）= 本质绑机器**：登录态在当前物理 Profile（随目录搬走），但 CDP 端口必须由**跑在该机器上的 Chrome**打开；**同一 profile 不能两机同时开**（profile 锁），两台机器只能轮流当采集机；换机器/IP 后闲鱼登录态可能失效要重扫码。
 - 若两机挂的是**同一网络盘(GPFS)同路径** → 文件/台账/profile 共享，但浏览器仍只能在其中一台跑。
 
 ---
@@ -68,7 +68,9 @@ cd /Volumes/GPFS/Users/a1234/Desktop/Coding/goofish
 ```bash
 bash scripts/goofish-daily.sh            # 采所有在线账号 → 更新台账 → 出建议清单（不推飞书）
 ```
-- 只跑某号：`--only account-05`；改阈值：`--days 7`（默认 **N=5**）。
+- 只跑某号：`--only account-05`；改阈值：`--days 7`（默认 **N=20**）。
+- 当前低浏览量规则：首次发现满 5 天且浏览 < 50，或满 10 天且浏览 < 100；首次采集到的新商品默认视为当天发布，已有商品不会因重复采集而重置首次发现日。
+- `N=20` 的连续无增长规则仍保留；台账和清单会计算 0～100 的「下架权重」，分数越高越建议人工确认。本评分暂不包含曝光，因为曝光字段还未接入。
 - 端口没在线会跳过提示，不报错。
 - **采完务必核对件数 = 店铺 chip 在售数**（脚本日志会打 `汇总: 在售 X … chip 在售=Y，一致✓/不一致⚠`）。不一致就重采那个号。
 
@@ -134,7 +136,7 @@ bash scripts/goofish-daily.sh --push
 
 - wiki：https://v8mfxiqu19.feishu.cn/wiki/BsAJwGzkIiJ0J4kfp2IcUet3nSg?table=tbl6lyatj4o6yXOu
 - `base_token`：`PYtZbqyPyafc4sscwdjcQNLNnEh`　`table_id`：`tbl6lyatj4o6yXOu`
-- 字段：商品ID(主键) · 店铺名 · 商品标题 · 商品链接 · 价格 · 直购价 · 浏览数 · 想要数 · 小刀价数量 · 无增长天数 · 在售状态 · 闲鱼账号 · 采集错误 · 采集时间 · ID(系统)
+- 字段：商品ID(主键) · 店铺名 · 商品标题 · 商品链接 · 价格 · 直购价 · 浏览数 · 想要数 · 小刀价数量 · 无增长天数 · 下架权重 · 在售状态 · 闲鱼账号 · 采集错误 · 采集时间 · ID(系统)
 - 现 921 行 = 4 号真实在售（01:459 / 03:298 / 04:11 / 05:153）。
 
 ---

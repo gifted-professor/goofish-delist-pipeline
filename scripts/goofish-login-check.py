@@ -6,8 +6,8 @@
 import asyncio, json, urllib.request, sys
 import websockets  # /usr/bin/python3 已装 13.1
 
-ACCOUNTS = [("account-01", 9221), ("account-03", 9223),
-            ("account-04", 9224), ("account-05", 9225)]
+ACCOUNTS = [("account-01", 9224), ("account-04", 9233),
+            ("account-05", 9225)]
 PERSONAL = "https://www.goofish.com/personal"
 
 

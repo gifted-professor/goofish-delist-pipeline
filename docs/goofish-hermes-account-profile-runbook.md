@@ -10,11 +10,13 @@
 
 | 账号槽位 | Profile 目录（`.goofish-browser-profiles/<slot>`） | 调试端口 | 状态 |
 | --- | --- | --- | --- |
-| account-01 | `.../goofish/.goofish-browser-profiles/account-01` | 9221 | 已登录（基线 631 件） |
+| account-01 | `.../goofish/.goofish-browser-profiles/account-04` | 9224 | 当前绑定奥莱 |
 | account-02 | `.../goofish/.goofish-browser-profiles/account-02` | 9222 | 管道已就绪，**待用户登录** |
-| account-NN | `.../goofish/.goofish-browser-profiles/account-NN` | 9220+NN | 按需新增 |
+| account-03 | 暂未绑定 | - | 小华待重新绑定 |
+| account-04 | `.../goofish/.goofish-browser-profiles/account-03` | 9233 | 当前绑定小佳 |
+| account-05 | `.../goofish/.goofish-browser-profiles/account-05` | 9225 | 当前绑定皮皮 |
 
-端口约定：`account-NN → 9220+NN`（account-01→9221、account-02→9222…）。采集脚本 `--port` 不填时会按此自动推导。
+端口以 `runtime/account-bindings.json` 为准，不再按 `account-NN → 9220+NN` 猜测。采集脚本未显式传 `--port` 时使用当前已绑定账号的端口。
 
 Profile 根目录：
 
@@ -103,14 +105,16 @@ data/goofish-account-item-metrics-<slot>-YYYY-MM-DD.csv
 
 脚本只读流程：连接 `127.0.0.1:<port>` → 打开/复用 `https://www.goofish.com/personal` → 确认非登录页 → 切「在售」「已售出」页签滚动收集本账号商品详情链接 → 合并去重 → 逐个打开详情页只读解析「为你推荐」之前的主商品正文 → 每 10 条写一次 JSON/CSV。
 
-### 2. 增量对比 + 无增长天数 + 下架建议清单
+### 2. 增量对比 + 下架规则 + 建议清单
 
 ```bash
-python3 scripts/goofish-diff-state.py            # 阈值默认 5，--no-growth-days 7 可改
+python3 scripts/goofish-diff-state.py            # 默认：无增长20天；低浏览量5天/50、10天/100
 ```
 
 - 自动吃当天**所有账号**的采集文件，合并处理（商品ID 全站唯一，不撞键）。
 - 更新台账 `data/goofish-item-state.json`（每条记 account、无增长天数、状态）。
+- 低浏览量规则：首次发现满 5 天且浏览 < 50，或满 10 天且浏览 < 100；首次采集到的新商品默认视为当天发布，已有商品不会因重复采集而重置首次发现日。
+- 当前阶段只生成建议清单，不自动下架；台账和飞书新增「下架权重」字段，范围 0～100，分数越高越建议人工确认。
 - 输出建议清单 `data/goofish-delist-suggestions-YYYY-MM-DD.csv`（含「闲鱼账号」列）。
 - 安全设计：采集失败那天不计数；想要数为 null 只用浏览数判断；已售出/消失商品踢出清单；**某账号当天没采，不会误标它的商品「消失」**；同一天重复跑幂等。
 
